@@ -63,67 +63,75 @@ export default function DashboardPage() {
       {/* Main Content Area */}
       <main className="flex-1 p-4 md:p-8 space-y-6 md:space-y-8 max-w-6xl mx-auto w-full">
         {/* Header Hero */}
-        <Header subject={activeSubject} dailyTasksReturn={dailyTasksReturn} />
+        <Header
+          subject={activeSubject}
+          dailyTasksReturn={dailyTasksReturn}
+          onOpenImportModal={() => setIsImportModalOpen(true)}
+        />
 
-        {/* Quick KPI Stats Overview */}
-        <StatsOverview dailyTasksReturn={dailyTasksReturn} />
+        {activeSubject ? (
+          <>
+            {/* Quick KPI Stats Overview */}
+            <StatsOverview dailyTasksReturn={dailyTasksReturn} />
 
-        {/* Primary View Switcher Tabs */}
-        <div className="flex items-center gap-2 border-b border-slate-800/80 pb-2">
-          <button
-            onClick={() => setActiveTab('today')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all ${
-              activeTab === 'today'
-                ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
-            }`}
-          >
-            <CalendarCheck className="w-4 h-4" />
-            <span>Today's Goals</span>
-            {dailyTasksReturn.todayTasks.length > 0 && (
-              <span className="px-2 py-0.5 rounded-full bg-blue-950 text-blue-200 font-mono text-xs border border-blue-800/60">
-                {dailyTasksReturn.todayTasks.length}
-              </span>
-            )}
-          </button>
+            {/* Primary View Switcher Tabs */}
+            <div className="flex items-center gap-2 border-b border-slate-800/80 pb-2">
+              <button
+                onClick={() => setActiveTab('today')}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all ${
+                  activeTab === 'today'
+                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                }`}
+              >
+                <CalendarCheck className="w-4 h-4" />
+                <span>Today's Goals</span>
+                {dailyTasksReturn.todayTasks.length > 0 && (
+                  <span className="px-2 py-0.5 rounded-full bg-blue-950 text-blue-200 font-mono text-xs border border-blue-800/60">
+                    {dailyTasksReturn.todayTasks.length}
+                  </span>
+                )}
+              </button>
 
-          <button
-            onClick={() => setActiveTab('timeline')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all ${
-              activeTab === 'timeline'
-                ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/20'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
-            }`}
-          >
-            <Layers className="w-4 h-4" />
-            <span>Full Roadmap ({activeSubject.phases.length} Phases)</span>
-          </button>
-        </div>
+              <button
+                onClick={() => setActiveTab('timeline')}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all ${
+                  activeTab === 'timeline'
+                    ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/20'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                }`}
+              >
+                <Layers className="w-4 h-4" />
+                <span>Full Roadmap ({activeSubject.phases.length} Phases)</span>
+              </button>
+            </div>
 
-        {/* View Content */}
-        <AnimatePresence mode="wait">
-          {activeTab === 'today' ? (
-            <motion.div
-              key="today-view"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.2 }}
-            >
-              <TodayTasksList dailyTasksReturn={dailyTasksReturn} />
-            </motion.div>
-          ) : (
-            <motion.div
-              key="timeline-view"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.2 }}
-            >
-              <PhaseTimeline subject={activeSubject} dailyTasksReturn={dailyTasksReturn} />
-            </motion.div>
-          )}
-        </AnimatePresence>
+            {/* View Content */}
+            <AnimatePresence mode="wait">
+              {activeTab === 'today' ? (
+                <motion.div
+                  key="today-view"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <TodayTasksList dailyTasksReturn={dailyTasksReturn} />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="timeline-view"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <PhaseTimeline subject={activeSubject} dailyTasksReturn={dailyTasksReturn} />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </>
+        ) : null}
       </main>
 
       {/* Import Roadmap Modal */}

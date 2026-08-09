@@ -4,17 +4,48 @@ import React from 'react';
 import { SubjectData } from '@/types/learning';
 import { UseDailyTasksReturn } from '@/hooks/useDailyTasks';
 import { useProgress } from '@/context/ProgressContext';
-import { Calendar, RotateCcw, Sparkles, AlertCircle, CheckCircle2, Database } from 'lucide-react';
+import { Calendar, RotateCcw, Sparkles, AlertCircle, CheckCircle2, Database, Layers } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface HeaderProps {
-  subject: SubjectData;
+  subject: SubjectData | null;
   dailyTasksReturn: UseDailyTasksReturn;
+  onOpenImportModal: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ subject, dailyTasksReturn }) => {
-  const { resetSubjectProgress, isSyncingDb } = useProgress();
+export const Header: React.FC<HeaderProps> = ({ subject, dailyTasksReturn, onOpenImportModal }) => {
+  const { resetSubjectProgress, restoreDefaultSubjects, isSyncingDb } = useProgress();
   const { stats } = dailyTasksReturn;
+
+  if (!subject) {
+    return (
+      <header className="relative overflow-hidden rounded-2xl bg-gradient-to-b from-dark-850/90 via-dark-900/90 to-dark-950/90 border border-slate-800/80 p-8 shadow-2xl backdrop-blur-xl text-center space-y-4">
+        <div className="w-14 h-14 mx-auto rounded-2xl bg-purple-500/20 text-purple-400 border border-purple-500/30 flex items-center justify-center">
+          <Layers className="w-7 h-7" />
+        </div>
+        <div className="space-y-1">
+          <h1 className="text-2xl font-bold text-white">No Active Learning Track</h1>
+          <p className="text-sm text-slate-400 max-w-md mx-auto">
+            You have cleared all learning tracks. Import your custom JSON roadmap or restore preloaded tracks to continue tracking.
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+          <button
+            onClick={onOpenImportModal}
+            className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-lg shadow-blue-500/20 transition-all"
+          >
+            Import Roadmap JSON
+          </button>
+          <button
+            onClick={restoreDefaultSubjects}
+            className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-semibold transition-all"
+          >
+            Restore Preloaded Tracks
+          </button>
+        </div>
+      </header>
+    );
+  }
 
   return (
     <header className="relative overflow-hidden rounded-2xl bg-gradient-to-b from-dark-850/90 via-dark-900/90 to-dark-950/90 border border-slate-800/80 p-6 shadow-2xl backdrop-blur-xl">

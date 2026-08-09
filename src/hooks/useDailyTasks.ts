@@ -24,12 +24,34 @@ export interface UseDailyTasksReturn {
 }
 
 export function useDailyTasks(
-  subjectData: SubjectData,
-  subjectProgress?: SubjectProgress
+  subjectData: SubjectData | null,
+  subjectProgress?: SubjectProgress | null
 ): UseDailyTasksReturn {
   return useMemo(() => {
-    // Current date
     const baseToday = startOfDay(new Date());
+
+    if (!subjectData) {
+      return {
+        todayTasks: [],
+        shiftedMissedTasks: [],
+        todayNativeTask: null,
+        upcomingTasks: [],
+        completedTasks: [],
+        allProcessedTopics: [],
+        stats: {
+          totalTopics: 0,
+          completedCount: 0,
+          missedCount: 0,
+          todayCount: 0,
+          upcomingCount: 0,
+          completionPercentage: 0,
+          currentDayNumber: 0,
+          totalDaysNeeded: 0,
+          startDateFormatted: '-',
+          effectiveDateFormatted: format(baseToday, 'EEE, MMM d, yyyy'),
+        },
+      };
+    }
 
     // Start date calculation
     const startDateIso = subjectProgress?.startDate || format(baseToday, 'yyyy-MM-dd');

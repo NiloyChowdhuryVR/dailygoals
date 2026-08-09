@@ -4,21 +4,28 @@ import React, { useState } from 'react';
 import { SubjectData } from '@/types/learning';
 import { UseDailyTasksReturn } from '@/hooks/useDailyTasks';
 import { TaskCard } from '@/components/TaskCard';
-import { ChevronDown, ChevronRight, CheckCircle2, Circle, AlertCircle, Calendar, Layers } from 'lucide-react';
+import { ChevronDown, ChevronRight, CheckCircle2, Layers } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface PhaseTimelineProps {
-  subject: SubjectData;
+  subject: SubjectData | null;
   dailyTasksReturn: UseDailyTasksReturn;
 }
 
 export const PhaseTimeline: React.FC<PhaseTimelineProps> = ({ subject, dailyTasksReturn }) => {
   const { allProcessedTopics } = dailyTasksReturn;
 
-  // Track expanded phases (default Phase 1 expanded)
   const [expandedPhases, setExpandedPhases] = useState<Record<number, boolean>>({
     1: true,
   });
+
+  if (!subject) {
+    return (
+      <div className="rounded-2xl border border-slate-800 bg-dark-850/40 p-8 text-center text-slate-400">
+        No active roadmap selected.
+      </div>
+    );
+  }
 
   const togglePhase = (phaseNum: number) => {
     setExpandedPhases((prev) => ({
@@ -70,7 +77,6 @@ export const PhaseTimeline: React.FC<PhaseTimelineProps> = ({ subject, dailyTask
         {subject.phases.map((phase) => {
           const isExpanded = !!expandedPhases[phase.phase_number];
 
-          // Get topics belonging to this phase
           const phaseTopics = allProcessedTopics.filter(
             (t) => t.phaseNumber === phase.phase_number
           );
@@ -120,7 +126,6 @@ export const PhaseTimeline: React.FC<PhaseTimelineProps> = ({ subject, dailyTask
                 </div>
 
                 <div className="flex items-center gap-3 shrink-0">
-                  {/* Phase Progress Badge */}
                   <span className="text-xs font-mono text-slate-400 bg-slate-800/60 px-2.5 py-1 rounded-lg border border-slate-700/50">
                     {completedInPhase}/{totalInPhase} done
                   </span>

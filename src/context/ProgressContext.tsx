@@ -20,10 +20,10 @@ const LOCAL_STORAGE_DELETED_KEY = 'daily_learning_goals_deleted_subjects_v1';
 
 interface ProgressContextType {
   subjects: SubjectData[];
-  activeSubject: SubjectData;
-  activeSubjectId: string;
+  activeSubject: SubjectData | null;
+  activeSubjectId: string | null;
   userProgress: AllUserProgress;
-  activeProgress: SubjectProgress;
+  activeProgress: SubjectProgress | null;
   selectSubject: (id: string) => void;
   toggleTopicCompletion: (topicId: number | string, overrideSubjectId?: string) => void;
   resetSubjectProgress: (subjectId?: string) => void;
@@ -40,26 +40,28 @@ const ProgressContext = createContext<ProgressContextType | undefined>(undefined
 export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [customSubjects, setCustomSubjects] = useState<SubjectData[]>([]);
   const [deletedSubjectIds, setDeletedSubjectIds] = useState<string[]>([]);
-  const [activeSubjectId, setActiveSubjectId] = useState<string>('ai-engineer');
+  const [activeSubjectId, setActiveSubjectId] = useState<string | null>('ai-engineer');
   const [userProgress, setUserProgress] = useState<AllUserProgress>({});
   const [isMounted, setIsMounted] = useState<boolean>(false);
   const [isSyncingDb, setIsSyncingDb] = useState<boolean>(false);
 
-  // Filter out any subjects that have been deleted
+  // Filter out subjects that have been deleted
   const subjects = [...DEFAULT_SUBJECTS, ...customSubjects].filter(
     (s) => !deletedSubjectIds.includes(s.id)
   );
 
   const activeSubject =
-    subjects.find((s) => s.id === activeSubjectId) ||
+    (activeSubjectId ? subjects.find((s) => s.id === activeSubjectId) : null) ||
     subjects[0] ||
-    DEFAULT_SUBJECTS[0];
+    null;
 
-  const activeProgress: SubjectProgress = userProgress[activeSubject.id] || {
-    subjectId: activeSubject.id,
-    startDate: format(new Date(), 'yyyy-MM-dd'),
-    completedTopicIds: [],
-  };
+  const activeProgress: SubjectProgress | null = activeSubject
+    ? userProgress[activeSubject.id] || {
+        subjectId: activeSubject.id,
+        startDate: format(new Date(), 'yyyy-MM-dd'),
+        completedTopicIds: [],
+      }
+    : null;
 
   // Load initial state on mount
   useEffect(() => {
@@ -111,7 +113,11 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     if (!isMounted) return;
     try {
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(userProgress));
-      localStorage.setItem(LOCAL_STORAGE_ACTIVE_KEY, activeSubjectId);
+      if (activeSubjectId) {
+        localStorage.setItem(LOCAL_STORAGE_ACTIVE_KEY, activeSubjectId);
+      } else {
+        localStorage.removeItem(LOCAL_STORAGE_ACTIVE_KEY);
+      }
       localStorage.setItem(LOCAL_STORAGE_CUSTOM_KEY, JSON.stringify(customSubjects));
       localStorage.setItem(LOCAL_STORAGE_DELETED_KEY, JSON.stringify(deletedSubjectIds));
     } catch (e) {
@@ -132,7 +138,9 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const toggleTopicCompletion = (topicId: number | string, overrideSubjectId?: string) => {
-    const targetId = overrideSubjectId || activeSubjectId;
+    const targetId = overrideSubjectId || activeSubject?.id;
+    if (!targetId) return;
+
     const existing = userProgress[targetId] || {
       subjectId: targetId,
       startDate: format(new Date(), 'yyyy-MM-dd'),
@@ -164,7 +172,9 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const resetSubjectProgress = (subjectId?: string) => {
-    const targetId = subjectId || activeSubjectId;
+    const targetId = subjectId || activeSubject?.id;
+    if (!targetId) return;
+
     const todayIso = format(new Date(), 'yyyy-MM-dd');
     setUserProgress((prev) => ({
       ...prev,
@@ -221,7 +231,6 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const finalSubject = { ...newSubject, id: finalId };
 
     setCustomSubjects((prev) => [...prev, finalSubject]);
-    // If it was in deleted IDs, un-delete it
     setDeletedSubjectIds((prev) => prev.filter((id) => id !== finalId));
     selectSubject(finalId);
 
@@ -239,19 +248,17 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const deleteSubject = (subjectId: string) => {
-    // 1. Mark as deleted
-    setDeletedSubjectIds((prev) => Array.from(new Set([...prev, subjectId])));
-
-    // 2. Remove from custom subjects if custom
+    const updatedDeleted = Array.from(new Set([...deletedSubjectIds, subjectId]));
+    setDeletedSubjectIds(updatedDeleted);
     setCustomSubjects((prev) => prev.filter((s) => s.id !== subjectId));
 
-    // 3. Switch active subject if current was deleted
     const remaining = subjects.filter((s) => s.id !== subjectId);
-    if (activeSubjectId === subjectId && remaining.length > 0) {
+    if (remaining.length > 0) {
       setActiveSubjectId(remaining[0].id);
+    } else {
+      setActiveSubjectId(null);
     }
 
-    // 4. Sync to DB
     fetch('/api/progress', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -280,7 +287,7 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       value={{
         subjects,
         activeSubject,
-        activeSubjectId,
+        activeSubjectId: activeSubject?.id || null,
         userProgress,
         activeProgress,
         selectSubject,

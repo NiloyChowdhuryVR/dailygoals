@@ -34,3 +34,9 @@ model CustomSubject {
   jsonContent String   @db.Text
   createdAt   DateTime @default(now())
 }
+
+model DeletedSubject {
+  id        String   @id @default(cuid())
+  subjectId String   @unique
+  createdAt DateTime @default(now())
+}

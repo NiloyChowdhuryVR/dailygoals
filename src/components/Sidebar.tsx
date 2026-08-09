@@ -121,15 +121,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ onOpenImportModal }) => {
                       </div>
                     </button>
 
-                    {/* Delete roadmap button */}
+                    {/* Delete roadmap button (z-10 to sit above card button) */}
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        if (confirm(`Delete "${subject.title}" roadmap from your tracks?`)) {
-                          deleteSubject(subject.id);
-                        }
+                        e.preventDefault();
+                        deleteSubject(subject.id);
                       }}
-                      className="absolute right-2.5 top-3.5 p-1.5 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-950/60 opacity-0 group-hover:opacity-100 transition-all duration-200"
+                      className="absolute right-2.5 top-3.5 z-10 p-1.5 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-950/80 opacity-0 group-hover:opacity-100 transition-all duration-200"
                       title="Delete roadmap"
                     >
                       <Trash2 className="w-4 h-4" />

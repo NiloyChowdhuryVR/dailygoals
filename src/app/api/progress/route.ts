@@ -10,6 +10,7 @@ export async function GET() {
     });
 
     const customSubjects = await prisma.customSubject.findMany();
+    const deletedRecords = await prisma.deletedSubject.findMany();
 
     const formattedProgress: Record<string, any> = {};
     allProgress.forEach((p) => {
@@ -30,10 +31,13 @@ export async function GET() {
       })
       .filter(Boolean);
 
+    const deletedSubjectIds = deletedRecords.map((d) => d.subjectId);
+
     return NextResponse.json({
       success: true,
       progress: formattedProgress,
       customSubjects: parsedCustomSubjects,
+      deletedSubjectIds,
     });
   } catch (error: any) {
     console.error('Database GET /api/progress error:', error);
@@ -51,6 +55,11 @@ export async function POST(req: Request) {
 
     // Action: Delete subject
     if (action === 'DELETE_SUBJECT' && subjectId) {
+      await prisma.deletedSubject.upsert({
+        where: { subjectId },
+        update: {},
+        create: { subjectId },
+      });
       await prisma.customSubject.deleteMany({
         where: { subjectId },
       });
@@ -60,13 +69,18 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: true });
     }
 
-    // Action: Restore defaults
+    // Action: Restore default subjects
     if (action === 'RESTORE_DEFAULT_SUBJECTS') {
+      await prisma.deletedSubject.deleteMany();
       return NextResponse.json({ success: true });
     }
 
     // Action: Import custom subject
     if (action === 'IMPORT_CUSTOM_SUBJECT' && customSubject) {
+      // Remove from deleted list if it was deleted previously
+      await prisma.deletedSubject.deleteMany({
+        where: { subjectId: customSubject.id },
+      });
       await prisma.customSubject.upsert({
         where: { subjectId: customSubject.id },
         update: {
