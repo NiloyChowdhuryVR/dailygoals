@@ -1,0 +1,36 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model SubjectProgress {
+  id             String          @id @default(cuid())
+  subjectId      String          @unique
+  startDate      String
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  completedTasks CompletedTask[]
+}
+
+model CompletedTask {
+  id                String   @id @default(cuid())
+  subjectProgressId String
+  topicId           String
+  completedAt       DateTime @default(now())
+
+  subjectProgress SubjectProgress @relation(fields: [subjectProgressId], references: [id], onDelete: Cascade)
+
+  @@unique([subjectProgressId, topicId])
+}
+
+model CustomSubject {
+  id          String   @id @default(cuid())
+  subjectId   String   @unique
+  title       String
+  jsonContent String   @db.Text
+  createdAt   DateTime @default(now())
+}

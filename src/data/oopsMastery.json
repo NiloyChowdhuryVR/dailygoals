@@ -1,0 +1,121 @@
+{
+  "id": "oops-mastery",
+  "title": "Object-Oriented Programming (OOP) & Clean Architecture Mastery",
+  "description": "Master core object-oriented principles, design patterns, clean code practices, and scalable software architecture.",
+  "category": "Software Architecture",
+  "icon": "Layers",
+  "phases": [
+    {
+      "phase_number": 1,
+      "title": "Core OOP Pillars",
+      "description": "The four foundational pillars of object-oriented design.",
+      "topics": [
+        {
+          "id": "oop-1",
+          "name": "Encapsulation & Data Hiding",
+          "description": "Private fields, public getters/setters, state integrity, and immutability practices.",
+          "estimatedMinutes": 35
+        },
+        {
+          "id": "oop-2",
+          "name": "Abstraction & Interfaces",
+          "description": "Hiding implementation details, abstract classes vs interfaces, modular decoupling.",
+          "estimatedMinutes": 40
+        },
+        {
+          "id": "oop-3",
+          "name": "Inheritance vs Composition",
+          "description": "Class hierarchies, the 'is-a' vs 'has-a' relationship, and avoiding deep inheritance trees.",
+          "estimatedMinutes": 45
+        },
+        {
+          "id": "oop-4",
+          "name": "Polymorphism (Static vs Dynamic)",
+          "description": "Method overloading, method overriding, dynamic dispatch, and virtual tables.",
+          "estimatedMinutes": 40
+        }
+      ]
+    },
+    {
+      "phase_number": 2,
+      "title": "SOLID Principles",
+      "description": "Five principles for writing maintainable and resilient software.",
+      "topics": [
+        {
+          "id": "oop-5",
+          "name": "Single Responsibility Principle (SRP)",
+          "description": "Cohesion vs coupling, identifying reasons to change, refactoring god classes.",
+          "estimatedMinutes": 35
+        },
+        {
+          "id": "oop-6",
+          "name": "Open/Closed Principle (OCP)",
+          "description": "Extending functionality through abstraction without modifying existing source code.",
+          "estimatedMinutes": 40
+        },
+        {
+          "id": "oop-7",
+          "name": "Liskov Substitution Principle (LSP)",
+          "description": "Subtype substitutability, contract invariants, behavioral subtyping, and common violations.",
+          "estimatedMinutes": 45
+        },
+        {
+          "id": "oop-8",
+          "name": "Interface Segregation & Dependency Inversion (ISP & DIP)",
+          "description": "Role-specific interfaces, dependency injection containers, and inversion of control.",
+          "estimatedMinutes": 50
+        }
+      ]
+    },
+    {
+      "phase_number": 3,
+      "title": "Creational & Structural Design Patterns",
+      "description": "Proven design patterns for object creation and structural composition.",
+      "topics": [
+        {
+          "id": "oop-9",
+          "name": "Factory Method & Abstract Factory",
+          "description": "Encapsulating object instantiation logic and supporting family objects.",
+          "estimatedMinutes": 45
+        },
+        {
+          "id": "oop-10",
+          "name": "Singleton & Builder Patterns",
+          "description": "Thread-safe lazy initialization, step-by-step complex object construction.",
+          "estimatedMinutes": 40
+        },
+        {
+          "id": "oop-11",
+          "name": "Adapter, Decorator & Proxy Patterns",
+          "description": "Wrapping legacy classes, dynamic behavior extension, and access control proxies.",
+          "estimatedMinutes": 50
+        }
+      ]
+    },
+    {
+      "phase_number": 4,
+      "title": "Behavioral Design Patterns",
+      "description": "Managing object communication and control flow.",
+      "topics": [
+        {
+          "id": "oop-12",
+          "name": "Observer & Event-Driven Architecture",
+          "description": "Publish-subscribe pattern, subject-observer decoupling, event buses.",
+          "estimatedMinutes": 45
+        },
+        {
+          "id": "oop-13",
+          "name": "Strategy & State Patterns",
+          "description": "Swappable algorithms at runtime, state machine implementation without giant switch statements.",
+          "estimatedMinutes": 45
+        },
+        {
+          "id": "oop-14",
+          "name": "Chain of Responsibility & Command",
+          "description": "Decoupling senders and receivers, request queues, undo/redo command logs.",
+          "estimatedMinutes": 50
+        }
+      ]
+    }
+  ]
+}

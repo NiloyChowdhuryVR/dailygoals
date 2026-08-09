@@ -1,0 +1,72 @@
+{
+  "id": "nextjs-mastery",
+  "title": "Next.js 15 & Modern React Production Stack",
+  "description": "Master React Server Components, Server Actions, App Router optimization, caching strategies, and fullstack performance.",
+  "category": "Web Development",
+  "icon": "Code2",
+  "phases": [
+    {
+      "phase_number": 1,
+      "title": "React Server Components (RSC) Foundations",
+      "description": "Understanding the server/client boundary and zero-bundle-size components.",
+      "topics": [
+        {
+          "id": "next-1",
+          "name": "Server vs Client Component Mental Model",
+          "description": "When to use 'use client', component tree composition, passing server components as children.",
+          "estimatedMinutes": 35
+        },
+        {
+          "id": "next-2",
+          "name": "Streaming & Suspense Boundaries",
+          "description": "Progressive page rendering, loading.tsx skeletons, out-of-order streaming.",
+          "estimatedMinutes": 40
+        },
+        {
+          "id": "next-3",
+          "name": "Parallel & Intercepting Routes",
+          "description": "Modals via slot routing (@modal), nested layouts, and tabbed dashboard routes.",
+          "estimatedMinutes": 45
+        }
+      ]
+    },
+    {
+      "phase_number": 2,
+      "title": "Data Fetching & Next.js Caching Architecture",
+      "description": "Navigating the 4-tier Next.js caching layers.",
+      "topics": [
+        {
+          "id": "next-4",
+          "name": "Request Memoization & Data Cache",
+          "description": "Deduplicating fetch calls across layout and page, fetch cache tags, and revalidatePath.",
+          "estimatedMinutes": 45
+        },
+        {
+          "id": "next-5",
+          "name": "Static & Dynamic Rendering (PPR - Partial Prerendering)",
+          "description": "Combining static HTML shells with dynamic user slots in Next.js 15.",
+          "estimatedMinutes": 50
+        }
+      ]
+    },
+    {
+      "phase_number": 3,
+      "title": "Server Actions & Mutations",
+      "description": "Type-safe fullstack mutations without API routes.",
+      "topics": [
+        {
+          "id": "next-6",
+          "name": "Form Actions & useActionState Hook",
+          "description": "Progressive enhancement, optimistic UI updates with useOptimistic, server-side validation with Zod.",
+          "estimatedMinutes": 45
+        },
+        {
+          "id": "next-7",
+          "name": "Authentication & Middleware Architecture",
+          "description": "Cookie sessions, JWT verification in middleware, route protection, CSRF safety.",
+          "estimatedMinutes": 50
+        }
+      ]
+    }
+  ]
+}
