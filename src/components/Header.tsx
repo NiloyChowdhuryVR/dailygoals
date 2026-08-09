@@ -4,7 +4,7 @@ import React from 'react';
 import { SubjectData } from '@/types/learning';
 import { UseDailyTasksReturn } from '@/hooks/useDailyTasks';
 import { useProgress } from '@/context/ProgressContext';
-import { Calendar, RotateCcw, Sparkles, AlertCircle, CheckCircle2, Database, Layers } from 'lucide-react';
+import { Calendar, RotateCcw, Sparkles, AlertCircle, CheckCircle2, Database, Layers, PlayCircle, Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface HeaderProps {
@@ -14,7 +14,7 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ subject, dailyTasksReturn, onOpenImportModal }) => {
-  const { resetSubjectProgress, restoreDefaultSubjects, isSyncingDb } = useProgress();
+  const { startSubjectTrack, resetSubjectProgress, restoreDefaultSubjects, isSyncingDb } = useProgress();
   const { stats } = dailyTasksReturn;
 
   if (!subject) {
@@ -65,15 +65,22 @@ export const Header: React.FC<HeaderProps> = ({ subject, dailyTasksReturn, onOpe
                 </span>
               )}
 
-              <span className="inline-flex items-center gap-1 text-xs font-mono px-3 py-1 rounded-full bg-slate-800/80 text-slate-300 border border-slate-700/60">
-                <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                Day {stats.currentDayNumber} of {stats.totalDaysNeeded}
-              </span>
+              {!stats.isStarted ? (
+                <span className="inline-flex items-center gap-1 text-xs font-semibold px-3 py-1 rounded-full bg-amber-950/80 text-amber-300 border border-amber-800/60 animate-pulse">
+                  <Clock className="w-3.5 h-3.5" />
+                  Not Started Yet (Day 1 Ready)
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 text-xs font-mono px-3 py-1 rounded-full bg-slate-800/80 text-slate-300 border border-slate-700/60">
+                  <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                  Day {stats.currentDayNumber} of {stats.totalDaysNeeded} (1 Phase/Day)
+                </span>
+              )}
 
               {stats.missedCount > 0 && (
                 <span className="inline-flex items-center gap-1 text-xs font-semibold px-3 py-1 rounded-full bg-rose-950/80 text-rose-400 border border-rose-800/60 animate-pulse">
                   <AlertCircle className="w-3.5 h-3.5" />
-                  {stats.missedCount} Shifted Task{stats.missedCount > 1 ? 's' : ''}
+                  {stats.missedCount} Shifted Topic{stats.missedCount > 1 ? 's' : ''}
                 </span>
               )}
 
@@ -95,20 +102,45 @@ export const Header: React.FC<HeaderProps> = ({ subject, dailyTasksReturn, onOpe
 
           {/* Action buttons */}
           <div className="flex items-center gap-2 self-start shrink-0">
-            <button
-              onClick={() => {
-                if (confirm('Reset subject progress and set start date to Today?')) {
-                  resetSubjectProgress();
-                }
-              }}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800/40 border border-slate-700/40 text-slate-400 hover:text-rose-400 hover:border-rose-900/60 text-xs transition-colors"
-              title="Reset progress"
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-              <span>Reset Start Date</span>
-            </button>
+            {!stats.isStarted ? (
+              <button
+                onClick={() => startSubjectTrack(subject.id)}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-blue-600 hover:from-emerald-400 hover:to-blue-500 text-white font-bold text-xs shadow-lg shadow-emerald-500/20 transition-all transform hover:scale-105"
+              >
+                <PlayCircle className="w-4 h-4" />
+                <span>Start Track Today</span>
+              </button>
+            ) : (
+              <button
+                onClick={() => {
+                  if (confirm('Reset subject progress and set start date to Today?')) {
+                    resetSubjectProgress();
+                  }
+                }}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800/40 border border-slate-700/40 text-slate-400 hover:text-rose-400 hover:border-rose-900/60 text-xs transition-colors"
+                title="Reset start date to Today"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>Reset Start Date</span>
+              </button>
+            )}
           </div>
         </div>
+
+        {/* Unstarted Banner */}
+        {!stats.isStarted && (
+          <div className="p-3.5 rounded-xl bg-gradient-to-r from-amber-950/40 via-dark-900 to-blue-950/30 border border-amber-800/40 text-xs text-amber-200/90 flex items-center justify-between gap-3">
+            <span>
+              💡 <strong>Ready to start?</strong> Days won't count as missed until you click <strong>"Start Track Today"</strong>!
+            </span>
+            <button
+              onClick={() => startSubjectTrack(subject.id)}
+              className="px-3 py-1 rounded-lg bg-amber-500 text-slate-950 font-bold hover:bg-amber-400 transition-colors shrink-0"
+            >
+              Start Now
+            </button>
+          </div>
+        )}
 
         {/* Progress Bar & Key Indicators */}
         <div className="space-y-2 pt-2">
@@ -119,7 +151,7 @@ export const Header: React.FC<HeaderProps> = ({ subject, dailyTasksReturn, onOpe
             </span>
             <div className="flex items-center gap-2">
               <span className="text-slate-400 font-mono">
-                {stats.completedCount} of {stats.totalTopics} completed
+                {stats.completedCount} of {stats.totalTopics} topics
               </span>
               <span className="px-2 py-0.5 rounded-md bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold font-mono text-xs shadow-md">
                 {stats.completionPercentage}%

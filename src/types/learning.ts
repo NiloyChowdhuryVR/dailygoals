@@ -40,6 +40,7 @@ export interface ProcessedTopic extends Topic {
 export interface SubjectProgress {
   subjectId: string;
   startDate: string; // ISO yyyy-MM-dd
+  isStarted?: boolean; // false if imported but not officially started yet
   completedTopicIds: (number | string)[];
   customJSON?: SubjectData;
 }

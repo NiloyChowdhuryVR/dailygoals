@@ -17,6 +17,7 @@ export async function GET() {
       formattedProgress[p.subjectId] = {
         subjectId: p.subjectId,
         startDate: p.startDate,
+        isStarted: p.isStarted ?? true,
         completedTopicIds: p.completedTasks.map((t) => t.topicId),
       };
     });
@@ -51,7 +52,7 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { action, subjectId, startDate, topicId, customSubject } = body;
+    const { action, subjectId, startDate, isStarted, topicId, customSubject } = body;
 
     // Action: Delete subject
     if (action === 'DELETE_SUBJECT' && subjectId) {
@@ -77,7 +78,6 @@ export async function POST(req: Request) {
 
     // Action: Import custom subject
     if (action === 'IMPORT_CUSTOM_SUBJECT' && customSubject) {
-      // Remove from deleted list if it was deleted previously
       await prisma.deletedSubject.deleteMany({
         where: { subjectId: customSubject.id },
       });
@@ -93,11 +93,39 @@ export async function POST(req: Request) {
           jsonContent: JSON.stringify(customSubject),
         },
       });
+      // Create initial unstarted progress record
+      await prisma.subjectProgress.upsert({
+        where: { subjectId: customSubject.id },
+        update: {},
+        create: {
+          subjectId: customSubject.id,
+          startDate: new Date().toISOString().split('T')[0],
+          isStarted: false,
+        },
+      });
       return NextResponse.json({ success: true });
     }
 
     if (!subjectId) {
       return NextResponse.json({ success: false, error: 'subjectId is required' }, { status: 400 });
+    }
+
+    // Action: Start track today
+    if (action === 'START_SUBJECT') {
+      const todayIso = new Date().toISOString().split('T')[0];
+      await prisma.subjectProgress.upsert({
+        where: { subjectId },
+        update: {
+          startDate: todayIso,
+          isStarted: true,
+        },
+        create: {
+          subjectId,
+          startDate: todayIso,
+          isStarted: true,
+        },
+      });
+      return NextResponse.json({ success: true });
     }
 
     let dbProgress = await prisma.subjectProgress.findUnique({
@@ -110,14 +138,21 @@ export async function POST(req: Request) {
         data: {
           subjectId,
           startDate: startDate || new Date().toISOString().split('T')[0],
+          isStarted: isStarted !== undefined ? isStarted : true,
         },
         include: { completedTasks: true },
       });
-    } else if (startDate && dbProgress.startDate !== startDate) {
-      await prisma.subjectProgress.update({
-        where: { subjectId },
-        data: { startDate },
-      });
+    } else {
+      const updateData: any = {};
+      if (startDate && dbProgress.startDate !== startDate) updateData.startDate = startDate;
+      if (isStarted !== undefined && dbProgress.isStarted !== isStarted) updateData.isStarted = isStarted;
+
+      if (Object.keys(updateData).length > 0) {
+        await prisma.subjectProgress.update({
+          where: { subjectId },
+          data: updateData,
+        });
+      }
     }
 
     if (topicId !== undefined) {
@@ -152,7 +187,10 @@ export async function POST(req: Request) {
       if (startDate) {
         await prisma.subjectProgress.update({
           where: { subjectId },
-          data: { startDate },
+          data: {
+            startDate,
+            isStarted: isStarted !== undefined ? isStarted : false,
+          },
         });
       }
     }

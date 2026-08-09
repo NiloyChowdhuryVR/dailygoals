@@ -20,6 +20,7 @@ export interface UseDailyTasksReturn {
     totalDaysNeeded: number;
     startDateFormatted: string;
     effectiveDateFormatted: string;
+    isStarted: boolean;
   };
 }
 
@@ -49,9 +50,12 @@ export function useDailyTasks(
           totalDaysNeeded: 0,
           startDateFormatted: '-',
           effectiveDateFormatted: format(baseToday, 'EEE, MMM d, yyyy'),
+          isStarted: true,
         },
       };
     }
+
+    const isStarted = subjectProgress?.isStarted !== false; // defaults to true unless explicitly false
 
     // Start date calculation
     const startDateIso = subjectProgress?.startDate || format(baseToday, 'yyyy-MM-dd');
@@ -62,24 +66,23 @@ export function useDailyTasks(
       startDate = baseToday;
     }
 
-    // Days elapsed since start date (0-indexed: Day 0 = Phase 1 [index 0], Day 1 = Phase 2 [index 1])
-    let currentDayIndex = differenceInCalendarDays(baseToday, startDate);
+    // Days elapsed since start date (If not started yet, clamp to 0 - Day 1)
+    let currentDayIndex = isStarted ? differenceInCalendarDays(baseToday, startDate) : 0;
     if (currentDayIndex < 0) {
       currentDayIndex = 0;
     }
 
     const completedIds = new Set(subjectProgress?.completedTopicIds || []);
-
     const allTopics: ProcessedTopic[] = [];
     let globalTopicIndex = 0;
 
-    // Process phase by phase (Each phase = 1 Day!)
     subjectData.phases.forEach((phase, phaseIdx) => {
-      const scheduledDayIndex = phaseIdx; // Phase 1 -> Index 0 (Day 1), Phase 2 -> Index 1 (Day 2)
+      const scheduledDayIndex = phaseIdx; // Phase 1 -> Index 0 (Day 1)
       const scheduledDateObj = addDays(startDate, scheduledDayIndex);
       const scheduledDateIso = format(scheduledDateObj, 'yyyy-MM-dd');
 
-      const isPastPhaseDay = scheduledDayIndex < currentDayIndex;
+      // If track is NOT started yet, no past phase days exist
+      const isPastPhaseDay = isStarted && scheduledDayIndex < currentDayIndex;
       const isTodayPhaseDay = scheduledDayIndex === currentDayIndex;
 
       phase.topics.forEach((topic) => {
@@ -95,7 +98,7 @@ export function useDailyTasks(
         } else if (isPastPhaseDay) {
           status = 'missed-shifted';
           isMissedShifted = true;
-          shiftedFromDayIndex = scheduledDayIndex + 1; // 1-indexed phase day
+          shiftedFromDayIndex = scheduledDayIndex + 1;
           shiftedFromDate = scheduledDateIso;
         } else if (isTodayPhaseDay) {
           status = 'today';
@@ -125,7 +128,6 @@ export function useDailyTasks(
     const completedTasks = allTopics.filter((t) => t.status === 'completed');
     const upcomingTasks = allTopics.filter((t) => t.status === 'upcoming');
 
-    // Today's goals = All uncompleted topics from past missed phase days + All topics from today's phase
     const todayTasks: ProcessedTopic[] = [
       ...shiftedMissedTasks,
       ...todayNativeTasks,
@@ -137,7 +139,7 @@ export function useDailyTasks(
     const todayCount = todayTasks.length;
     const upcomingCount = upcomingTasks.length;
     const completionPercentage = totalTopics > 0 ? Math.round((completedCount / totalTopics) * 100) : 0;
-    const totalDaysNeeded = subjectData.phases.length; // Each phase = 1 day
+    const totalDaysNeeded = subjectData.phases.length;
 
     return {
       todayTasks,
@@ -157,6 +159,7 @@ export function useDailyTasks(
         totalDaysNeeded,
         startDateFormatted: format(startDate, 'MMM d, yyyy'),
         effectiveDateFormatted: format(baseToday, 'EEE, MMM d, yyyy'),
+        isStarted,
       },
     };
   }, [subjectData, subjectProgress]);

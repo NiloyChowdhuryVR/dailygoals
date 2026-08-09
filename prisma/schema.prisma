@@ -11,6 +11,7 @@ model SubjectProgress {
   id             String          @id @default(cuid())
   subjectId      String          @unique
   startDate      String
+  isStarted      Boolean         @default(true)
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
   completedTasks CompletedTask[]

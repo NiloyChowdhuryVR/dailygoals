@@ -25,6 +25,7 @@ interface ProgressContextType {
   userProgress: AllUserProgress;
   activeProgress: SubjectProgress | null;
   selectSubject: (id: string) => void;
+  startSubjectTrack: (subjectId?: string) => void;
   toggleTopicCompletion: (topicId: number | string, overrideSubjectId?: string) => void;
   resetSubjectProgress: (subjectId?: string) => void;
   setSubjectStartDate: (subjectId: string, dateIso: string) => void;
@@ -45,7 +46,6 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [isMounted, setIsMounted] = useState<boolean>(false);
   const [isSyncingDb, setIsSyncingDb] = useState<boolean>(false);
 
-  // Filter out subjects that have been deleted
   const subjects = [...DEFAULT_SUBJECTS, ...customSubjects].filter(
     (s) => !deletedSubjectIds.includes(s.id)
   );
@@ -59,6 +59,7 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     ? userProgress[activeSubject.id] || {
         subjectId: activeSubject.id,
         startDate: format(new Date(), 'yyyy-MM-dd'),
+        isStarted: true,
         completedTopicIds: [],
       }
     : null;
@@ -131,10 +132,43 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       const newProgress: SubjectProgress = {
         subjectId: id,
         startDate: format(new Date(), 'yyyy-MM-dd'),
+        isStarted: true,
         completedTopicIds: [],
       };
       setUserProgress((prev) => ({ ...prev, [id]: newProgress }));
     }
+  };
+
+  const startSubjectTrack = (subjectId?: string) => {
+    const targetId = subjectId || activeSubject?.id;
+    if (!targetId) return;
+
+    const todayIso = format(new Date(), 'yyyy-MM-dd');
+    setUserProgress((prev) => {
+      const existing = prev[targetId] || {
+        subjectId: targetId,
+        startDate: todayIso,
+        isStarted: true,
+        completedTopicIds: [],
+      };
+      return {
+        ...prev,
+        [targetId]: {
+          ...existing,
+          startDate: todayIso,
+          isStarted: true,
+        },
+      };
+    });
+
+    fetch('/api/progress', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'START_SUBJECT',
+        subjectId: targetId,
+      }),
+    }).catch((err) => console.error('Database start track sync failed:', err));
   };
 
   const toggleTopicCompletion = (topicId: number | string, overrideSubjectId?: string) => {
@@ -144,6 +178,7 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const existing = userProgress[targetId] || {
       subjectId: targetId,
       startDate: format(new Date(), 'yyyy-MM-dd'),
+      isStarted: true,
       completedTopicIds: [],
     };
 
@@ -152,10 +187,12 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       ? existing.completedTopicIds.filter((id) => id !== topicId)
       : [...existing.completedTopicIds, topicId];
 
+    // If completed a topic, mark as started automatically if not started
     setUserProgress((prev) => ({
       ...prev,
       [targetId]: {
         ...existing,
+        isStarted: true,
         completedTopicIds: updatedTopicIds,
       },
     }));
@@ -167,6 +204,7 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         subjectId: targetId,
         topicId: String(topicId),
         startDate: existing.startDate,
+        isStarted: true,
       }),
     }).catch((err) => console.error('Database sync failed:', err));
   };
@@ -181,6 +219,7 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       [targetId]: {
         subjectId: targetId,
         startDate: todayIso,
+        isStarted: false,
         completedTopicIds: [],
       },
     }));
@@ -192,6 +231,7 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         action: 'RESET_PROGRESS',
         subjectId: targetId,
         startDate: todayIso,
+        isStarted: false,
       }),
     }).catch((err) => console.error('Database reset sync failed:', err));
   };
@@ -201,6 +241,7 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       const existing = prev[subjectId] || {
         subjectId,
         startDate: dateIso,
+        isStarted: true,
         completedTopicIds: [],
       };
       return {
@@ -208,6 +249,7 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         [subjectId]: {
           ...existing,
           startDate: dateIso,
+          isStarted: true,
         },
       };
     });
@@ -218,6 +260,7 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       body: JSON.stringify({
         subjectId,
         startDate: dateIso,
+        isStarted: true,
       }),
     }).catch((err) => console.error('Database startDate sync failed:', err));
   };
@@ -232,6 +275,19 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     setCustomSubjects((prev) => [...prev, finalSubject]);
     setDeletedSubjectIds((prev) => prev.filter((id) => id !== finalId));
+
+    // Initialize imported subject as NOT STARTED YET
+    const todayIso = format(new Date(), 'yyyy-MM-dd');
+    setUserProgress((prev) => ({
+      ...prev,
+      [finalId]: {
+        subjectId: finalId,
+        startDate: todayIso,
+        isStarted: false,
+        completedTopicIds: [],
+      },
+    }));
+
     selectSubject(finalId);
 
     fetch('/api/progress', {
@@ -291,6 +347,7 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         userProgress,
         activeProgress,
         selectSubject,
+        startSubjectTrack,
         toggleTopicCompletion,
         resetSubjectProgress,
         setSubjectStartDate,
