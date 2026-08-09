@@ -62,7 +62,7 @@ export function useDailyTasks(
       startDate = baseToday;
     }
 
-    // Days elapsed since start date (0-indexed)
+    // Days elapsed since start date (0-indexed: Day 0 = Phase 1 [index 0], Day 1 = Phase 2 [index 1])
     let currentDayIndex = differenceInCalendarDays(baseToday, startDate);
     if (currentDayIndex < 0) {
       currentDayIndex = 0;
@@ -70,19 +70,20 @@ export function useDailyTasks(
 
     const completedIds = new Set(subjectProgress?.completedTopicIds || []);
 
-    // Flatten all topics across all phases into sequential list
     const allTopics: ProcessedTopic[] = [];
-    let globalIndex = 0;
+    let globalTopicIndex = 0;
 
-    subjectData.phases.forEach((phase) => {
+    // Process phase by phase (Each phase = 1 Day!)
+    subjectData.phases.forEach((phase, phaseIdx) => {
+      const scheduledDayIndex = phaseIdx; // Phase 1 -> Index 0 (Day 1), Phase 2 -> Index 1 (Day 2)
+      const scheduledDateObj = addDays(startDate, scheduledDayIndex);
+      const scheduledDateIso = format(scheduledDateObj, 'yyyy-MM-dd');
+
+      const isPastPhaseDay = scheduledDayIndex < currentDayIndex;
+      const isTodayPhaseDay = scheduledDayIndex === currentDayIndex;
+
       phase.topics.forEach((topic) => {
-        const scheduledDayIndex = globalIndex;
-        const scheduledDateObj = addDays(startDate, scheduledDayIndex);
-        const scheduledDateIso = format(scheduledDateObj, 'yyyy-MM-dd');
-
         const isCompleted = completedIds.has(topic.id);
-        const isPastDay = scheduledDayIndex < currentDayIndex;
-        const isTodayDay = scheduledDayIndex === currentDayIndex;
 
         let status: TaskStatus = 'upcoming';
         let isMissedShifted = false;
@@ -91,12 +92,12 @@ export function useDailyTasks(
 
         if (isCompleted) {
           status = 'completed';
-        } else if (isPastDay) {
+        } else if (isPastPhaseDay) {
           status = 'missed-shifted';
           isMissedShifted = true;
-          shiftedFromDayIndex = scheduledDayIndex + 1;
+          shiftedFromDayIndex = scheduledDayIndex + 1; // 1-indexed phase day
           shiftedFromDate = scheduledDateIso;
-        } else if (isTodayDay) {
+        } else if (isTodayPhaseDay) {
           status = 'today';
         } else {
           status = 'upcoming';
@@ -104,7 +105,7 @@ export function useDailyTasks(
 
         allTopics.push({
           ...topic,
-          globalIndex,
+          globalIndex: globalTopicIndex,
           phaseNumber: phase.phase_number,
           phaseTitle: phase.title,
           scheduledDayIndex,
@@ -115,19 +116,19 @@ export function useDailyTasks(
           shiftedFromDate,
         });
 
-        globalIndex++;
+        globalTopicIndex++;
       });
     });
 
     const shiftedMissedTasks = allTopics.filter((t) => t.status === 'missed-shifted');
-    const todayNativeTask = allTopics.find((t) => t.status === 'today') || null;
+    const todayNativeTasks = allTopics.filter((t) => t.status === 'today');
     const completedTasks = allTopics.filter((t) => t.status === 'completed');
     const upcomingTasks = allTopics.filter((t) => t.status === 'upcoming');
 
-    // Today's actionable tasks = Shifted Missed Tasks + Scheduled Today Task (if uncompleted)
+    // Today's goals = All uncompleted topics from past missed phase days + All topics from today's phase
     const todayTasks: ProcessedTopic[] = [
       ...shiftedMissedTasks,
-      ...(todayNativeTask ? [todayNativeTask] : []),
+      ...todayNativeTasks,
     ];
 
     const totalTopics = allTopics.length;
@@ -136,11 +137,12 @@ export function useDailyTasks(
     const todayCount = todayTasks.length;
     const upcomingCount = upcomingTasks.length;
     const completionPercentage = totalTopics > 0 ? Math.round((completedCount / totalTopics) * 100) : 0;
+    const totalDaysNeeded = subjectData.phases.length; // Each phase = 1 day
 
     return {
       todayTasks,
       shiftedMissedTasks,
-      todayNativeTask,
+      todayNativeTask: todayNativeTasks[0] || null,
       upcomingTasks,
       completedTasks,
       allProcessedTopics: allTopics,
@@ -152,7 +154,7 @@ export function useDailyTasks(
         upcomingCount,
         completionPercentage,
         currentDayNumber: currentDayIndex + 1,
-        totalDaysNeeded: totalTopics,
+        totalDaysNeeded,
         startDateFormatted: format(startDate, 'MMM d, yyyy'),
         effectiveDateFormatted: format(baseToday, 'EEE, MMM d, yyyy'),
       },

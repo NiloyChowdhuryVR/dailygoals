@@ -1,348 +1,432 @@
 {
   "id": "ai-engineer",
   "title": "The Ultimate 15-Phase Roadmap for Becoming a Production-Ready AI Engineer",
-  "description": "While Data Scientists focus on statistical analysis and model building, AI Engineers bridge the gap between prototypes and high-performance production software.",
+  "description": "While Data Scientists focus on statistical analysis and Researchers focus on designing new model architectures, AI Engineers focus on taking models, optimizing them, building scalable applications around them (like RAG and Agents), and deploying them to production. Master this list to possess a top 1% understanding of the modern AI and Large Language Model (LLM) engineering ecosystem.",
   "category": "Artificial Intelligence",
   "icon": "Cpu",
   "phases": [
     {
       "phase_number": 1,
       "title": "Applied Math & Python Foundations",
-      "description": "Core programming primitives, async IO, vector math, and data processing.",
       "topics": [
         {
-          "id": "ai-1",
-          "name": "Python for AI & Async Programming",
-          "description": "Mastering generators, decorators, type hints, asyncio, and concurrent execution for LLM streaming pipelines.",
-          "estimatedMinutes": 45,
-          "resourceUrl": "https://docs.python.org/3/library/asyncio.html"
+          "id": 1,
+          "name": "Python for AI",
+          "description": "Mastering generators, decorators, multiprocessing, and memory management in Python."
         },
         {
-          "id": "ai-2",
-          "name": "Linear Algebra & Vector Operations",
-          "description": "Dot products, cosine similarity, matrix multiplications, and tensor operations using NumPy and PyTorch.",
-          "estimatedMinutes": 50,
-          "resourceUrl": "https://numpy.org/doc/stable/"
+          "id": 2,
+          "name": "Linear Algebra",
+          "description": "Understanding vectors, matrices, dot products, matrix multiplication, and eigenvalues (the mathematical language of neural networks)."
         },
         {
-          "id": "ai-3",
-          "name": "Probability, Statistics & Information Theory",
-          "description": "Bayesian inference, Cross-Entropy loss, KL Divergence, and perplexity metrics used in language modeling.",
-          "estimatedMinutes": 40
+          "id": 3,
+          "name": "Calculus for Deep Learning",
+          "description": "Grasping partial derivatives, the chain rule, and gradients (how models actually \"learn\" from errors)."
+        },
+        {
+          "id": 4,
+          "name": "Probability & Statistics",
+          "description": "Normal distributions, Bayes' theorem, standard deviation, and understanding model confidence/logits."
+        },
+        {
+          "id": 5,
+          "name": "Core Compute Libraries",
+          "description": "Mastering NumPy (vectorized operations) and basic Pandas/Polars for high-performance data manipulation."
         }
       ]
     },
     {
       "phase_number": 2,
-      "title": "Neural Networks & Deep Learning Essentials",
-      "description": "Architectural principles behind modern deep learning models.",
+      "title": "Traditional Machine Learning (The Baseline)",
       "topics": [
         {
-          "id": "ai-4",
-          "name": "Perceptrons & Multi-Layer Perceptrons (MLPs)",
-          "description": "Building neural nets from scratch, forward propagation, activation functions (ReLU, GELU, SwiGLU).",
-          "estimatedMinutes": 60
+          "id": 6,
+          "name": "Supervised Learning",
+          "description": "Linear Regression, Logistic Regression, and Support Vector Machines (SVMs)."
         },
         {
-          "id": "ai-5",
-          "name": "Backpropagation & Autograd Engines",
-          "description": "Understanding gradient descent, automatic differentiation algorithms, and PyTorch autograd computations.",
-          "estimatedMinutes": 55
+          "id": 7,
+          "name": "Unsupervised Learning",
+          "description": "K-Means clustering, PCA (Principal Component Analysis) for dimensionality reduction."
         },
         {
-          "id": "ai-6",
-          "name": "Optimization Algorithms (AdamW, Lion, Cosine Annealing)",
-          "description": "Learning rates, weight decay, gradient clipping, and scheduler strategies for stable model training.",
-          "estimatedMinutes": 45
+          "id": 8,
+          "name": "Ensemble Methods",
+          "description": "Random Forests and Gradient Boosting (XGBoost, LightGBM) for tabular data supremacy."
+        },
+        {
+          "id": 9,
+          "name": "Model Evaluation",
+          "description": "Precision, Recall, F1-Score, ROC-AUC, and Cross-Validation."
+        },
+        {
+          "id": 10,
+          "name": "Scikit-Learn Ecosystem",
+          "description": "Building traditional ML pipelines, handling missing data, and feature scaling/encoding."
         }
       ]
     },
     {
       "phase_number": 3,
-      "title": "Transformer Architecture Deep Dive",
-      "description": "The foundation of all modern Large Language Models.",
+      "title": "Deep Learning & PyTorch Fundamentals",
       "topics": [
         {
-          "id": "ai-7",
-          "name": "Scaled Dot-Product & Multi-Head Self-Attention",
-          "description": "Implementing Q, K, V projections, soft-max scaling, and causal masking mechanisms.",
-          "estimatedMinutes": 60
+          "id": 11,
+          "name": "The Perceptron & Neural Networks",
+          "description": "Understanding nodes, weights, biases, and activation functions (ReLU, Sigmoid, Softmax)."
         },
         {
-          "id": "ai-8",
-          "name": "Positional Embeddings (RoPE & ALiBi)",
-          "description": "Rotary Position Embeddings (RoPE), relative vs absolute embeddings, and context window scaling.",
-          "estimatedMinutes": 50
+          "id": 12,
+          "name": "Backpropagation",
+          "description": "How loss functions (MSE, Cross-Entropy) calculate error, and how optimizers (SGD, Adam, AdamW) update weights backwards through the network."
         },
         {
-          "id": "ai-9",
-          "name": "Encoder-Decoder vs Decoder-Only Models",
-          "description": "Comparing BERT, T5, GPT-4, and Llama architectural trade-offs.",
-          "estimatedMinutes": 45
+          "id": 13,
+          "name": "PyTorch Tensors",
+          "description": "Moving data between the CPU and GPU, understanding tensor shapes, broadcasting, and dimensions."
+        },
+        {
+          "id": 14,
+          "name": "PyTorch Autograd",
+          "description": "How PyTorch automatically calculates dynamic computation graphs and gradients."
+        },
+        {
+          "id": 15,
+          "name": "Training Loops",
+          "description": "Writing raw training and validation loops, batching data with DataLoader, and saving/loading .pt checkpoints."
         }
       ]
     },
     {
       "phase_number": 4,
-      "title": "Tokenization & LLM Data Engineering",
-      "description": "Preparing and tokenizing unstructured text at scale.",
+      "title": "Computer Vision (CV) & Convolutional Nets",
       "topics": [
         {
-          "id": "ai-10",
-          "name": "Byte-Pair Encoding (BPE) & SentencePiece",
-          "description": "How tokenizers tokenize text, vocabulary generation, handling out-of-vocabularies, and tiktoken usage.",
-          "estimatedMinutes": 40
+          "id": 16,
+          "name": "Convolutional Neural Networks (CNNs)",
+          "description": "Kernels, stride, padding, and pooling layers for spatial feature extraction."
         },
         {
-          "id": "ai-11",
-          "name": "Data Cleaning & Deduplication at Scale",
-          "description": "MinHash LSH, perplexity filtering, data quality scoring pipelines for pretraining data.",
-          "estimatedMinutes": 50
+          "id": 17,
+          "name": "Classic Architectures",
+          "description": "Understanding ResNet (residual connections) and EfficientNet."
+        },
+        {
+          "id": 18,
+          "name": "Object Detection & Segmentation",
+          "description": "Bounding boxes, YOLO (You Only Look Once) architectures, and Mask R-CNN."
+        },
+        {
+          "id": 19,
+          "name": "Vision Transformers (ViT)",
+          "description": "How the industry moved from CNNs to treating images as sequences of patches using Transformer blocks."
         }
       ]
     },
     {
       "phase_number": 5,
-      "title": "Prompt Engineering & In-Context Learning",
-      "description": "Extracting maximum reasoning capabilities from LLMs without updating weights.",
+      "title": "NLP & The Transformer Architecture",
       "topics": [
         {
-          "id": "ai-12",
-          "name": "Chain-of-Thought (CoT) & Tree-of-Thoughts (ToT)",
-          "description": "Systematic prompting techniques, few-shot examples, and self-consistency sampling.",
-          "estimatedMinutes": 35
+          "id": 20,
+          "name": "Text Preprocessing",
+          "description": "Stemming, lemmatization, and why traditional NLP (NLTK, SpaCy) struggles with context."
         },
         {
-          "id": "ai-13",
-          "name": "Structured Output Generation (JSON/Pydantic)",
-          "description": "Enforcing schema constraints using Instructor, Outlines, and grammar-guided decoding.",
-          "estimatedMinutes": 45
+          "id": 21,
+          "name": "Embeddings",
+          "description": "Representing words and sentences as dense, high-dimensional vectors (Word2Vec, GloVe)."
+        },
+        {
+          "id": 22,
+          "name": "The Attention Mechanism",
+          "description": "The mathematical breakthrough that allows models to weigh the importance of different words in a sequence simultaneously."
+        },
+        {
+          "id": 23,
+          "name": "The Transformer Block",
+          "description": "Deep dive into the \"Attention Is All You Need\" paper: Self-Attention, Multi-Head Attention, Feed-Forward networks, and Positional Encoding."
+        },
+        {
+          "id": 24,
+          "name": "Tokenization",
+          "description": "Byte-Pair Encoding (BPE), SentencePiece, and understanding how models see text as integer IDs, not letters."
         }
       ]
     },
     {
       "phase_number": 6,
-      "title": "Embeddings & Vector Databases",
-      "description": "Semantic search, indexing, and high-dimensional space querying.",
+      "title": "Generative AI & LLM Foundations",
       "topics": [
         {
-          "id": "ai-14",
-          "name": "Vector Embeddings & Distance Metrics",
-          "description": "Dense vs sparse vectors, Cosine, Euclidean, and Dot Product metrics comparison.",
-          "estimatedMinutes": 40
+          "id": 25,
+          "name": "Decoder-Only Models",
+          "description": "The architecture behind GPT-4, Llama 3, and Claude (Autoregressive Next-Token Prediction)."
         },
         {
-          "id": "ai-15",
-          "name": "Vector Indexing Algorithms (HNSW, IVF-PQ)",
-          "description": "Approximate Nearest Neighbors (ANN), HNSW graph construction, and quantization trade-offs.",
-          "estimatedMinutes": 55
+          "id": 26,
+          "name": "Inference Parameters",
+          "description": "Controlling generation using Temperature, Top-K, Top-P (Nucleus Sampling), and Frequency/Presence penalties."
         },
         {
-          "id": "ai-16",
-          "name": "Vector DB Production Setup (Qdrant / Pinecone / pgvector)",
-          "description": "Indexing strategies, metadata filtering, payload management, and hybrid keyword search.",
-          "estimatedMinutes": 50
+          "id": 27,
+          "name": "Advanced Prompt Engineering",
+          "description": "Few-shot prompting, Chain-of-Thought (CoT), Tree of Thoughts (ToT), and formatting strict system prompts."
+        },
+        {
+          "id": 28,
+          "name": "Open-Source LLM Ecosystem",
+          "description": "Navigating Hugging Face, downloading model weights, and understanding model cards and licenses."
         }
       ]
     },
     {
       "phase_number": 7,
-      "title": "Advanced Retrieval-Augmented Generation (RAG)",
-      "description": "Building enterprise knowledge engines with LLMs.",
+      "title": "Retrieval-Augmented Generation (RAG)",
       "topics": [
         {
-          "id": "ai-17",
-          "name": "Chunking & Parsing Strategies",
-          "description": "Recursive character chunking, semantic chunking, layout-aware PDF parsing (Unstructured / LlamaParse).",
-          "estimatedMinutes": 45
+          "id": 29,
+          "name": "The RAG Architecture",
+          "description": "Bypassing LLM knowledge cutoffs by fetching external data and injecting it into the context window."
         },
         {
-          "id": "ai-18",
-          "name": "Query Rewriting & HyDE (Hypothetical Document Embeddings)",
-          "description": "Expanding user queries, multi-query generation, and sub-question breakdown.",
-          "estimatedMinutes": 50
+          "id": 30,
+          "name": "Document Chunking",
+          "description": "Strategies for splitting massive PDFs/codebases into semantic chunks (Recursive Character Text Splitting, Markdown splitters)."
         },
         {
-          "id": "ai-19",
-          "name": "Reranking Models (Cohere Rerank / Cross-Encoders)",
-          "description": "Two-stage retrieval architectures, scoring candidate documents for precision.",
-          "estimatedMinutes": 45
+          "id": 31,
+          "name": "Embedding Models",
+          "description": "Using models like OpenAI text-embedding-3 or BGE-m3 to convert chunks into searchable vectors."
+        },
+        {
+          "id": 32,
+          "name": "Vector Databases",
+          "description": "Indexing and querying embeddings using Pinecone, Milvus, Qdrant, or pgvector."
+        },
+        {
+          "id": 33,
+          "name": "Advanced Retrieval (Re-ranking)",
+          "description": "Using Cross-Encoders (like Cohere Re-rank) to re-score retrieved documents for maximum relevance before passing them to the LLM."
         }
       ]
     },
     {
       "phase_number": 8,
-      "title": "Autonomous AI Agents & Multi-Agent Frameworks",
-      "description": "Goal-oriented agents equipped with tools, memory, and planning.",
+      "title": "AI Agents & Tool Calling",
       "topics": [
         {
-          "id": "ai-20",
-          "name": "ReAct Pattern (Reasoning + Acting)",
-          "description": "Designing loop controllers that execute tool calls and interpret observations.",
-          "estimatedMinutes": 50
+          "id": 34,
+          "name": "Function/Tool Calling",
+          "description": "Giving LLMs the ability to format JSON outputs that execute Python code, query databases, or call external APIs."
         },
         {
-          "id": "ai-21",
-          "name": "Agent Memory Architecture (Short-term, Long-term, Episodic)",
-          "description": "Buffer memory, summary memory, and vector-persisted memory banks.",
-          "estimatedMinutes": 45
+          "id": 35,
+          "name": "ReAct Prompting",
+          "description": "(Reason + Act) Teaching models to think step-by-step, take an action, observe the result, and iterate."
         },
         {
-          "id": "ai-22",
-          "name": "Multi-Agent Systems (LangGraph / CrewAI / AutoGen)",
-          "description": "Graph-based state machines, agent collaboration, human-in-the-loop validation.",
-          "estimatedMinutes": 60
+          "id": 36,
+          "name": "Agent Frameworks",
+          "description": "Building complex workflows using LangChain, LlamaIndex, or lightweight alternatives."
+        },
+        {
+          "id": 37,
+          "name": "Multi-Agent Systems",
+          "description": "Orchestrating swarms of specialized agents that talk to each other using AutoGen or CrewAI."
+        },
+        {
+          "id": 38,
+          "name": "Semantic Routing",
+          "description": "Using embeddings to route user queries to the correct specialized agent or strict predefined workflow."
         }
       ]
     },
     {
       "phase_number": 9,
-      "title": "Function Calling & Tool Integration",
-      "description": "Connecting LLMs to APIs, SQL databases, and web browsers.",
+      "title": "Model Fine-Tuning & Adaptation",
       "topics": [
         {
-          "id": "ai-23",
-          "name": "OpenAI Function Calling & Tool Specs",
-          "description": "Writing JSON Schema definitions for function parameter validation.",
-          "estimatedMinutes": 40
+          "id": 39,
+          "name": "Full Fine-Tuning vs. PEFT",
+          "description": "Why updating all billions of parameters is usually too expensive, and the shift to Parameter-Efficient Fine-Tuning."
         },
         {
-          "id": "ai-24",
-          "name": "Text-to-SQL & Database Querying Agents",
-          "description": "Dynamic schema extraction, SQL query generation, dry-run evaluation, and execution.",
-          "estimatedMinutes": 55
+          "id": 40,
+          "name": "LoRA (Low-Rank Adaptation)",
+          "description": "Freezing the base model and injecting small, trainable rank-decomposition matrices to learn new tasks cheaply."
+        },
+        {
+          "id": 41,
+          "name": "QLoRA",
+          "description": "Combining LoRA with 4-bit quantization to fine-tune massive models on a single consumer GPU."
+        },
+        {
+          "id": 42,
+          "name": "Dataset Preparation",
+          "description": "Formatting instruction-tuning datasets (Alpaca/ChatML formats) for supervised fine-tuning (SFT)."
+        },
+        {
+          "id": 43,
+          "name": "Alignment (RLHF & DPO)",
+          "description": "Reinforcement Learning from Human Feedback and Direct Preference Optimization to align models with human values and tone."
         }
       ]
     },
     {
       "phase_number": 10,
-      "title": "Model Fine-Tuning & Parameter-Efficient Tuning (PEFT)",
-      "description": "Adapting open-source LLMs (Llama 3, Mistral, Qwen) to specific domains.",
+      "title": "MLOps & Experiment Tracking",
       "topics": [
         {
-          "id": "ai-25",
-          "name": "LoRA & QLoRA Deep Dive",
-          "description": "Low-Rank Adaptation matrices, 4-bit NF4 quantization, and gradient checkpointing.",
-          "estimatedMinutes": 65
+          "id": 44,
+          "name": "Experiment Tracking",
+          "description": "Using MLflow or Weights & Biases (W&B) to log training loss, hyperparameters, and model versions."
         },
         {
-          "id": "ai-26",
-          "name": "SFT (Supervised Fine-Tuning) Data Formatting",
-          "description": "Preparing ShareGPT / ChatML prompt-response datasets for fine-tuning.",
-          "estimatedMinutes": 45
+          "id": 45,
+          "name": "Containerization for ML",
+          "description": "Writing Dockerfiles specific to GPU environments (Nvidia Container Toolkit)."
         },
         {
-          "id": "ai-27",
-          "name": "Alignment with DPO & PPO (Direct Preference Optimization)",
-          "description": "RLHF concepts, preference pair training, and DPO loss functions.",
-          "estimatedMinutes": 60
+          "id": 46,
+          "name": "Data Version Control (DVC)",
+          "description": "Tracking massive datasets like code, mirroring how Git tracks source code."
+        },
+        {
+          "id": 47,
+          "name": "CI/CD for ML",
+          "description": "Automating model evaluations and deployment pipelines using GitHub Actions and Kubernetes."
         }
       ]
     },
     {
       "phase_number": 11,
-      "title": "High-Performance LLM Serving & Inference",
-      "description": "Optimizing latency, throughput, and GPU memory usage.",
+      "title": "High-Performance Inference & Serving",
       "topics": [
         {
-          "id": "ai-28",
-          "name": "PagedAttention & vLLM Architecture",
-          "description": "KV cache memory fragmentation, continuous batching, and throughput benchmarks.",
-          "estimatedMinutes": 55
+          "id": 48,
+          "name": "The KV Cache",
+          "description": "Understanding how LLMs cache Key and Value tensors during generation to avoid recomputing the entire prompt for every new token."
         },
         {
-          "id": "ai-29",
-          "name": "Model Quantization Techniques (AWQ, GPTQ, GGUF)",
-          "description": "Int8/Int4 quantization, CPU inference with llama.cpp, and memory footprints.",
-          "estimatedMinutes": 50
+          "id": 49,
+          "name": "PagedAttention & vLLM",
+          "description": "How modern inference engines page GPU memory (like an OS) to increase serving throughput by 20x."
         },
         {
-          "id": "ai-30",
-          "name": "Speculative Decoding & Tensor Parallelism",
-          "description": "Draft models, multi-GPU model splitting, and pipeline parallelism.",
-          "estimatedMinutes": 60
+          "id": 50,
+          "name": "Model Quantization",
+          "description": "Shrinking model weights from FP16 down to INT8 or INT4 using AWQ, GPTQ, or GGUF without destroying accuracy."
+        },
+        {
+          "id": 51,
+          "name": "Optimized Runtimes",
+          "description": "Serving models using TensorRT-LLM, ONNX Runtime, or Triton Inference Server."
+        },
+        {
+          "id": 52,
+          "name": "Batching Strategies",
+          "description": "Continuous/In-flight batching to handle hundreds of concurrent users without locking up the GPU."
         }
       ]
     },
     {
       "phase_number": 12,
-      "title": "Multimodal AI (Vision, Audio & Speech)",
-      "description": "Processing images, audio, and video alongside text.",
+      "title": "Cloud AI, Infrastructure & Serverless",
       "topics": [
         {
-          "id": "ai-31",
-          "name": "Vision-Language Models (VLM) Architecture",
-          "description": "CLIP embeddings, LLaVA projection layers, and image patch tokenization.",
-          "estimatedMinutes": 45
+          "id": 53,
+          "name": "GPU Cloud Providers",
+          "description": "Navigating AWS EC2 (p4/p5 instances), GCP, or specialized clouds like Lambda Labs and CoreWeave."
         },
         {
-          "id": "ai-32",
-          "name": "Speech Recognition & Synthesis (Whisper & ElevenLabs)",
-          "description": "Streaming audio transcribing, voice cloning, and real-time audio channels.",
-          "estimatedMinutes": 40
+          "id": 54,
+          "name": "Serverless GPUs",
+          "description": "Deploying models that scale to zero using RunPod, Modal, or Baseten (paying only for exactly the compute seconds you use)."
+        },
+        {
+          "id": 55,
+          "name": "Distributed Computing",
+          "description": "Scaling Python workloads across multiple machines using Ray."
+        },
+        {
+          "id": 56,
+          "name": "Managed AI Services",
+          "description": "Utilizing AWS Bedrock, Azure OpenAI, and GCP Vertex AI for enterprise-grade, compliant model hosting."
         }
       ]
     },
     {
       "phase_number": 13,
-      "title": "LLM Evaluation & Benchmarking (LLMops)",
-      "description": "Measuring RAG accuracy, hallucination rates, and model quality.",
+      "title": "Multimodality & Audio/Video",
       "topics": [
         {
-          "id": "ai-33",
-          "name": "Ragas & TruLens Evaluation Metrics",
-          "description": "Faithfulness, Answer Relevance, Context Recall, and Context Precision metrics.",
-          "estimatedMinutes": 50
+          "id": 57,
+          "name": "Vision-Language Models (VLMs)",
+          "description": "How models like GPT-4o or LLaVA bind image encoders (CLIP) to LLMs to \"see\" and reason about images."
         },
         {
-          "id": "ai-34",
-          "name": "LLM-as-a-Judge & Automated Red-Teaming",
-          "description": "Building judge prompts, pairwise comparisons, and automated dataset test suites.",
-          "estimatedMinutes": 45
+          "id": 58,
+          "name": "Audio Models",
+          "description": "Text-to-Speech (TTS) like ElevenLabs, and Speech-to-Text (ASR) like Whisper."
+        },
+        {
+          "id": 59,
+          "name": "Diffusion Models",
+          "description": "The math and architecture behind image and video generation (Stable Diffusion, Midjourney, Sora)."
         }
       ]
     },
     {
       "phase_number": 14,
-      "title": "Security, Alignment & Guardrails",
-      "description": "Protecting production LLM systems against malicious input.",
+      "title": "AI Security, Alignment & Guardrails",
       "topics": [
         {
-          "id": "ai-35",
-          "name": "Prompt Injection & Jailbreak Defense",
-          "description": "Indirect prompt injection attacks, input sanitization, NeMo Guardrails setup.",
-          "estimatedMinutes": 45
+          "id": 60,
+          "name": "Prompt Injection & Jailbreaks",
+          "description": "How attackers use hidden text or adversarial payloads to hijack an LLM's system instructions."
         },
         {
-          "id": "ai-36",
-          "name": "Pll Redaction & Output Safety Filters",
-          "description": "Detecting sensitive customer data, PII filtering, and content policy enforcement.",
-          "estimatedMinutes": 40
+          "id": 61,
+          "name": "Output Guardrails",
+          "description": "Using tools like NeMo Guardrails or Llama Guard to intercept and block toxic, out-of-domain, or PII-leaking outputs."
+        },
+        {
+          "id": 62,
+          "name": "Hallucination Mitigation",
+          "description": "Implementing Self-Check mechanisms and grounded attribution constraints to prevent models from inventing facts."
+        },
+        {
+          "id": 63,
+          "name": "Data Privacy",
+          "description": "Understanding techniques for scrubbing PII before it hits an API and the basics of Federated Learning."
         }
       ]
     },
     {
       "phase_number": 15,
-      "title": "Production Deployment & Monitoring Infrastructure",
-      "description": "End-to-end production AI infrastructure, tracing, and cost optimization.",
+      "title": "Deep Internals & Bare-Metal AI (Expert Only)",
       "topics": [
         {
-          "id": "ai-37",
-          "name": "LLM Tracing & Observability (LangSmith / Phoenix / Arize)",
-          "description": "Tracing chain calls, latency breakdowns, token consumption tracking, and session debugging.",
-          "estimatedMinutes": 50
+          "id": 64,
+          "name": "CUDA Programming",
+          "description": "Writing raw C++ kernels to execute parallel code directly on Nvidia GPU streaming multiprocessors."
         },
         {
-          "id": "ai-38",
-          "name": "Semantic Caching (GPTCache / Redis Vector)",
-          "description": "Caching similar prompt responses to decrease cost and latency by 90%.",
-          "estimatedMinutes": 45
+          "id": 65,
+          "name": "GPU Memory Hierarchy",
+          "description": "Mastering the hardware differences between SRAM, L2 Cache, and HBM (High Bandwidth Memory), and why memory bandwidth is the true bottleneck for LLMs."
         },
         {
-          "id": "ai-39",
-          "name": "Production Architecture & Cost Management",
-          "description": "Designing fallback routing, rate limiting, fallback models, and serverless GPU scaling.",
-          "estimatedMinutes": 60
+          "id": 66,
+          "name": "FlashAttention",
+          "description": "The hardware-aware algorithm that mathematically tiles attention computations to avoid slow reads/writes to HBM, speeding up transformers massively."
+        },
+        {
+          "id": 67,
+          "name": "Distributed Training Strategies",
+          "description": "Deep dive into Data Parallelism (DDP), Tensor Parallelism, and Pipeline Parallelism (Megatron-LM, DeepSpeed, FSDP) to train models larger than a single GPU's VRAM."
         }
       ]
     }

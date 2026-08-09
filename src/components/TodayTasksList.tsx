@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { UseDailyTasksReturn } from '@/hooks/useDailyTasks';
 import { TaskCard } from '@/components/TaskCard';
-import { AlertCircle, CheckCircle2, Sparkles, Flame, CalendarCheck } from 'lucide-react';
+import { AlertCircle, CheckCircle2, CalendarCheck, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface TodayTasksListProps {
@@ -11,10 +11,11 @@ interface TodayTasksListProps {
 }
 
 export const TodayTasksList: React.FC<TodayTasksListProps> = ({ dailyTasksReturn }) => {
-  const { todayTasks, shiftedMissedTasks, todayNativeTask, completedTasks, stats } = dailyTasksReturn;
+  const { todayTasks, shiftedMissedTasks, stats } = dailyTasksReturn;
   const [activeFilter, setActiveFilter] = useState<'all' | 'missed' | 'today'>('all');
 
-  // Filter tasks based on selected tab
+  const todayNativeCount = todayTasks.filter((t) => t.status === 'today').length;
+
   const displayedTasks = todayTasks.filter((task) => {
     if (activeFilter === 'missed') return task.status === 'missed-shifted';
     if (activeFilter === 'today') return task.status === 'today';
@@ -39,15 +40,15 @@ export const TodayTasksList: React.FC<TodayTasksListProps> = ({ dailyTasksReturn
 
           <div className="space-y-1">
             <h3 className="text-base font-bold text-rose-300 flex items-center gap-2">
-              <span>Task Shifting Active</span>
+              <span>Phase Task Shifting Active</span>
               <span className="text-xs px-2 py-0.5 rounded-full bg-rose-900/80 text-rose-200 font-mono">
-                {shiftedMissedTasks.length} Overdue Task{shiftedMissedTasks.length > 1 ? 's' : ''}
+                {shiftedMissedTasks.length} Overdue Topic{shiftedMissedTasks.length > 1 ? 's' : ''}
               </span>
             </h3>
 
             <p className="text-xs md:text-sm text-slate-300 leading-relaxed">
-              You missed tasks from previous days! They have been automatically shifted into your{' '}
-              <strong className="text-white">Today's Goals</strong> list so you can stay on track without losing progress.
+              You missed topics from previous phase days! They have been automatically shifted into your{' '}
+              <strong className="text-white">Today's Goals</strong> list so you can catch up on uncompleted phases.
             </p>
           </div>
         </motion.div>
@@ -57,9 +58,9 @@ export const TodayTasksList: React.FC<TodayTasksListProps> = ({ dailyTasksReturn
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-4">
         <div className="flex items-center gap-2">
           <CalendarCheck className="w-5 h-5 text-blue-400" />
-          <h2 className="text-xl font-bold text-white tracking-tight">Today's Goals</h2>
+          <h2 className="text-xl font-bold text-white tracking-tight">Today's Goals (Day {stats.currentDayNumber})</h2>
           <span className="px-2.5 py-0.5 rounded-full bg-blue-950 text-blue-300 text-xs font-mono font-bold border border-blue-800/60">
-            {todayTasks.length} total
+            {todayTasks.length} topic{todayTasks.length !== 1 ? 's' : ''}
           </span>
         </div>
 
@@ -92,7 +93,7 @@ export const TodayTasksList: React.FC<TodayTasksListProps> = ({ dailyTasksReturn
             </button>
           )}
 
-          {todayNativeTask && (
+          {todayNativeCount > 0 && (
             <button
               onClick={() => setActiveFilter('today')}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
@@ -101,7 +102,7 @@ export const TodayTasksList: React.FC<TodayTasksListProps> = ({ dailyTasksReturn
                   : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              Scheduled Today
+              Today's Phase ({todayNativeCount})
             </button>
           )}
         </div>
@@ -126,9 +127,9 @@ export const TodayTasksList: React.FC<TodayTasksListProps> = ({ dailyTasksReturn
             <CheckCircle2 className="w-8 h-8" />
           </div>
 
-          <h3 className="text-xl font-bold text-emerald-300">All Today's Goals Completed!</h3>
+          <h3 className="text-xl font-bold text-emerald-300">Phase Completed for Today!</h3>
           <p className="text-sm text-slate-300 max-w-md mx-auto">
-            Awesome job! You have cleared all overdue tasks and finished today's scheduled goal. Keep up the momentum!
+            Awesome job! You finished all topics for today's scheduled phase. Keep up the high velocity!
           </p>
         </motion.div>
       ) : (
