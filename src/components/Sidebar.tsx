@@ -57,8 +57,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ onOpenImportModal }) => {
           {subjects.length > 0 ? (
             <div className="space-y-2">
               {subjects.map((subject) => {
-                const isActive = subject.id === activeSubjectId;
+                const isSelected = subject.id === activeSubjectId;
                 const progress = userProgress[subject.id];
+                const isTrackStarted = progress ? (progress.isStarted !== false) : true;
                 const totalTopics = subject.phases.reduce((acc, p) => acc + p.topics.length, 0);
                 const completedCount = progress?.completedTopicIds?.length || 0;
                 const percent = totalTopics > 0 ? Math.round((completedCount / totalTopics) * 100) : 0;
@@ -73,14 +74,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ onOpenImportModal }) => {
                     <button
                       onClick={() => selectSubject(subject.id)}
                       className={`w-full flex items-start gap-3 p-3 rounded-xl transition-all duration-200 text-left border ${
-                        isActive
+                        isSelected
                           ? 'bg-gradient-to-r from-blue-950/60 to-purple-950/40 border-blue-500/50 text-white shadow-lg shadow-blue-500/10'
                           : 'bg-dark-850/40 border-slate-800/60 text-slate-300 hover:bg-dark-800/60 hover:border-slate-700/80 hover:text-white'
                       }`}
                     >
                       <div
                         className={`p-2 rounded-lg mt-0.5 shrink-0 ${
-                          isActive
+                          isSelected
                             ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
                             : 'bg-slate-800/60 text-slate-400 group-hover:text-slate-200'
                         }`}
@@ -89,15 +90,30 @@ export const Sidebar: React.FC<SidebarProps> = ({ onOpenImportModal }) => {
                       </div>
 
                       <div className="flex-1 min-w-0 pr-6">
-                        <div className="flex items-center justify-between gap-1">
+                        <div className="flex items-center justify-between gap-1.5 mb-1">
                           <span className="font-semibold text-sm truncate">{subject.title}</span>
                         </div>
 
-                        {subject.category && (
-                          <p className="text-[11px] text-slate-400 truncate mb-1.5">
-                            {subject.category}
-                          </p>
-                        )}
+                        {/* Active / Not Active Workflow Status Badge */}
+                        <div className="flex items-center gap-2 mb-2">
+                          {isTrackStarted ? (
+                            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-950/80 border border-emerald-800/60 text-emerald-300 text-[10px] font-semibold font-mono">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                              Active
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-slate-800/80 border border-slate-700/60 text-slate-400 text-[10px] font-semibold font-mono">
+                              <span className="w-1.5 h-1.5 rounded-full bg-slate-500" />
+                              Not Active
+                            </span>
+                          )}
+
+                          {subject.category && (
+                            <span className="text-[10px] text-slate-400 truncate">
+                              {subject.category}
+                            </span>
+                          )}
+                        </div>
 
                         {/* Mini progress bar */}
                         <div className="space-y-1">
@@ -110,7 +126,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onOpenImportModal }) => {
                               className={`h-full transition-all duration-500 ${
                                 percent === 100
                                   ? 'bg-emerald-400'
-                                  : isActive
+                                  : isSelected
                                   ? 'bg-gradient-to-r from-blue-500 to-purple-500'
                                   : 'bg-slate-600'
                               }`}
@@ -121,7 +137,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onOpenImportModal }) => {
                       </div>
                     </button>
 
-                    {/* Delete roadmap button (z-10 to sit above card button) */}
+                    {/* Delete roadmap button */}
                     <button
                       onClick={(e) => {
                         e.stopPropagation();

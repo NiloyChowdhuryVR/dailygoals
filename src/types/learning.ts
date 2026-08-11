@@ -37,6 +37,16 @@ export interface ProcessedTopic extends Topic {
   shiftedFromDate?: string;
 }
 
+export interface TopicDocument {
+  id?: string;
+  subjectId: string;
+  topicId: string;
+  title?: string;
+  content: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export interface SubjectProgress {
   subjectId: string;
   startDate: string; // ISO yyyy-MM-dd
@@ -46,3 +56,5 @@ export interface SubjectProgress {
 }
 
 export type AllUserProgress = Record<string, SubjectProgress>;
+export type AllTopicDocuments = Record<string, Record<string, TopicDocument>>; // subjectId -> topicId -> TopicDocument
+

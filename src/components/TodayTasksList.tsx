@@ -2,15 +2,17 @@
 
 import React, { useState } from 'react';
 import { UseDailyTasksReturn } from '@/hooks/useDailyTasks';
+import { ProcessedTopic } from '@/types/learning';
 import { TaskCard } from '@/components/TaskCard';
 import { AlertCircle, CheckCircle2, CalendarCheck, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface TodayTasksListProps {
   dailyTasksReturn: UseDailyTasksReturn;
+  onOpenDoc?: (task: ProcessedTopic) => void;
 }
 
-export const TodayTasksList: React.FC<TodayTasksListProps> = ({ dailyTasksReturn }) => {
+export const TodayTasksList: React.FC<TodayTasksListProps> = ({ dailyTasksReturn, onOpenDoc }) => {
   const { todayTasks, shiftedMissedTasks, stats } = dailyTasksReturn;
   const [activeFilter, setActiveFilter] = useState<'all' | 'missed' | 'today'>('all');
 
@@ -113,7 +115,7 @@ export const TodayTasksList: React.FC<TodayTasksListProps> = ({ dailyTasksReturn
         <div className="space-y-4">
           <AnimatePresence mode="popLayout">
             {displayedTasks.map((task) => (
-              <TaskCard key={task.id} task={task} />
+              <TaskCard key={task.id} task={task} onOpenDoc={onOpenDoc} />
             ))}
           </AnimatePresence>
         </div>

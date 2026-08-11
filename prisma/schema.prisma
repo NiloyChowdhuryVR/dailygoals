@@ -41,3 +41,16 @@ model DeletedSubject {
   subjectId String   @unique
   createdAt DateTime @default(now())
 }
+
+model TopicDocument {
+  id        String   @id @default(cuid())
+  subjectId String
+  topicId   String
+  title     String?
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([subjectId, topicId])
+}
+

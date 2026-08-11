@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { SubjectData, SubjectProgress, AllUserProgress } from '@/types/learning';
+import { SubjectData, SubjectProgress, AllUserProgress, TopicDocument, AllTopicDocuments } from '@/types/learning';
 import aiEngineerData from '@/data/aiEngineer.json';
 import oopsMasteryData from '@/data/oopsMastery.json';
 import nextjsMasteryData from '@/data/nextjsMastery.json';
@@ -17,6 +17,7 @@ const LOCAL_STORAGE_KEY = 'daily_learning_goals_user_progress_v1';
 const LOCAL_STORAGE_ACTIVE_KEY = 'daily_learning_goals_active_subject_v1';
 const LOCAL_STORAGE_CUSTOM_KEY = 'daily_learning_goals_custom_subjects_v1';
 const LOCAL_STORAGE_DELETED_KEY = 'daily_learning_goals_deleted_subjects_v1';
+const LOCAL_STORAGE_DOCS_KEY = 'daily_learning_goals_topic_documents_v1';
 
 interface ProgressContextType {
   subjects: SubjectData[];
@@ -24,6 +25,7 @@ interface ProgressContextType {
   activeSubjectId: string | null;
   userProgress: AllUserProgress;
   activeProgress: SubjectProgress | null;
+  topicDocuments: AllTopicDocuments;
   selectSubject: (id: string) => void;
   startSubjectTrack: (subjectId?: string) => void;
   toggleTopicCompletion: (topicId: number | string, overrideSubjectId?: string) => void;
@@ -32,6 +34,14 @@ interface ProgressContextType {
   importCustomSubject: (subject: SubjectData) => boolean;
   deleteSubject: (subjectId: string) => void;
   restoreDefaultSubjects: () => void;
+  getTopicDocument: (subjectId: string, topicId: number | string) => TopicDocument | null;
+  saveTopicDocument: (
+    subjectId: string,
+    topicId: number | string,
+    content: string,
+    title?: string
+  ) => Promise<boolean>;
+  deleteTopicDocument: (subjectId: string, topicId: number | string) => Promise<boolean>;
   isMounted: boolean;
   isSyncingDb: boolean;
 }
@@ -43,6 +53,7 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [deletedSubjectIds, setDeletedSubjectIds] = useState<string[]>([]);
   const [activeSubjectId, setActiveSubjectId] = useState<string | null>('ai-engineer');
   const [userProgress, setUserProgress] = useState<AllUserProgress>({});
+  const [topicDocuments, setTopicDocuments] = useState<AllTopicDocuments>({});
   const [isMounted, setIsMounted] = useState<boolean>(false);
   const [isSyncingDb, setIsSyncingDb] = useState<boolean>(false);
 
@@ -73,20 +84,27 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         const storedActiveId = localStorage.getItem(LOCAL_STORAGE_ACTIVE_KEY);
         const storedCustom = localStorage.getItem(LOCAL_STORAGE_CUSTOM_KEY);
         const storedDeleted = localStorage.getItem(LOCAL_STORAGE_DELETED_KEY);
+        const storedDocs = localStorage.getItem(LOCAL_STORAGE_DOCS_KEY);
 
         if (storedProgress) setUserProgress(JSON.parse(storedProgress));
         if (storedCustom) setCustomSubjects(JSON.parse(storedCustom));
         if (storedDeleted) setDeletedSubjectIds(JSON.parse(storedDeleted));
         if (storedActiveId) setActiveSubjectId(storedActiveId);
+        if (storedDocs) setTopicDocuments(JSON.parse(storedDocs));
       } catch (e) {
         console.error('LocalStorage load error:', e);
       }
 
-      // 2. Async database API load
+      // 2. Async database API load (Progress & Documents)
       try {
         setIsSyncingDb(true);
-        const res = await fetch('/api/progress');
-        const data = await res.json();
+
+        const [progressRes, docsRes] = await Promise.all([
+          fetch('/api/progress'),
+          fetch('/api/documents'),
+        ]);
+
+        const data = await progressRes.json();
         if (data.success) {
           if (data.progress && Object.keys(data.progress).length > 0) {
             setUserProgress((prev) => ({ ...prev, ...data.progress }));
@@ -97,6 +115,11 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           if (data.deletedSubjectIds && Array.isArray(data.deletedSubjectIds)) {
             setDeletedSubjectIds(data.deletedSubjectIds);
           }
+        }
+
+        const docsData = await docsRes.json();
+        if (docsData.success && docsData.documents) {
+          setTopicDocuments((prev) => ({ ...prev, ...docsData.documents }));
         }
       } catch (e) {
         console.warn('Database fetch fallback to LocalStorage:', e);
@@ -121,10 +144,11 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       }
       localStorage.setItem(LOCAL_STORAGE_CUSTOM_KEY, JSON.stringify(customSubjects));
       localStorage.setItem(LOCAL_STORAGE_DELETED_KEY, JSON.stringify(deletedSubjectIds));
+      localStorage.setItem(LOCAL_STORAGE_DOCS_KEY, JSON.stringify(topicDocuments));
     } catch (e) {
       console.error('LocalStorage save error:', e);
     }
-  }, [userProgress, activeSubjectId, customSubjects, deletedSubjectIds, isMounted]);
+  }, [userProgress, activeSubjectId, customSubjects, deletedSubjectIds, topicDocuments, isMounted]);
 
   const selectSubject = (id: string) => {
     setActiveSubjectId(id);
@@ -338,6 +362,84 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }).catch((err) => console.error('Database restore failed:', err));
   };
 
+  // Helper: Get document for topic
+  const getTopicDocument = (subjectId: string, topicId: number | string): TopicDocument | null => {
+    const topicIdStr = String(topicId);
+    return topicDocuments[subjectId]?.[topicIdStr] || null;
+  };
+
+  // Helper: Save document for topic
+  const saveTopicDocument = async (
+    subjectId: string,
+    topicId: number | string,
+    content: string,
+    title?: string
+  ): Promise<boolean> => {
+    const topicIdStr = String(topicId);
+    const updatedDoc: TopicDocument = {
+      subjectId,
+      topicId: topicIdStr,
+      title: title || undefined,
+      content,
+      updatedAt: new Date().toISOString(),
+    };
+
+    // Update local state immediately
+    setTopicDocuments((prev) => ({
+      ...prev,
+      [subjectId]: {
+        ...(prev[subjectId] || {}),
+        [topicIdStr]: updatedDoc,
+      },
+    }));
+
+    try {
+      const res = await fetch('/api/documents', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          subjectId,
+          topicId: topicIdStr,
+          title: title || null,
+          content,
+        }),
+      });
+      const data = await res.json();
+      return !!data.success;
+    } catch (err) {
+      console.error('Save topic document DB error:', err);
+      return false;
+    }
+  };
+
+  // Helper: Delete document for topic
+  const deleteTopicDocument = async (
+    subjectId: string,
+    topicId: number | string
+  ): Promise<boolean> => {
+    const topicIdStr = String(topicId);
+
+    setTopicDocuments((prev) => {
+      const subjectDocs = { ...(prev[subjectId] || {}) };
+      delete subjectDocs[topicIdStr];
+      return {
+        ...prev,
+        [subjectId]: subjectDocs,
+      };
+    });
+
+    try {
+      const res = await fetch(`/api/documents?subjectId=${subjectId}&topicId=${topicIdStr}`, {
+        method: 'DELETE',
+      });
+      const data = await res.json();
+      return !!data.success;
+    } catch (err) {
+      console.error('Delete topic document DB error:', err);
+      return false;
+    }
+  };
+
   return (
     <ProgressContext.Provider
       value={{
@@ -346,6 +448,7 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         activeSubjectId: activeSubject?.id || null,
         userProgress,
         activeProgress,
+        topicDocuments,
         selectSubject,
         startSubjectTrack,
         toggleTopicCompletion,
@@ -354,6 +457,9 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         importCustomSubject,
         deleteSubject,
         restoreDefaultSubjects,
+        getTopicDocument,
+        saveTopicDocument,
+        deleteTopicDocument,
         isMounted,
         isSyncingDb,
       }}
@@ -361,6 +467,7 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       {children}
     </ProgressContext.Provider>
   );
+
 };
 
 export const useProgress = () => {

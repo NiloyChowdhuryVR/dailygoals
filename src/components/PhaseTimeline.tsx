@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { SubjectData } from '@/types/learning';
+import { ProcessedTopic, SubjectData } from '@/types/learning';
 import { UseDailyTasksReturn } from '@/hooks/useDailyTasks';
 import { TaskCard } from '@/components/TaskCard';
 import { ChevronDown, ChevronRight, CheckCircle2, Layers } from 'lucide-react';
@@ -10,9 +10,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 interface PhaseTimelineProps {
   subject: SubjectData | null;
   dailyTasksReturn: UseDailyTasksReturn;
+  onOpenDoc?: (task: ProcessedTopic) => void;
 }
 
-export const PhaseTimeline: React.FC<PhaseTimelineProps> = ({ subject, dailyTasksReturn }) => {
+export const PhaseTimeline: React.FC<PhaseTimelineProps> = ({ subject, dailyTasksReturn, onOpenDoc }) => {
   const { allProcessedTopics } = dailyTasksReturn;
 
   const [expandedPhases, setExpandedPhases] = useState<Record<number, boolean>>({
@@ -149,7 +150,7 @@ export const PhaseTimeline: React.FC<PhaseTimelineProps> = ({ subject, dailyTask
                     className="border-t border-slate-800/60 p-4 md:p-5 space-y-3 bg-dark-950/40"
                   >
                     {phaseTopics.map((topic) => (
-                      <TaskCard key={topic.id} task={topic} />
+                      <TaskCard key={topic.id} task={topic} onOpenDoc={onOpenDoc} />
                     ))}
                   </motion.div>
                 )}

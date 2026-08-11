@@ -3,21 +3,25 @@
 import React from 'react';
 import { ProcessedTopic } from '@/types/learning';
 import { useProgress } from '@/context/ProgressContext';
-import { Check, AlertTriangle, Calendar, Clock, ExternalLink, Sparkles, AlertCircle } from 'lucide-react';
+import { Check, AlertTriangle, Calendar, Clock, ExternalLink, Sparkles, AlertCircle, FileText, BookOpen } from 'lucide-react';
 import { motion } from 'framer-motion';
 import confetti from 'canvas-confetti';
 
 interface TaskCardProps {
   task: ProcessedTopic;
   isCompact?: boolean;
+  onOpenDoc?: (task: ProcessedTopic) => void;
 }
 
-export const TaskCard: React.FC<TaskCardProps> = ({ task, isCompact = false }) => {
-  const { toggleTopicCompletion } = useProgress();
+export const TaskCard: React.FC<TaskCardProps> = ({ task, isCompact = false, onOpenDoc }) => {
+  const { toggleTopicCompletion, activeSubject, getTopicDocument } = useProgress();
 
   const isCompleted = task.status === 'completed';
   const isMissedShifted = task.status === 'missed-shifted' || task.isMissedShifted;
   const isToday = task.status === 'today';
+
+  const doc = activeSubject ? getTopicDocument(activeSubject.id, task.id) : null;
+  const hasDoc = !!(doc && doc.content && doc.content.trim().length > 0);
 
   const handleCheckboxClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -114,6 +118,14 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, isCompact = false }) =
               </span>
             )}
 
+            {/* Document Saved Badge */}
+            {hasDoc && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-purple-950/80 border border-purple-500/50 text-purple-300 text-[11px] font-semibold font-mono shadow-sm shadow-purple-500/20">
+                <FileText className="w-3 h-3 text-purple-400" />
+                Doc Saved
+              </span>
+            )}
+
             {/* Phase Identifier */}
             <span className="text-[11px] font-medium text-slate-400 font-mono">
               Phase {task.phaseNumber}: {task.phaseTitle}
@@ -142,7 +154,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, isCompact = false }) =
             </p>
           )}
 
-          {/* Footer Metadata */}
+          {/* Footer Metadata & Actions */}
           <div className="flex flex-wrap items-center justify-between gap-3 pt-2 text-xs text-slate-400 border-t border-slate-800/40">
             <div className="flex items-center gap-3">
               <span className="flex items-center gap-1 font-mono">
@@ -158,21 +170,42 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, isCompact = false }) =
               )}
             </div>
 
-            {task.resourceUrl && (
-              <a
-                href={task.resourceUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
-                className="inline-flex items-center gap-1 text-blue-400 hover:text-blue-300 hover:underline font-medium"
-              >
-                <span>Docs</span>
-                <ExternalLink className="w-3 h-3" />
-              </a>
-            )}
+            <div className="flex items-center gap-2">
+              {/* Save / Edit Study Notes Button */}
+              {onOpenDoc && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onOpenDoc(task);
+                  }}
+                  className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all border ${
+                    hasDoc
+                      ? 'bg-purple-950/80 border-purple-700/80 text-purple-300 hover:bg-purple-900'
+                      : 'bg-slate-800/80 border-slate-700/80 text-slate-300 hover:text-white hover:bg-slate-700/80 hover:border-blue-500/50'
+                  }`}
+                >
+                  <FileText className="w-3.5 h-3.5 text-purple-400" />
+                  <span>{hasDoc ? 'View Notes' : 'Add Notes'}</span>
+                </button>
+              )}
+
+              {task.resourceUrl && (
+                <a
+                  href={task.resourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="inline-flex items-center gap-1 text-blue-400 hover:text-blue-300 hover:underline font-medium"
+                >
+                  <span>Docs</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              )}
+            </div>
           </div>
         </div>
       </div>
     </motion.div>
   );
 };
+

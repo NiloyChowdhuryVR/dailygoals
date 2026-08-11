@@ -3,12 +3,14 @@
 import React, { useState } from 'react';
 import { useProgress } from '@/context/ProgressContext';
 import { useDailyTasks } from '@/hooks/useDailyTasks';
+import { ProcessedTopic } from '@/types/learning';
 import { Sidebar } from '@/components/Sidebar';
 import { Header } from '@/components/Header';
 import { StatsOverview } from '@/components/StatsOverview';
 import { TodayTasksList } from '@/components/TodayTasksList';
 import { PhaseTimeline } from '@/components/PhaseTimeline';
 import { ImportJsonModal } from '@/components/ImportJsonModal';
+import { TopicDocumentModal } from '@/components/TopicDocumentModal';
 import { Menu, X, CalendarCheck, Layers, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -24,6 +26,14 @@ export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState<'today' | 'timeline'>('today');
   const [isImportModalOpen, setIsImportModalOpen] = useState<boolean>(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState<boolean>(false);
+
+  const [selectedTopicForDoc, setSelectedTopicForDoc] = useState<ProcessedTopic | null>(null);
+  const [isDocModalOpen, setIsDocModalOpen] = useState<boolean>(false);
+
+  const handleOpenDocModal = (topic: ProcessedTopic) => {
+    setSelectedTopicForDoc(topic);
+    setIsDocModalOpen(true);
+  };
 
   if (!isMounted) {
     return (
@@ -116,7 +126,7 @@ export default function DashboardPage() {
                   exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <TodayTasksList dailyTasksReturn={dailyTasksReturn} />
+                  <TodayTasksList dailyTasksReturn={dailyTasksReturn} onOpenDoc={handleOpenDocModal} />
                 </motion.div>
               ) : (
                 <motion.div
@@ -126,13 +136,25 @@ export default function DashboardPage() {
                   exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <PhaseTimeline subject={activeSubject} dailyTasksReturn={dailyTasksReturn} />
+                  <PhaseTimeline
+                    subject={activeSubject}
+                    dailyTasksReturn={dailyTasksReturn}
+                    onOpenDoc={handleOpenDocModal}
+                  />
                 </motion.div>
               )}
             </AnimatePresence>
           </>
         ) : null}
       </main>
+
+      {/* Topic Rich Text Document Modal */}
+      <TopicDocumentModal
+        isOpen={isDocModalOpen}
+        onClose={() => setIsDocModalOpen(false)}
+        topic={selectedTopicForDoc}
+        subject={activeSubject}
+      />
 
       {/* Import Roadmap Modal */}
       <ImportJsonModal
