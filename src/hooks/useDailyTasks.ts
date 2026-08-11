@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { SubjectData, SubjectProgress, ProcessedTopic, TaskStatus } from '@/types/learning';
 import { parseISO, format, addDays, differenceInCalendarDays, startOfDay } from 'date-fns';
+import { getEffectiveDate, getEffectiveTodayIso } from '@/lib/dateUtils';
 
 export interface UseDailyTasksReturn {
   todayTasks: ProcessedTopic[];
@@ -29,7 +30,8 @@ export function useDailyTasks(
   subjectProgress?: SubjectProgress | null
 ): UseDailyTasksReturn {
   return useMemo(() => {
-    const baseToday = startOfDay(new Date());
+    // 4:00 AM Daily Reset Boundary
+    const baseToday = getEffectiveDate(new Date());
 
     if (!subjectData) {
       return {
@@ -58,7 +60,7 @@ export function useDailyTasks(
     const isStarted = subjectProgress?.isStarted !== false; // defaults to true unless explicitly false
 
     // Start date calculation
-    const startDateIso = subjectProgress?.startDate || format(baseToday, 'yyyy-MM-dd');
+    const startDateIso = subjectProgress?.startDate || getEffectiveTodayIso(new Date());
     let startDate: Date;
     try {
       startDate = startOfDay(parseISO(startDateIso));

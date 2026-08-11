@@ -4,7 +4,7 @@ import React from 'react';
 import { SubjectData } from '@/types/learning';
 import { UseDailyTasksReturn } from '@/hooks/useDailyTasks';
 import { useProgress } from '@/context/ProgressContext';
-import { Calendar, RotateCcw, Sparkles, AlertCircle, CheckCircle2, Database, Layers, PlayCircle, Clock } from 'lucide-react';
+import { Calendar, RotateCcw, Sparkles, AlertCircle, CheckCircle2, Database, Layers, PlayCircle, Clock, Moon } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface HeaderProps {
@@ -83,6 +83,15 @@ export const Header: React.FC<HeaderProps> = ({ subject, dailyTasksReturn, onOpe
                   {stats.missedCount} Shifted Topic{stats.missedCount > 1 ? 's' : ''}
                 </span>
               )}
+
+              {/* 4:00 AM Daily Reset Badge */}
+              <span
+                className="inline-flex items-center gap-1 text-xs font-mono px-2.5 py-1 rounded-full bg-purple-950/80 text-purple-300 border border-purple-800/60"
+                title="Daily reset happens at 4:00 AM so your late night work counts toward the current day!"
+              >
+                <Moon className="w-3.5 h-3.5 text-purple-400" />
+                4:00 AM Reset
+              </span>
 
               {/* Database Sync Badge */}
               <span className="inline-flex items-center gap-1 text-xs font-mono px-2.5 py-1 rounded-full bg-emerald-950/60 text-emerald-400 border border-emerald-800/60">

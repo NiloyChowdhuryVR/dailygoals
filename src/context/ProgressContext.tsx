@@ -13,6 +13,7 @@ import aiEngineerData from '@/data/aiEngineer.json';
 import oopsMasteryData from '@/data/oopsMastery.json';
 import nextjsMasteryData from '@/data/nextjsMastery.json';
 import { format } from 'date-fns';
+import { getEffectiveTodayIso } from '@/lib/dateUtils';
 
 const DEFAULT_SUBJECTS: SubjectData[] = [
   aiEngineerData as SubjectData,
@@ -81,7 +82,7 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const activeProgress: SubjectProgress | null = activeSubject
     ? userProgress[activeSubject.id] || {
         subjectId: activeSubject.id,
-        startDate: format(new Date(), 'yyyy-MM-dd'),
+        startDate: getEffectiveTodayIso(),
         isStarted: true,
         completedTopicIds: [],
       }
@@ -176,7 +177,7 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     if (!userProgress[id]) {
       const newProgress: SubjectProgress = {
         subjectId: id,
-        startDate: format(new Date(), 'yyyy-MM-dd'),
+        startDate: getEffectiveTodayIso(),
         isStarted: true,
         completedTopicIds: [],
       };
@@ -188,7 +189,7 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const targetId = subjectId || activeSubject?.id;
     if (!targetId) return;
 
-    const todayIso = format(new Date(), 'yyyy-MM-dd');
+    const todayIso = getEffectiveTodayIso();
     setUserProgress((prev) => {
       const existing = prev[targetId] || {
         subjectId: targetId,
@@ -222,7 +223,7 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     const existing = userProgress[targetId] || {
       subjectId: targetId,
-      startDate: format(new Date(), 'yyyy-MM-dd'),
+      startDate: getEffectiveTodayIso(),
       isStarted: true,
       completedTopicIds: [],
     };
@@ -258,7 +259,7 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const targetId = subjectId || activeSubject?.id;
     if (!targetId) return;
 
-    const todayIso = format(new Date(), 'yyyy-MM-dd');
+    const todayIso = getEffectiveTodayIso();
     setUserProgress((prev) => ({
       ...prev,
       [targetId]: {
@@ -322,7 +323,7 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setDeletedSubjectIds((prev) => prev.filter((id) => id !== finalId));
 
     // Initialize imported subject as NOT STARTED YET
-    const todayIso = format(new Date(), 'yyyy-MM-dd');
+    const todayIso = getEffectiveTodayIso();
     setUserProgress((prev) => ({
       ...prev,
       [finalId]: {
