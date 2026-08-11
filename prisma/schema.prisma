@@ -54,3 +54,12 @@ model TopicDocument {
   @@unique([subjectId, topicId])
 }
 
+model WorkflowTrashItem {
+  id        String   @id @default(cuid())
+  subjectId String   @unique
+  title     String
+  snapshot  String   @db.Text
+  deletedAt DateTime @default(now())
+}
+
+

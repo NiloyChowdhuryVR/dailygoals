@@ -11,6 +11,7 @@ import { TodayTasksList } from '@/components/TodayTasksList';
 import { PhaseTimeline } from '@/components/PhaseTimeline';
 import { ImportJsonModal } from '@/components/ImportJsonModal';
 import { TopicDocumentModal } from '@/components/TopicDocumentModal';
+import { TrashModal } from '@/components/TrashModal';
 import { Menu, X, CalendarCheck, Layers, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -25,6 +26,7 @@ export default function DashboardPage() {
 
   const [activeTab, setActiveTab] = useState<'today' | 'timeline'>('today');
   const [isImportModalOpen, setIsImportModalOpen] = useState<boolean>(false);
+  const [isTrashModalOpen, setIsTrashModalOpen] = useState<boolean>(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState<boolean>(false);
 
   const [selectedTopicForDoc, setSelectedTopicForDoc] = useState<ProcessedTopic | null>(null);
@@ -67,7 +69,10 @@ export default function DashboardPage() {
 
       {/* Sidebar Navigation */}
       <div className={`${isMobileSidebarOpen ? 'block' : 'hidden'} lg:block`}>
-        <Sidebar onOpenImportModal={() => setIsImportModalOpen(true)} />
+        <Sidebar
+          onOpenImportModal={() => setIsImportModalOpen(true)}
+          onOpenTrashModal={() => setIsTrashModalOpen(true)}
+        />
       </div>
 
       {/* Main Content Area */}
@@ -154,6 +159,12 @@ export default function DashboardPage() {
         onClose={() => setIsDocModalOpen(false)}
         topic={selectedTopicForDoc}
         subject={activeSubject}
+      />
+
+      {/* Trash Bin Modal */}
+      <TrashModal
+        isOpen={isTrashModalOpen}
+        onClose={() => setIsTrashModalOpen(false)}
       />
 
       {/* Import Roadmap Modal */}

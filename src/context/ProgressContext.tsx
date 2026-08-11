@@ -1,7 +1,14 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { SubjectData, SubjectProgress, AllUserProgress, TopicDocument, AllTopicDocuments } from '@/types/learning';
+import {
+  SubjectData,
+  SubjectProgress,
+  AllUserProgress,
+  TopicDocument,
+  AllTopicDocuments,
+  TrashWorkflowItem,
+} from '@/types/learning';
 import aiEngineerData from '@/data/aiEngineer.json';
 import oopsMasteryData from '@/data/oopsMastery.json';
 import nextjsMasteryData from '@/data/nextjsMastery.json';
@@ -18,6 +25,7 @@ const LOCAL_STORAGE_ACTIVE_KEY = 'daily_learning_goals_active_subject_v1';
 const LOCAL_STORAGE_CUSTOM_KEY = 'daily_learning_goals_custom_subjects_v1';
 const LOCAL_STORAGE_DELETED_KEY = 'daily_learning_goals_deleted_subjects_v1';
 const LOCAL_STORAGE_DOCS_KEY = 'daily_learning_goals_topic_documents_v1';
+const LOCAL_STORAGE_TRASH_KEY = 'daily_learning_goals_trash_items_v1';
 
 interface ProgressContextType {
   subjects: SubjectData[];
@@ -26,6 +34,7 @@ interface ProgressContextType {
   userProgress: AllUserProgress;
   activeProgress: SubjectProgress | null;
   topicDocuments: AllTopicDocuments;
+  trashItems: TrashWorkflowItem[];
   selectSubject: (id: string) => void;
   startSubjectTrack: (subjectId?: string) => void;
   toggleTopicCompletion: (topicId: number | string, overrideSubjectId?: string) => void;
@@ -42,6 +51,8 @@ interface ProgressContextType {
     title?: string
   ) => Promise<boolean>;
   deleteTopicDocument: (subjectId: string, topicId: number | string) => Promise<boolean>;
+  restoreFromTrash: (subjectId: string) => Promise<boolean>;
+  permanentlyDeleteFromTrash: (subjectId?: string) => Promise<boolean>;
   isMounted: boolean;
   isSyncingDb: boolean;
 }
@@ -54,6 +65,7 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [activeSubjectId, setActiveSubjectId] = useState<string | null>('ai-engineer');
   const [userProgress, setUserProgress] = useState<AllUserProgress>({});
   const [topicDocuments, setTopicDocuments] = useState<AllTopicDocuments>({});
+  const [trashItems, setTrashItems] = useState<TrashWorkflowItem[]>([]);
   const [isMounted, setIsMounted] = useState<boolean>(false);
   const [isSyncingDb, setIsSyncingDb] = useState<boolean>(false);
 
@@ -85,23 +97,26 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         const storedCustom = localStorage.getItem(LOCAL_STORAGE_CUSTOM_KEY);
         const storedDeleted = localStorage.getItem(LOCAL_STORAGE_DELETED_KEY);
         const storedDocs = localStorage.getItem(LOCAL_STORAGE_DOCS_KEY);
+        const storedTrash = localStorage.getItem(LOCAL_STORAGE_TRASH_KEY);
 
         if (storedProgress) setUserProgress(JSON.parse(storedProgress));
         if (storedCustom) setCustomSubjects(JSON.parse(storedCustom));
         if (storedDeleted) setDeletedSubjectIds(JSON.parse(storedDeleted));
         if (storedActiveId) setActiveSubjectId(storedActiveId);
         if (storedDocs) setTopicDocuments(JSON.parse(storedDocs));
+        if (storedTrash) setTrashItems(JSON.parse(storedTrash));
       } catch (e) {
         console.error('LocalStorage load error:', e);
       }
 
-      // 2. Async database API load (Progress & Documents)
+      // 2. Async database API load (Progress, Documents & Trash)
       try {
         setIsSyncingDb(true);
 
-        const [progressRes, docsRes] = await Promise.all([
+        const [progressRes, docsRes, trashRes] = await Promise.all([
           fetch('/api/progress'),
           fetch('/api/documents'),
+          fetch('/api/trash'),
         ]);
 
         const data = await progressRes.json();
@@ -120,6 +135,11 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         const docsData = await docsRes.json();
         if (docsData.success && docsData.documents) {
           setTopicDocuments((prev) => ({ ...prev, ...docsData.documents }));
+        }
+
+        const trashData = await trashRes.json();
+        if (trashData.success && Array.isArray(trashData.trashItems)) {
+          setTrashItems(trashData.trashItems);
         }
       } catch (e) {
         console.warn('Database fetch fallback to LocalStorage:', e);
@@ -145,10 +165,11 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       localStorage.setItem(LOCAL_STORAGE_CUSTOM_KEY, JSON.stringify(customSubjects));
       localStorage.setItem(LOCAL_STORAGE_DELETED_KEY, JSON.stringify(deletedSubjectIds));
       localStorage.setItem(LOCAL_STORAGE_DOCS_KEY, JSON.stringify(topicDocuments));
+      localStorage.setItem(LOCAL_STORAGE_TRASH_KEY, JSON.stringify(trashItems));
     } catch (e) {
       console.error('LocalStorage save error:', e);
     }
-  }, [userProgress, activeSubjectId, customSubjects, deletedSubjectIds, topicDocuments, isMounted]);
+  }, [userProgress, activeSubjectId, customSubjects, deletedSubjectIds, topicDocuments, trashItems, isMounted]);
 
   const selectSubject = (id: string) => {
     setActiveSubjectId(id);
@@ -328,8 +349,27 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const deleteSubject = (subjectId: string) => {
-    const updatedDeleted = Array.from(new Set([...deletedSubjectIds, subjectId]));
-    setDeletedSubjectIds(updatedDeleted);
+    const targetSubject = subjects.find((s) => s.id === subjectId);
+    const targetProgress = userProgress[subjectId];
+    const targetCustom = customSubjects.find((s) => s.id === subjectId);
+    const targetDocs = topicDocuments[subjectId] || {};
+
+    const snapshot = {
+      progress: targetProgress,
+      customSubject: targetCustom,
+      documents: targetDocs,
+    };
+
+    const newTrashItem: TrashWorkflowItem = {
+      subjectId,
+      title: targetSubject?.title || subjectId,
+      snapshot,
+      deletedAt: new Date().toISOString(),
+    };
+
+    // Update local state for trash and active lists
+    setTrashItems((prev) => [newTrashItem, ...prev.filter((t) => t.subjectId !== subjectId)]);
+    setDeletedSubjectIds((prev) => Array.from(new Set([...prev, subjectId])));
     setCustomSubjects((prev) => prev.filter((s) => s.id !== subjectId));
 
     const remaining = subjects.filter((s) => s.id !== subjectId);
@@ -339,14 +379,85 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setActiveSubjectId(null);
     }
 
-    fetch('/api/progress', {
+    // Call DB API to move to Trash (3 days retention)
+    fetch('/api/trash', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        action: 'DELETE_SUBJECT',
+        action: 'MOVE_TO_TRASH',
         subjectId,
+        title: targetSubject?.title || subjectId,
+        snapshot,
       }),
-    }).catch((err) => console.error('Database delete subject failed:', err));
+    }).catch((err) => console.error('Database move to trash failed:', err));
+  };
+
+  const restoreFromTrash = async (subjectId: string): Promise<boolean> => {
+    const trashItem = trashItems.find((t) => t.subjectId === subjectId);
+    if (!trashItem) return false;
+
+    const { snapshot } = trashItem;
+    const { progress, customSubject, documents } = snapshot;
+
+    // Restore local states
+    if (customSubject) {
+      setCustomSubjects((prev) => {
+        const exists = prev.some((s) => s.id === customSubject.id);
+        return exists ? prev : [...prev, customSubject];
+      });
+    }
+
+    if (progress) {
+      setUserProgress((prev) => ({
+        ...prev,
+        [subjectId]: progress,
+      }));
+    }
+
+    if (documents) {
+      setTopicDocuments((prev) => ({
+        ...prev,
+        [subjectId]: documents,
+      }));
+    }
+
+    setDeletedSubjectIds((prev) => prev.filter((id) => id !== subjectId));
+    setTrashItems((prev) => prev.filter((t) => t.subjectId !== subjectId));
+    setActiveSubjectId(subjectId);
+
+    try {
+      const res = await fetch('/api/trash', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'RESTORE',
+          subjectId,
+        }),
+      });
+      const data = await res.json();
+      return !!data.success;
+    } catch (err) {
+      console.error('Restore from trash API error:', err);
+      return false;
+    }
+  };
+
+  const permanentlyDeleteFromTrash = async (subjectId?: string): Promise<boolean> => {
+    if (subjectId) {
+      setTrashItems((prev) => prev.filter((t) => t.subjectId !== subjectId));
+    } else {
+      setTrashItems([]);
+    }
+
+    try {
+      const url = subjectId ? `/api/trash?subjectId=${subjectId}` : '/api/trash';
+      const res = await fetch(url, { method: 'DELETE' });
+      const data = await res.json();
+      return !!data.success;
+    } catch (err) {
+      console.error('Permanent delete from trash API error:', err);
+      return false;
+    }
   };
 
   const restoreDefaultSubjects = () => {
@@ -449,6 +560,7 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         userProgress,
         activeProgress,
         topicDocuments,
+        trashItems,
         selectSubject,
         startSubjectTrack,
         toggleTopicCompletion,
@@ -460,6 +572,8 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         getTopicDocument,
         saveTopicDocument,
         deleteTopicDocument,
+        restoreFromTrash,
+        permanentlyDeleteFromTrash,
         isMounted,
         isSyncingDb,
       }}

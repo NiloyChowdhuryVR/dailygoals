@@ -58,3 +58,18 @@ export interface SubjectProgress {
 export type AllUserProgress = Record<string, SubjectProgress>;
 export type AllTopicDocuments = Record<string, Record<string, TopicDocument>>; // subjectId -> topicId -> TopicDocument
 
+export interface TrashWorkflowSnapshot {
+  progress?: SubjectProgress;
+  customSubject?: SubjectData;
+  documents?: Record<string, TopicDocument>;
+}
+
+export interface TrashWorkflowItem {
+  id?: string;
+  subjectId: string;
+  title: string;
+  snapshot: TrashWorkflowSnapshot;
+  deletedAt: string; // ISO yyyy-MM-ddTHH:mm:ss.sssZ
+}
+
+

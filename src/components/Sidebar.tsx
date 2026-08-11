@@ -13,14 +13,16 @@ const iconMap: Record<string, React.ReactNode> = {
 
 interface SidebarProps {
   onOpenImportModal: () => void;
+  onOpenTrashModal?: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ onOpenImportModal }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ onOpenImportModal, onOpenTrashModal }) => {
   const {
     subjects,
     activeSubjectId,
     selectSubject,
     userProgress,
+    trashItems,
     deleteSubject,
     restoreDefaultSubjects,
   } = useProgress();
@@ -176,6 +178,23 @@ export const Sidebar: React.FC<SidebarProps> = ({ onOpenImportModal }) => {
             <Plus className="w-4 h-4 text-blue-400 group-hover:scale-110 transition-transform" />
             <span>Import Roadmap JSON</span>
           </button>
+
+          {onOpenTrashModal && (
+            <button
+              onClick={onOpenTrashModal}
+              className="w-full flex items-center justify-between p-2.5 rounded-xl border border-slate-800/80 bg-dark-850/40 hover:bg-rose-950/20 hover:border-rose-800/50 text-slate-300 hover:text-rose-300 transition-all font-medium text-xs group"
+            >
+              <div className="flex items-center gap-2">
+                <Trash2 className="w-4 h-4 text-slate-400 group-hover:text-rose-400 transition-colors" />
+                <span>Trash Bin (3 Days)</span>
+              </div>
+              {trashItems.length > 0 && (
+                <span className="px-2 py-0.5 rounded-full bg-rose-900/80 text-rose-200 font-mono text-[10px] font-bold">
+                  {trashItems.length}
+                </span>
+              )}
+            </button>
+          )}
 
           <button
             onClick={restoreDefaultSubjects}
