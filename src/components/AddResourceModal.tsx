@@ -90,13 +90,28 @@ export const AddResourceModal: React.FC<AddResourceModalProps> = ({ isOpen, onCl
 
     setIsSubmitting(true);
 
+    // Auto-bind subjectId: if a specific topic is selected, use activeSubject; if selected tags match a known subject track, bind to that subject
+    let computedSubjectId: string | undefined = undefined;
+    if (selectedTopicId && activeSubject) {
+      computedSubjectId = activeSubject.id;
+    } else if (selectedTags.length > 0) {
+      const matchingSubject = subjects.find(
+        (s) =>
+          selectedTags.includes(s.category || '') ||
+          selectedTags.some((t) => t.toLowerCase() === s.title.toLowerCase())
+      );
+      if (matchingSubject) {
+        computedSubjectId = matchingSubject.id;
+      }
+    }
+
     const success = await addResource({
       title: title.trim(),
       url: url.trim(),
       type,
       whyWatch: whyWatch.trim() || undefined,
       tags: selectedTags.length > 0 ? selectedTags : ['General'],
-      subjectId: activeSubject?.id,
+      subjectId: computedSubjectId,
       topicId: selectedTopicId || undefined,
     });
 

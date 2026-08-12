@@ -17,6 +17,8 @@ import { AddResourceModal } from '@/components/AddResourceModal';
 import { Menu, X, CalendarCheck, Layers, Sparkles, Video } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+import { doesResourceMatchSubject } from '@/lib/resourceUtils';
+
 export default function DashboardPage() {
   const {
     activeSubject,
@@ -39,14 +41,7 @@ export default function DashboardPage() {
   // Compute resource count specific to the active track
   const activeTrackResourcesCount = React.useMemo(() => {
     if (!activeSubject) return 0;
-    return savedResources.filter((res) => {
-      const matchesSubjectId = res.subjectId === activeSubject.id;
-      const matchesCategory = activeSubject.category && res.tags.includes(activeSubject.category);
-      const matchesTitleTag = res.tags.some(
-        (t) => t.toLowerCase() === activeSubject.title.toLowerCase()
-      );
-      return matchesSubjectId || matchesCategory || matchesTitleTag;
-    }).length;
+    return savedResources.filter((res) => doesResourceMatchSubject(res, activeSubject)).length;
   }, [savedResources, activeSubject]);
 
   // Lock background body scrolling when mobile sidebar drawer is open

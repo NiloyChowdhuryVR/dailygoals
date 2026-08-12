@@ -21,6 +21,8 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
 
+import { doesResourceMatchSubject } from '@/lib/resourceUtils';
+
 interface VideoVaultViewProps {
   onOpenAddModal: () => void;
   isGlobalView?: boolean;
@@ -44,14 +46,7 @@ export const VideoVaultView: React.FC<VideoVaultViewProps> = ({
     if (isGlobalView || !activeSubject) {
       return savedResources;
     }
-    return savedResources.filter((res) => {
-      const matchesSubjectId = res.subjectId === activeSubject.id;
-      const matchesCategory = activeSubject.category && res.tags.includes(activeSubject.category);
-      const matchesTitleTag = res.tags.some(
-        (t) => t.toLowerCase() === activeSubject.title.toLowerCase()
-      );
-      return matchesSubjectId || matchesCategory || matchesTitleTag;
-    });
+    return savedResources.filter((res) => doesResourceMatchSubject(res, activeSubject));
   }, [savedResources, activeSubject, isGlobalView]);
 
   // Extract all unique tags across baseResources
