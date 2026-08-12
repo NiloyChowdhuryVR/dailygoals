@@ -83,7 +83,8 @@ export const TrashModal: React.FC<TrashModalProps> = ({ isOpen, onClose }) => {
           <div className="p-4 md:p-6 overflow-y-auto space-y-3 min-h-[220px]">
             {trashItems.length > 0 ? (
               trashItems.map((item) => {
-                const completedCount = item.snapshot?.progress?.completedTopicIds?.length || 0;
+                const completedIds = Array.from(new Set((item.snapshot?.progress?.completedTopicIds || []).map(String)));
+                const completedCount = completedIds.length;
                 const docCount = item.snapshot?.documents ? Object.keys(item.snapshot.documents).length : 0;
 
                 return (

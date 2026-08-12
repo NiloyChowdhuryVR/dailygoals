@@ -63,7 +63,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ onOpenImportModal, onOpenTrash
                 const progress = userProgress[subject.id];
                 const isTrackStarted = progress ? (progress.isStarted !== false) : true;
                 const totalTopics = subject.phases.reduce((acc, p) => acc + p.topics.length, 0);
-                const completedCount = progress?.completedTopicIds?.length || 0;
+                const completedIds = Array.from(new Set((progress?.completedTopicIds || []).map(String)));
+                const completedCount = completedIds.length;
                 const percent = totalTopics > 0 ? Math.round((completedCount / totalTopics) * 100) : 0;
 
                 return (

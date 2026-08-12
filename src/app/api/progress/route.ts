@@ -18,7 +18,7 @@ export async function GET() {
         subjectId: p.subjectId,
         startDate: p.startDate,
         isStarted: p.isStarted ?? true,
-        completedTopicIds: p.completedTasks.map((t) => t.topicId),
+        completedTopicIds: p.completedTasks.map((t) => String(t.topicId)),
       };
     });
 
@@ -52,7 +52,7 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { action, subjectId, startDate, isStarted, topicId, customSubject } = body;
+    const { action, subjectId, startDate, isStarted, topicId, completed, customSubject } = body;
 
     // Action: Delete subject
     if (action === 'DELETE_SUBJECT' && subjectId) {
@@ -166,17 +166,24 @@ export async function POST(req: Request) {
         },
       });
 
-      if (existing) {
-        await prisma.completedTask.delete({
-          where: { id: existing.id },
-        });
-      } else {
-        await prisma.completedTask.create({
-          data: {
-            subjectProgressId: dbProgress.id,
-            topicId: topicIdStr,
-          },
-        });
+      const isMarkingComplete = completed === true || (completed === undefined && !existing);
+      const isMarkingIncomplete = completed === false || (completed === undefined && existing);
+
+      if (isMarkingComplete) {
+        if (!existing) {
+          await prisma.completedTask.create({
+            data: {
+              subjectProgressId: dbProgress.id,
+              topicId: topicIdStr,
+            },
+          });
+        }
+      } else if (isMarkingIncomplete) {
+        if (existing) {
+          await prisma.completedTask.delete({
+            where: { id: existing.id },
+          });
+        }
       }
     }
 

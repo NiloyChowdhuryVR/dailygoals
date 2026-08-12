@@ -74,7 +74,7 @@ export function useDailyTasks(
       currentDayIndex = 0;
     }
 
-    const completedIds = new Set(subjectProgress?.completedTopicIds || []);
+    const completedIds = new Set((subjectProgress?.completedTopicIds || []).map((id) => String(id)));
     const allTopics: ProcessedTopic[] = [];
     let globalTopicIndex = 0;
 
@@ -88,7 +88,7 @@ export function useDailyTasks(
       const isTodayPhaseDay = scheduledDayIndex === currentDayIndex;
 
       phase.topics.forEach((topic) => {
-        const isCompleted = completedIds.has(topic.id);
+        const isCompleted = completedIds.has(String(topic.id));
 
         let status: TaskStatus = 'upcoming';
         let isMissedShifted = false;

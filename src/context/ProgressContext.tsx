@@ -100,7 +100,17 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         const storedDocs = localStorage.getItem(LOCAL_STORAGE_DOCS_KEY);
         const storedTrash = localStorage.getItem(LOCAL_STORAGE_TRASH_KEY);
 
-        if (storedProgress) setUserProgress(JSON.parse(storedProgress));
+        if (storedProgress) {
+          const parsed = JSON.parse(storedProgress);
+          const normalized: AllUserProgress = {};
+          Object.keys(parsed).forEach((key) => {
+            normalized[key] = {
+              ...parsed[key],
+              completedTopicIds: (parsed[key].completedTopicIds || []).map((id: any) => String(id)),
+            };
+          });
+          setUserProgress(normalized);
+        }
         if (storedCustom) setCustomSubjects(JSON.parse(storedCustom));
         if (storedDeleted) setDeletedSubjectIds(JSON.parse(storedDeleted));
         if (storedActiveId) setActiveSubjectId(storedActiveId);
@@ -123,7 +133,26 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         const data = await progressRes.json();
         if (data.success) {
           if (data.progress && Object.keys(data.progress).length > 0) {
-            setUserProgress((prev) => ({ ...prev, ...data.progress }));
+            setUserProgress((prev) => {
+              const updated: AllUserProgress = { ...prev };
+              Object.keys(data.progress).forEach((sId) => {
+                const dbItem = data.progress[sId];
+                const prevItem = updated[sId];
+
+                const dbTopicIds = (dbItem.completedTopicIds || []).map((id: any) => String(id));
+                const prevTopicIds = (prevItem?.completedTopicIds || []).map((id: any) => String(id));
+
+                // Union of DB and LocalStorage completed IDs so no progress is ever lost
+                const mergedCompletedIds = Array.from(new Set([...dbTopicIds, ...prevTopicIds]));
+
+                updated[sId] = {
+                  ...(prevItem || {}),
+                  ...dbItem,
+                  completedTopicIds: mergedCompletedIds,
+                };
+              });
+              return updated;
+            });
           }
           if (data.customSubjects && data.customSubjects.length > 0) {
             setCustomSubjects(data.customSubjects);
@@ -228,10 +257,14 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       completedTopicIds: [],
     };
 
-    const isCompleted = existing.completedTopicIds.includes(topicId);
-    const updatedTopicIds = isCompleted
-      ? existing.completedTopicIds.filter((id) => id !== topicId)
-      : [...existing.completedTopicIds, topicId];
+    const topicIdStr = String(topicId);
+    const existingIdsStr = (existing.completedTopicIds || []).map((id) => String(id));
+    const isCompleted = existingIdsStr.includes(topicIdStr);
+    const nextCompletedState = !isCompleted;
+
+    const updatedTopicIds = nextCompletedState
+      ? Array.from(new Set([...existingIdsStr, topicIdStr]))
+      : existingIdsStr.filter((id) => id !== topicIdStr);
 
     // If completed a topic, mark as started automatically if not started
     setUserProgress((prev) => ({
@@ -248,7 +281,8 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         subjectId: targetId,
-        topicId: String(topicId),
+        topicId: topicIdStr,
+        completed: nextCompletedState,
         startDate: existing.startDate,
         isStarted: true,
       }),
@@ -411,7 +445,10 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     if (progress) {
       setUserProgress((prev) => ({
         ...prev,
-        [subjectId]: progress,
+        [subjectId]: {
+          ...progress,
+          completedTopicIds: (progress.completedTopicIds || []).map((id: any) => String(id)),
+        },
       }));
     }
 
