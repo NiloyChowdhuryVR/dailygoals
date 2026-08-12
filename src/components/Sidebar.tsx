@@ -42,7 +42,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       className={
         isMobileDrawer
           ? 'w-full flex flex-col justify-between space-y-6 pb-12'
-          : 'w-full lg:w-72 bg-dark-900/80 backdrop-blur-xl border-r border-slate-800/80 flex flex-col justify-between min-h-screen p-4'
+          : 'w-full lg:w-72 bg-dark-900/80 backdrop-blur-xl flex flex-col justify-between p-4 space-y-6 pb-12'
       }
     >
       <div className="space-y-6">

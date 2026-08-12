@@ -104,8 +104,8 @@ export default function DashboardPage() {
         )}
       </div>
 
-      {/* Desktop Persistent Sidebar */}
-      <div className="hidden lg:block shrink-0">
+      {/* Desktop Persistent Fixed Sidebar */}
+      <div className="hidden lg:block shrink-0 sticky top-0 h-screen overflow-y-auto overscroll-contain border-r border-slate-800/80 no-scrollbar z-30">
         <Sidebar
           onOpenImportModal={() => setIsImportModalOpen(true)}
           onOpenTrashModal={() => setIsTrashModalOpen(true)}
