@@ -17,9 +17,15 @@ interface SidebarProps {
   onOpenImportModal: () => void;
   onOpenTrashModal?: () => void;
   onOpenVideoVault?: () => void;
+  isMobileDrawer?: boolean;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ onOpenImportModal, onOpenTrashModal, onOpenVideoVault }) => {
+export const Sidebar: React.FC<SidebarProps> = ({
+  onOpenImportModal,
+  onOpenTrashModal,
+  onOpenVideoVault,
+  isMobileDrawer = false,
+}) => {
   const {
     subjects,
     activeSubjectId,
@@ -32,20 +38,28 @@ export const Sidebar: React.FC<SidebarProps> = ({ onOpenImportModal, onOpenTrash
   } = useProgress();
 
   return (
-    <aside className="w-full lg:w-72 bg-dark-900/80 backdrop-blur-xl border-r border-slate-800/80 flex flex-col justify-between min-h-screen p-4">
+    <aside
+      className={
+        isMobileDrawer
+          ? 'w-full flex flex-col justify-between space-y-6 pb-12'
+          : 'w-full lg:w-72 bg-dark-900/80 backdrop-blur-xl border-r border-slate-800/80 flex flex-col justify-between min-h-screen p-4'
+      }
+    >
       <div className="space-y-6">
-        {/* Brand Logo */}
-        <div className="flex items-center gap-3 px-2 py-3 border-b border-slate-800/60">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-500 to-purple-500 flex items-center justify-center shadow-lg shadow-blue-500/20">
-            <Sparkles className="w-5 h-5 text-white animate-pulse" />
+        {/* Brand Logo (Desktop only or non-drawer) */}
+        {!isMobileDrawer && (
+          <div className="flex items-center gap-3 px-2 py-3 border-b border-slate-800/60">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-500 to-purple-500 flex items-center justify-center shadow-lg shadow-blue-500/20">
+              <Sparkles className="w-5 h-5 text-white animate-pulse" />
+            </div>
+            <div>
+              <h1 className="font-bold text-lg text-white tracking-wide flex items-center gap-1.5">
+                Daily<span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">Goals</span>
+              </h1>
+              <p className="text-xs text-slate-400">Roadmap & Task Shifting</p>
+            </div>
           </div>
-          <div>
-            <h1 className="font-bold text-lg text-white tracking-wide flex items-center gap-1.5">
-              Daily<span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">Goals</span>
-            </h1>
-            <p className="text-xs text-slate-400">Roadmap & Task Shifting</p>
-          </div>
-        </div>
+        )}
 
         {/* Subjects Navigation */}
         <div>

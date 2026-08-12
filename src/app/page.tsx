@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useProgress } from '@/context/ProgressContext';
 import { useDailyTasks } from '@/hooks/useDailyTasks';
 import { ProcessedTopic } from '@/types/learning';
@@ -35,6 +35,21 @@ export default function DashboardPage() {
 
   const [selectedTopicForDoc, setSelectedTopicForDoc] = useState<ProcessedTopic | null>(null);
   const [isDocModalOpen, setIsDocModalOpen] = useState<boolean>(false);
+
+  // Lock background body scrolling when mobile sidebar drawer is open
+  useEffect(() => {
+    if (isMobileSidebarOpen) {
+      document.body.style.overflow = 'hidden';
+      document.body.style.touchAction = 'none';
+    } else {
+      document.body.style.overflow = '';
+      document.body.style.touchAction = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.touchAction = '';
+    };
+  }, [isMobileSidebarOpen]);
 
   const handleOpenDocModal = (topic: ProcessedTopic) => {
     setSelectedTopicForDoc(topic);
@@ -100,28 +115,41 @@ export default function DashboardPage() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsMobileSidebarOpen(false)}
-              className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm lg:hidden"
+              className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md lg:hidden touch-none"
             />
 
-            {/* Slide-over Container */}
+            {/* Slide-over Drawer Container */}
             <motion.div
               initial={{ x: '-100%' }}
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              className="fixed inset-y-0 left-0 z-50 w-[85vw] max-w-xs bg-dark-900 border-r border-slate-800 shadow-2xl lg:hidden flex flex-col justify-between"
+              className="fixed inset-y-0 left-0 z-50 w-[85vw] max-w-xs bg-dark-900 border-r border-slate-800 shadow-2xl lg:hidden flex flex-col h-full overscroll-contain"
             >
-              <div className="relative">
-                {/* Close Drawer Button */}
+              {/* Sticky Top Header inside Drawer */}
+              <div className="sticky top-0 z-20 flex items-center justify-between px-4 py-3 bg-dark-950/95 backdrop-blur-md border-b border-slate-800/80 shrink-0">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-500 to-purple-500 flex items-center justify-center shadow-md">
+                    <Sparkles className="w-4 h-4 text-white" />
+                  </div>
+                  <span className="font-extrabold text-base text-white tracking-wide">
+                    Daily<span className="text-blue-400">Goals</span>
+                  </span>
+                </div>
+
                 <button
                   onClick={() => setIsMobileSidebarOpen(false)}
-                  className="absolute top-4 right-4 p-2 rounded-xl bg-slate-800/80 border border-slate-700/60 text-slate-300 hover:text-white z-10"
+                  className="p-2 rounded-xl bg-slate-800/80 border border-slate-700/60 text-slate-300 hover:text-white active:scale-95 transition-all"
                   aria-label="Close menu"
                 >
                   <X className="w-4 h-4" />
                 </button>
+              </div>
 
+              {/* Scrollable Content Container */}
+              <div className="flex-1 overflow-y-auto overscroll-contain p-4 pb-20 space-y-6 no-scrollbar">
                 <Sidebar
+                  isMobileDrawer={true}
                   onOpenImportModal={() => {
                     setIsMobileSidebarOpen(false);
                     setIsImportModalOpen(true);
