@@ -22,6 +22,10 @@ export interface UseDailyTasksReturn {
     startDateFormatted: string;
     effectiveDateFormatted: string;
     isStarted: boolean;
+    isTodayPhaseCompleted: boolean;
+    isTodayGoalCompleted: boolean;
+    todayPhaseCompletedCount: number;
+    todayPhaseTotalCount: number;
   };
 }
 
@@ -53,6 +57,10 @@ export function useDailyTasks(
           startDateFormatted: '-',
           effectiveDateFormatted: format(baseToday, 'EEE, MMM d, yyyy'),
           isStarted: true,
+          isTodayPhaseCompleted: false,
+          isTodayGoalCompleted: false,
+          todayPhaseCompletedCount: 0,
+          todayPhaseTotalCount: 0,
         },
       };
     }
@@ -135,6 +143,12 @@ export function useDailyTasks(
       ...todayNativeTasks,
     ];
 
+    const todayPhaseTopics = allTopics.filter((t) => t.scheduledDayIndex === currentDayIndex);
+    const todayPhaseCompletedCount = todayPhaseTopics.filter((t) => t.status === 'completed').length;
+    const todayPhaseTotalCount = todayPhaseTopics.length;
+    const isTodayPhaseCompleted = todayPhaseTotalCount > 0 && todayPhaseCompletedCount === todayPhaseTotalCount;
+    const isTodayGoalCompleted = isTodayPhaseCompleted && shiftedMissedTasks.length === 0;
+
     const totalTopics = allTopics.length;
     const completedCount = completedTasks.length;
     const missedCount = shiftedMissedTasks.length;
@@ -162,6 +176,10 @@ export function useDailyTasks(
         startDateFormatted: format(startDate, 'MMM d, yyyy'),
         effectiveDateFormatted: format(baseToday, 'EEE, MMM d, yyyy'),
         isStarted,
+        isTodayPhaseCompleted,
+        isTodayGoalCompleted,
+        todayPhaseCompletedCount,
+        todayPhaseTotalCount,
       },
     };
   }, [subjectData, subjectProgress]);

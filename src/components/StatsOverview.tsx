@@ -27,11 +27,19 @@ export const StatsOverview: React.FC<StatsOverviewProps> = ({ dailyTasksReturn }
       color: stats.missedCount > 0 ? 'border-rose-500/40 bg-rose-950/20 text-rose-300' : 'border-slate-800 bg-dark-850/40 text-slate-400',
     },
     {
-      label: 'Current Schedule',
-      value: `Day ${stats.currentDayNumber}`,
-      subtext: `Target: ${stats.totalDaysNeeded} Days`,
-      icon: <Calendar className="w-5 h-5 text-blue-400" />,
-      color: 'border-blue-500/30 bg-blue-950/10 text-blue-300',
+      label: stats.isTodayGoalCompleted ? "Today's Goal" : 'Current Schedule',
+      value: stats.isTodayGoalCompleted ? 'Done! 🎉' : `Day ${stats.currentDayNumber}`,
+      subtext: stats.isTodayGoalCompleted
+        ? `Phase ${stats.currentDayNumber} All Done!`
+        : `${stats.todayPhaseCompletedCount}/${stats.todayPhaseTotalCount} topics done`,
+      icon: stats.isTodayGoalCompleted ? (
+        <Trophy className="w-5 h-5 text-amber-400 animate-bounce" />
+      ) : (
+        <Calendar className="w-5 h-5 text-blue-400" />
+      ),
+      color: stats.isTodayGoalCompleted
+        ? 'border-emerald-500/50 bg-gradient-to-br from-emerald-950/40 via-teal-950/20 to-dark-900 text-emerald-300 shadow-lg shadow-emerald-500/10'
+        : 'border-blue-500/30 bg-blue-950/10 text-blue-300',
     },
     {
       label: 'Upcoming Goals',

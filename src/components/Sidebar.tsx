@@ -2,8 +2,10 @@
 
 import React from 'react';
 import { useProgress } from '@/context/ProgressContext';
-import { Cpu, Layers, Code2, Plus, Sparkles, Trash2, BookOpen, RotateCcw } from 'lucide-react';
+import { Cpu, Layers, Code2, Plus, Sparkles, Trash2, BookOpen, RotateCcw, CheckCircle2 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { parseISO, differenceInCalendarDays, startOfDay } from 'date-fns';
+import { getEffectiveDate, getEffectiveTodayIso } from '@/lib/dateUtils';
 
 const iconMap: Record<string, React.ReactNode> = {
   Cpu: <Cpu className="w-5 h-5" />,
@@ -64,8 +66,33 @@ export const Sidebar: React.FC<SidebarProps> = ({ onOpenImportModal, onOpenTrash
                 const isTrackStarted = progress ? (progress.isStarted !== false) : true;
                 const totalTopics = subject.phases.reduce((acc, p) => acc + p.topics.length, 0);
                 const completedIds = Array.from(new Set((progress?.completedTopicIds || []).map(String)));
+                const completedSet = new Set(completedIds);
                 const completedCount = completedIds.length;
                 const percent = totalTopics > 0 ? Math.round((completedCount / totalTopics) * 100) : 0;
+
+                // Calculate today's goal completion for this track
+                const baseToday = getEffectiveDate(new Date());
+                const startDateIso = progress?.startDate || getEffectiveTodayIso(new Date());
+                let startDateObj: Date;
+                try {
+                  startDateObj = startOfDay(parseISO(startDateIso));
+                } catch {
+                  startDateObj = baseToday;
+                }
+                let dayIndex = isTrackStarted ? differenceInCalendarDays(baseToday, startDateObj) : 0;
+                if (dayIndex < 0) dayIndex = 0;
+
+                const currentPhase = subject.phases[dayIndex] || subject.phases[subject.phases.length - 1];
+                const todayPhaseTopics = currentPhase ? currentPhase.topics : [];
+                const todayPhaseDone = todayPhaseTopics.length > 0 && todayPhaseTopics.every((t) => completedSet.has(String(t.id)));
+                let hasUncompletedOverdue = false;
+                for (let pIdx = 0; pIdx < Math.min(dayIndex, subject.phases.length); pIdx++) {
+                  if (subject.phases[pIdx].topics.some((t) => !completedSet.has(String(t.id)))) {
+                    hasUncompletedOverdue = true;
+                    break;
+                  }
+                }
+                const isTodayGoalCompleted = todayPhaseDone && !hasUncompletedOverdue;
 
                 return (
                   <motion.div
@@ -97,9 +124,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ onOpenImportModal, onOpenTrash
                           <span className="font-semibold text-sm truncate">{subject.title}</span>
                         </div>
 
-                        {/* Active / Not Active Workflow Status Badge */}
-                        <div className="flex items-center gap-2 mb-2">
-                          {isTrackStarted ? (
+                        {/* Active / Not Active / Goal Met Status Badges */}
+                        <div className="flex flex-wrap items-center gap-1.5 mb-2">
+                          {isTodayGoalCompleted ? (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/50 text-emerald-300 text-[10px] font-bold font-mono shadow-sm shadow-emerald-500/20 animate-pulse">
+                              <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                              Goal Met Today ✓
+                            </span>
+                          ) : isTrackStarted ? (
                             <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-950/80 border border-emerald-800/60 text-emerald-300 text-[10px] font-semibold font-mono">
                               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                               Active

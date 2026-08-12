@@ -65,13 +65,29 @@ export const Header: React.FC<HeaderProps> = ({ subject, dailyTasksReturn, onOpe
                 </span>
               )}
 
+              {stats.isTodayGoalCompleted ? (
+                <span className="inline-flex items-center gap-1.5 text-xs font-extrabold px-3.5 py-1 rounded-full bg-gradient-to-r from-emerald-500/20 to-teal-500/20 text-emerald-300 border border-emerald-500/60 shadow-lg shadow-emerald-500/20 animate-pulse">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                  Today's Goal Completed! 🎉
+                </span>
+              ) : stats.isTodayPhaseCompleted ? (
+                <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-emerald-950/80 text-emerald-300 border border-emerald-800/60">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                  Today's Phase Finished ({stats.todayPhaseCompletedCount}/{stats.todayPhaseTotalCount})
+                </span>
+              ) : null}
+
               {!stats.isStarted ? (
                 <span className="inline-flex items-center gap-1 text-xs font-semibold px-3 py-1 rounded-full bg-amber-950/80 text-amber-300 border border-amber-800/60 animate-pulse">
                   <Clock className="w-3.5 h-3.5" />
                   Not Started Yet (Day 1 Ready)
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1 text-xs font-mono px-3 py-1 rounded-full bg-slate-800/80 text-slate-300 border border-slate-700/60">
+                <span className={`inline-flex items-center gap-1 text-xs font-mono px-3 py-1 rounded-full border ${
+                  stats.isTodayGoalCompleted
+                    ? 'bg-emerald-950/40 text-emerald-300 border-emerald-500/40'
+                    : 'bg-slate-800/80 text-slate-300 border-slate-700/60'
+                }`}>
                   <Calendar className="w-3.5 h-3.5 text-slate-400" />
                   Day {stats.currentDayNumber} of {stats.totalDaysNeeded} (1 Phase/Day)
                 </span>

@@ -84,11 +84,18 @@ export const PhaseTimeline: React.FC<PhaseTimelineProps> = ({ subject, dailyTask
           const completedInPhase = phaseTopics.filter((t) => t.status === 'completed').length;
           const totalInPhase = phaseTopics.length;
           const isPhaseCompleted = totalInPhase > 0 && completedInPhase === totalInPhase;
+          const isTodayPhase = phase.phase_number === dailyTasksReturn.stats.currentDayNumber;
 
           return (
             <div
               key={phase.phase_number}
-              className="rounded-2xl border border-slate-800/80 bg-dark-900/60 overflow-hidden backdrop-blur-md transition-all"
+              className={`rounded-2xl border overflow-hidden backdrop-blur-md transition-all ${
+                isTodayPhase
+                  ? isPhaseCompleted
+                    ? 'border-emerald-500/50 bg-emerald-950/20 shadow-lg shadow-emerald-500/10'
+                    : 'border-blue-500/50 bg-blue-950/20 shadow-lg shadow-blue-500/10'
+                  : 'border-slate-800/80 bg-dark-900/60'
+              }`}
             >
               {/* Phase Collapsible Header */}
               <button
@@ -100,6 +107,8 @@ export const PhaseTimeline: React.FC<PhaseTimelineProps> = ({ subject, dailyTask
                     className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold font-mono text-sm shrink-0 border ${
                       isPhaseCompleted
                         ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40'
+                        : isTodayPhase
+                        ? 'bg-blue-500/20 text-blue-300 border-blue-500/40'
                         : 'bg-purple-950/60 text-purple-300 border-purple-800/50'
                     }`}
                   >
@@ -107,12 +116,23 @@ export const PhaseTimeline: React.FC<PhaseTimelineProps> = ({ subject, dailyTask
                   </div>
 
                   <div className="space-y-0.5 min-w-0">
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                       <h3 className="font-bold text-base md:text-lg text-white truncate">
                         {phase.title}
                       </h3>
 
-                      {isPhaseCompleted && (
+                      {isTodayPhase && (
+                        <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
+                          isPhaseCompleted
+                            ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50 shadow-sm shadow-emerald-500/20 animate-pulse'
+                            : 'bg-blue-500/20 text-blue-300 border-blue-500/40'
+                        }`}>
+                          <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                          {isPhaseCompleted ? "Today's Phase Completed 🎉" : "Today's Scheduled Phase"}
+                        </span>
+                      )}
+
+                      {!isTodayPhase && isPhaseCompleted && (
                         <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800">
                           <CheckCircle2 className="w-3 h-3" />
                           Phase Complete
