@@ -27,7 +27,7 @@ export default function DashboardPage() {
 
   const dailyTasksReturn = useDailyTasks(activeSubject, activeProgress);
 
-  const [activeTab, setActiveTab] = useState<'today' | 'timeline' | 'vault'>('today');
+  const [activeTab, setActiveTab] = useState<'today' | 'timeline' | 'track-vault' | 'global-vault'>('today');
   const [isImportModalOpen, setIsImportModalOpen] = useState<boolean>(false);
   const [isTrashModalOpen, setIsTrashModalOpen] = useState<boolean>(false);
   const [isAddResourceModalOpen, setIsAddResourceModalOpen] = useState<boolean>(false);
@@ -35,6 +35,19 @@ export default function DashboardPage() {
 
   const [selectedTopicForDoc, setSelectedTopicForDoc] = useState<ProcessedTopic | null>(null);
   const [isDocModalOpen, setIsDocModalOpen] = useState<boolean>(false);
+
+  // Compute resource count specific to the active track
+  const activeTrackResourcesCount = React.useMemo(() => {
+    if (!activeSubject) return 0;
+    return savedResources.filter((res) => {
+      const matchesSubjectId = res.subjectId === activeSubject.id;
+      const matchesCategory = activeSubject.category && res.tags.includes(activeSubject.category);
+      const matchesTitleTag = res.tags.some(
+        (t) => t.toLowerCase() === activeSubject.title.toLowerCase()
+      );
+      return matchesSubjectId || matchesCategory || matchesTitleTag;
+    }).length;
+  }, [savedResources, activeSubject]);
 
   // Lock background body scrolling when mobile sidebar drawer is open
   useEffect(() => {
@@ -101,7 +114,7 @@ export default function DashboardPage() {
         <Sidebar
           onOpenImportModal={() => setIsImportModalOpen(true)}
           onOpenTrashModal={() => setIsTrashModalOpen(true)}
-          onOpenVideoVault={() => setActiveTab('vault')}
+          onOpenVideoVault={() => setActiveTab('global-vault')}
         />
       </div>
 
@@ -160,7 +173,7 @@ export default function DashboardPage() {
                   }}
                   onOpenVideoVault={() => {
                     setIsMobileSidebarOpen(false);
-                    setActiveTab('vault');
+                    setActiveTab('global-vault');
                   }}
                 />
               </div>
@@ -215,18 +228,18 @@ export default function DashboardPage() {
               </button>
 
               <button
-                onClick={() => setActiveTab('vault')}
+                onClick={() => setActiveTab('track-vault')}
                 className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl font-semibold text-xs sm:text-sm transition-all shrink-0 ${
-                  activeTab === 'vault'
+                  activeTab === 'track-vault' || activeTab === 'global-vault'
                     ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/20'
                     : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
                 }`}
               >
                 <Video className="w-4 h-4 text-purple-300" />
                 <span>Video Vault</span>
-                {savedResources.length > 0 && (
+                {activeTrackResourcesCount > 0 && (
                   <span className="px-2 py-0.5 rounded-full bg-purple-950 text-purple-200 font-mono text-[11px] border border-purple-700/60">
-                    {savedResources.length}
+                    {activeTrackResourcesCount}
                   </span>
                 )}
               </button>
@@ -266,7 +279,13 @@ export default function DashboardPage() {
                   exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <VideoVaultView onOpenAddModal={() => setIsAddResourceModalOpen(true)} />
+                  <VideoVaultView
+                    isGlobalView={activeTab === 'global-vault'}
+                    onSwitchViewMode={(isGlobal) =>
+                      setActiveTab(isGlobal ? 'global-vault' : 'track-vault')
+                    }
+                    onOpenAddModal={() => setIsAddResourceModalOpen(true)}
+                  />
                 </motion.div>
               )}
             </AnimatePresence>

@@ -21,17 +21,25 @@ interface AddResourceModalProps {
 }
 
 export const AddResourceModal: React.FC<AddResourceModalProps> = ({ isOpen, onClose }) => {
-  const { addResource, activeSubject } = useProgress();
+  const { addResource, activeSubject, subjects } = useProgress();
 
   const [url, setUrl] = useState<string>('');
   const [title, setTitle] = useState<string>('');
   const [type, setType] = useState<'video' | 'playlist'>('video');
   const [whyWatch, setWhyWatch] = useState<string>('');
-  const [selectedTags, setSelectedTags] = useState<string[]>(['AI / LLMs']);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [customTag, setCustomTag] = useState<string>('');
   const [selectedTopicId, setSelectedTopicId] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  // Set default category tag based on active subject when opened
+  React.useEffect(() => {
+    if (isOpen) {
+      const defaultCategory = activeSubject?.category || activeSubject?.title || 'General';
+      setSelectedTags([defaultCategory]);
+    }
+  }, [isOpen, activeSubject]);
 
   if (!isOpen) return null;
 
@@ -271,21 +279,27 @@ export const AddResourceModal: React.FC<AddResourceModalProps> = ({ isOpen, onCl
               </label>
 
               <div className="flex flex-wrap gap-1.5">
-                {PRESET_TAGS.map((tag) => {
-                  const isSelected = selectedTags.includes(tag);
+                {Array.from(
+                  new Set([
+                    ...(activeSubject?.category ? [activeSubject.category] : []),
+                    ...subjects.map((s) => s.category).filter(Boolean),
+                    ...PRESET_TAGS,
+                  ])
+                ).map((tag) => {
+                  const isSelected = selectedTags.includes(tag as string);
                   return (
                     <button
-                      key={tag}
+                      key={tag as string}
                       type="button"
-                      onClick={() => toggleTag(tag)}
+                      onClick={() => toggleTag(tag as string)}
                       className={`px-3 py-1 rounded-full text-xs font-medium transition-all flex items-center gap-1 border ${
                         isSelected
-                          ? 'bg-purple-600 text-white border-purple-500 shadow-sm'
+                          ? 'bg-purple-600 text-white border-purple-500 shadow-sm font-bold'
                           : 'bg-dark-850/80 border-slate-800 text-slate-400 hover:text-slate-200'
                       }`}
                     >
                       {isSelected && <Check className="w-3 h-3 text-white" />}
-                      <span>{tag}</span>
+                      <span>{tag as string}</span>
                     </button>
                   );
                 })}
