@@ -74,10 +74,10 @@ export const TodayTasksList: React.FC<TodayTasksListProps> = ({ dailyTasksReturn
         </div>
 
         {/* Filter Buttons */}
-        <div className="flex items-center gap-1.5 bg-dark-900 p-1 rounded-xl border border-slate-800/80 shrink-0">
+        <div className="flex items-center gap-1.5 bg-dark-900 p-1 rounded-xl border border-slate-800/80 overflow-x-auto no-scrollbar w-full sm:w-auto shrink-0">
           <button
             onClick={() => setActiveFilter('all')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all shrink-0 ${
               activeFilter === 'all'
                 ? 'bg-blue-600 text-white shadow-md'
                 : 'text-slate-400 hover:text-slate-200'
@@ -89,7 +89,7 @@ export const TodayTasksList: React.FC<TodayTasksListProps> = ({ dailyTasksReturn
           {shiftedMissedTasks.length > 0 && (
             <button
               onClick={() => setActiveFilter('missed')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1 ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all shrink-0 flex items-center gap-1 ${
                 activeFilter === 'missed'
                   ? 'bg-rose-600 text-white shadow-md'
                   : 'text-slate-400 hover:text-slate-200'
@@ -105,7 +105,7 @@ export const TodayTasksList: React.FC<TodayTasksListProps> = ({ dailyTasksReturn
           {todayNativeCount > 0 && (
             <button
               onClick={() => setActiveFilter('today')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all shrink-0 ${
                 activeFilter === 'today'
                   ? 'bg-purple-600 text-white shadow-md'
                   : 'text-slate-400 hover:text-slate-200'

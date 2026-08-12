@@ -50,33 +50,88 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-dark-950 text-slate-100 flex flex-col lg:flex-row antialiased">
-      {/* Mobile Top Navbar */}
-      <div className="lg:hidden flex items-center justify-between p-4 bg-dark-900 border-b border-slate-800">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-600 to-purple-600 flex items-center justify-center">
-            <Sparkles className="w-4 h-4 text-white" />
+      {/* Mobile Top Sticky Navbar */}
+      <div className="lg:hidden sticky top-0 z-40 flex items-center justify-between px-4 py-3 bg-dark-900/90 border-b border-slate-800/80 backdrop-blur-xl">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-500 to-purple-500 flex items-center justify-center shadow-md shadow-blue-500/20 shrink-0">
+            <Sparkles className="w-4.5 h-4.5 text-white" />
           </div>
-          <span className="font-bold text-white">DailyGoals</span>
+          <div className="flex flex-col min-w-0">
+            <span className="font-extrabold text-sm text-white tracking-wide">DailyGoals</span>
+            {activeSubject && (
+              <span className="text-[11px] text-slate-400 truncate max-w-[170px] sm:max-w-[260px]">
+                {activeSubject.title}
+              </span>
+            )}
+          </div>
         </div>
 
         <button
-          onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
-          className="p-2 rounded-xl bg-slate-800 text-slate-300"
+          onClick={() => setIsMobileSidebarOpen(true)}
+          className="p-2.5 rounded-xl bg-slate-800/80 border border-slate-700/60 text-slate-200 hover:text-white shrink-0"
+          aria-label="Open Sidebar Menu"
         >
-          {isMobileSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          <Menu className="w-5 h-5" />
         </button>
       </div>
 
-      {/* Sidebar Navigation */}
-      <div className={`${isMobileSidebarOpen ? 'block' : 'hidden'} lg:block`}>
+      {/* Desktop Sidebar (Permanent) */}
+      <div className="hidden lg:block">
         <Sidebar
           onOpenImportModal={() => setIsImportModalOpen(true)}
           onOpenTrashModal={() => setIsTrashModalOpen(true)}
         />
       </div>
 
+      {/* Mobile Slide-over Drawer Sidebar */}
+      <AnimatePresence>
+        {isMobileSidebarOpen && (
+          <>
+            {/* Backdrop Overlay */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsMobileSidebarOpen(false)}
+              className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm lg:hidden"
+            />
+
+            {/* Slide-over Content Drawer */}
+            <motion.div
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className="fixed inset-y-0 left-0 z-50 w-[85vw] max-w-xs bg-dark-900 border-r border-slate-800 shadow-2xl lg:hidden flex flex-col justify-between"
+            >
+              <div className="relative">
+                {/* Close Drawer Button */}
+                <button
+                  onClick={() => setIsMobileSidebarOpen(false)}
+                  className="absolute top-4 right-4 p-2 rounded-xl bg-slate-800/80 border border-slate-700/60 text-slate-300 hover:text-white z-10"
+                  aria-label="Close menu"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+
+                <Sidebar
+                  onOpenImportModal={() => {
+                    setIsMobileSidebarOpen(false);
+                    setIsImportModalOpen(true);
+                  }}
+                  onOpenTrashModal={() => {
+                    setIsMobileSidebarOpen(false);
+                    setIsTrashModalOpen(true);
+                  }}
+                />
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
       {/* Main Content Area */}
-      <main className="flex-1 p-4 md:p-8 space-y-6 md:space-y-8 max-w-6xl mx-auto w-full">
+      <main className="flex-1 p-3.5 sm:p-6 md:p-8 space-y-5 md:space-y-8 max-w-6xl mx-auto w-full">
         {/* Header Hero */}
         <Header
           subject={activeSubject}
@@ -90,10 +145,10 @@ export default function DashboardPage() {
             <StatsOverview dailyTasksReturn={dailyTasksReturn} />
 
             {/* Primary View Switcher Tabs */}
-            <div className="flex items-center gap-2 border-b border-slate-800/80 pb-2">
+            <div className="flex items-center gap-2 border-b border-slate-800/80 pb-2 overflow-x-auto no-scrollbar">
               <button
                 onClick={() => setActiveTab('today')}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all ${
+                className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl font-semibold text-xs sm:text-sm transition-all shrink-0 ${
                   activeTab === 'today'
                     ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
                     : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
@@ -102,7 +157,7 @@ export default function DashboardPage() {
                 <CalendarCheck className="w-4 h-4" />
                 <span>Today's Goals</span>
                 {dailyTasksReturn.todayTasks.length > 0 && (
-                  <span className="px-2 py-0.5 rounded-full bg-blue-950 text-blue-200 font-mono text-xs border border-blue-800/60">
+                  <span className="px-2 py-0.5 rounded-full bg-blue-950 text-blue-200 font-mono text-[11px] border border-blue-800/60">
                     {dailyTasksReturn.todayTasks.length}
                   </span>
                 )}
@@ -110,7 +165,7 @@ export default function DashboardPage() {
 
               <button
                 onClick={() => setActiveTab('timeline')}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all ${
+                className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl font-semibold text-xs sm:text-sm transition-all shrink-0 ${
                   activeTab === 'timeline'
                     ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/20'
                     : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'

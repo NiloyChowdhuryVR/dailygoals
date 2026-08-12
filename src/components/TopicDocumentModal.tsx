@@ -201,7 +201,7 @@ export const TopicDocumentModal: React.FC<TopicDocumentModalProps> = ({
           </div>
 
           {/* Formatting Toolbar */}
-          <div className="px-3 py-2 border-b border-slate-800 bg-dark-850/80 flex flex-wrap items-center gap-1 shrink-0 overflow-x-auto">
+          <div className="px-3 py-2 border-b border-slate-800 bg-dark-850/80 flex items-center gap-1 shrink-0 overflow-x-auto no-scrollbar">
             {/* Text Style Headings */}
             <button
               onClick={() => executeCommand('formatBlock', '<h1>')}

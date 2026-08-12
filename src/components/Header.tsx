@@ -48,89 +48,89 @@ export const Header: React.FC<HeaderProps> = ({ subject, dailyTasksReturn, onOpe
   }
 
   return (
-    <header className="relative overflow-hidden rounded-2xl bg-gradient-to-b from-dark-850/90 via-dark-900/90 to-dark-950/90 border border-slate-800/80 p-6 shadow-2xl backdrop-blur-xl">
+    <header className="relative overflow-hidden rounded-2xl bg-gradient-to-b from-dark-850/90 via-dark-900/90 to-dark-950/90 border border-slate-800/80 p-4 sm:p-6 shadow-2xl backdrop-blur-xl">
       {/* Subtle Background Radial Glow */}
       <div className="absolute -top-24 -right-24 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl pointer-events-none" />
 
-      <div className="relative z-10 space-y-6">
+      <div className="relative z-10 space-y-4 sm:space-y-6">
         {/* Top Info Row */}
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
           <div className="space-y-2 max-w-3xl">
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
               {subject.category && (
-                <span className="inline-flex items-center gap-1 text-xs font-semibold px-3 py-1 rounded-full bg-blue-950/80 text-blue-400 border border-blue-800/50">
-                  <Sparkles className="w-3.5 h-3.5" />
+                <span className="inline-flex items-center gap-1 text-[11px] sm:text-xs font-semibold px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-blue-950/80 text-blue-400 border border-blue-800/50">
+                  <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                   {subject.category}
                 </span>
               )}
 
               {stats.isTodayGoalCompleted ? (
-                <span className="inline-flex items-center gap-1.5 text-xs font-extrabold px-3.5 py-1 rounded-full bg-gradient-to-r from-emerald-500/20 to-teal-500/20 text-emerald-300 border border-emerald-500/60 shadow-lg shadow-emerald-500/20 animate-pulse">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                <span className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-extrabold px-3 py-0.5 sm:py-1 rounded-full bg-gradient-to-r from-emerald-500/20 to-teal-500/20 text-emerald-300 border border-emerald-500/60 shadow-lg shadow-emerald-500/20 animate-pulse">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
                   Today's Goal Completed! 🎉
                 </span>
               ) : stats.isTodayPhaseCompleted ? (
-                <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-emerald-950/80 text-emerald-300 border border-emerald-800/60">
+                <span className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-bold px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-emerald-950/80 text-emerald-300 border border-emerald-800/60">
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
                   Today's Phase Finished ({stats.todayPhaseCompletedCount}/{stats.todayPhaseTotalCount})
                 </span>
               ) : null}
 
               {!stats.isStarted ? (
-                <span className="inline-flex items-center gap-1 text-xs font-semibold px-3 py-1 rounded-full bg-amber-950/80 text-amber-300 border border-amber-800/60 animate-pulse">
-                  <Clock className="w-3.5 h-3.5" />
+                <span className="inline-flex items-center gap-1 text-[11px] sm:text-xs font-semibold px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-amber-950/80 text-amber-300 border border-amber-800/60 animate-pulse">
+                  <Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                   Not Started Yet (Day 1 Ready)
                 </span>
               ) : (
-                <span className={`inline-flex items-center gap-1 text-xs font-mono px-3 py-1 rounded-full border ${
+                <span className={`inline-flex items-center gap-1 text-[11px] sm:text-xs font-mono px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full border ${
                   stats.isTodayGoalCompleted
                     ? 'bg-emerald-950/40 text-emerald-300 border-emerald-500/40'
                     : 'bg-slate-800/80 text-slate-300 border-slate-700/60'
                 }`}>
-                  <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                  <Calendar className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-slate-400" />
                   Day {stats.currentDayNumber} of {stats.totalDaysNeeded} (1 Phase/Day)
                 </span>
               )}
 
               {stats.missedCount > 0 && (
-                <span className="inline-flex items-center gap-1 text-xs font-semibold px-3 py-1 rounded-full bg-rose-950/80 text-rose-400 border border-rose-800/60 animate-pulse">
-                  <AlertCircle className="w-3.5 h-3.5" />
+                <span className="inline-flex items-center gap-1 text-[11px] sm:text-xs font-semibold px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-rose-950/80 text-rose-400 border border-rose-800/60 animate-pulse">
+                  <AlertCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                   {stats.missedCount} Shifted Topic{stats.missedCount > 1 ? 's' : ''}
                 </span>
               )}
 
               {/* 4:00 AM Daily Reset Badge */}
               <span
-                className="inline-flex items-center gap-1 text-xs font-mono px-2.5 py-1 rounded-full bg-purple-950/80 text-purple-300 border border-purple-800/60"
+                className="inline-flex items-center gap-1 text-[11px] sm:text-xs font-mono px-2.5 py-0.5 sm:py-1 rounded-full bg-purple-950/80 text-purple-300 border border-purple-800/60"
                 title="Daily reset happens at 4:00 AM so your late night work counts toward the current day!"
               >
-                <Moon className="w-3.5 h-3.5 text-purple-400" />
-                4:00 AM Reset
+                <Moon className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-purple-400" />
+                4 AM Reset
               </span>
 
               {/* Database Sync Badge */}
-              <span className="inline-flex items-center gap-1 text-xs font-mono px-2.5 py-1 rounded-full bg-emerald-950/60 text-emerald-400 border border-emerald-800/60">
-                <Database className="w-3.5 h-3.5 text-emerald-400" />
-                {isSyncingDb ? 'Syncing DB...' : 'Database Active'}
+              <span className="inline-flex items-center gap-1 text-[11px] sm:text-xs font-mono px-2.5 py-0.5 sm:py-1 rounded-full bg-emerald-950/60 text-emerald-400 border border-emerald-800/60">
+                <Database className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-400" />
+                {isSyncingDb ? 'Syncing...' : 'DB Active'}
               </span>
             </div>
 
-            <h1 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight leading-snug">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-white tracking-tight leading-snug">
               {subject.title}
             </h1>
 
-            <p className="text-slate-400 text-sm md:text-base leading-relaxed">
+            <p className="text-slate-400 text-xs sm:text-sm md:text-base leading-relaxed">
               {subject.description}
             </p>
           </div>
 
           {/* Action buttons */}
-          <div className="flex items-center gap-2 self-start shrink-0">
+          <div className="flex flex-wrap items-center gap-2 w-full md:w-auto pt-1 md:pt-0 shrink-0">
             {!stats.isStarted ? (
               <button
                 onClick={() => startSubjectTrack(subject.id)}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-blue-600 hover:from-emerald-400 hover:to-blue-500 text-white font-bold text-xs shadow-lg shadow-emerald-500/20 transition-all transform hover:scale-105"
+                className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-blue-600 hover:from-emerald-400 hover:to-blue-500 text-white font-bold text-xs shadow-lg shadow-emerald-500/20 transition-all transform active:scale-95"
               >
                 <PlayCircle className="w-4 h-4" />
                 <span>Start Track Today</span>

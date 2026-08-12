@@ -123,12 +123,12 @@ export const ImportJsonModal: React.FC<ImportJsonModalProps> = ({ isOpen, onClos
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-md overflow-y-auto">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
-          className="relative w-full max-w-2xl rounded-2xl bg-dark-900 border border-slate-800 p-6 shadow-2xl space-y-5"
+          className="relative w-full max-w-2xl rounded-2xl bg-dark-900 border border-slate-800 p-4 sm:p-6 shadow-2xl space-y-4 sm:space-y-5 max-h-[92vh] overflow-y-auto"
         >
           {/* Header */}
           <div className="flex items-center justify-between border-b border-slate-800 pb-4">

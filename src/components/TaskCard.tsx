@@ -65,18 +65,18 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, isCompact = false, onO
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.95 }}
       transition={{ duration: 0.2 }}
-      className={`relative group rounded-2xl border p-4 md:p-5 transition-all duration-300 backdrop-blur-md ${getCardStyles()}`}
+      className={`relative group rounded-2xl border p-3.5 sm:p-4 md:p-5 transition-all duration-300 backdrop-blur-md ${getCardStyles()}`}
     >
-      <div className="flex items-start gap-4">
+      <div className="flex items-start gap-3 sm:gap-4">
         {/* Animated Custom Checkbox */}
         <button
           onClick={handleCheckboxClick}
-          className="relative shrink-0 mt-0.5 group/check focus:outline-none focus:ring-2 focus:ring-blue-500/50 rounded-xl"
+          className="relative shrink-0 mt-0.5 p-1 -m-1 group/check focus:outline-none focus:ring-2 focus:ring-blue-500/50 rounded-xl"
           aria-label={isCompleted ? 'Mark as incomplete' : 'Mark as completed'}
         >
           <motion.div
             whileTap={{ scale: 0.85 }}
-            className={`w-7 h-7 rounded-xl flex items-center justify-center border transition-all duration-300 ${
+            className={`w-7 h-7 sm:w-7 sm:h-7 rounded-xl flex items-center justify-center border transition-all duration-300 ${
               isCompleted
                 ? 'bg-emerald-500 border-emerald-400 text-slate-950 shadow-md shadow-emerald-500/30'
                 : isMissedShifted
@@ -101,10 +101,10 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, isCompact = false, onO
         {/* Task Details */}
         <div className="flex-1 min-w-0 space-y-2">
           {/* Header Badges Row */}
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
             {/* Shifted Missed Task Badge */}
             {isMissedShifted && !isCompleted && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-rose-500/20 border border-rose-500/40 text-rose-300 text-[11px] font-semibold tracking-wide uppercase font-mono">
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-rose-500/20 border border-rose-500/40 text-rose-300 text-[10px] sm:text-[11px] font-semibold tracking-wide uppercase font-mono">
                 <AlertCircle className="w-3 h-3 text-rose-400" />
                 Shifted from Day {task.shiftedFromDayIndex || task.scheduledDayIndex + 1}
               </span>
@@ -112,29 +112,29 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, isCompact = false, onO
 
             {/* Today Native Task Badge */}
             {isToday && !isCompleted && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-blue-500/20 border border-blue-500/40 text-blue-300 text-[11px] font-semibold tracking-wide uppercase font-mono">
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-blue-500/20 border border-blue-500/40 text-blue-300 text-[10px] sm:text-[11px] font-semibold tracking-wide uppercase font-mono">
                 <Sparkles className="w-3 h-3 text-blue-400" />
-                Today's Scheduled Goal
+                Today's Goal
               </span>
             )}
 
             {/* Document Saved Badge */}
             {hasDoc && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-purple-950/80 border border-purple-500/50 text-purple-300 text-[11px] font-semibold font-mono shadow-sm shadow-purple-500/20">
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-purple-950/80 border border-purple-500/50 text-purple-300 text-[10px] sm:text-[11px] font-semibold font-mono shadow-sm shadow-purple-500/20">
                 <FileText className="w-3 h-3 text-purple-400" />
                 Doc Saved
               </span>
             )}
 
             {/* Phase Identifier */}
-            <span className="text-[11px] font-medium text-slate-400 font-mono">
+            <span className="text-[10px] sm:text-[11px] font-medium text-slate-400 font-mono truncate">
               Phase {task.phaseNumber}: {task.phaseTitle}
             </span>
           </div>
 
           {/* Title & Strikethrough Animation */}
           <h3
-            className={`font-semibold text-base md:text-lg transition-all duration-300 leading-snug ${
+            className={`font-semibold text-sm sm:text-base md:text-lg transition-all duration-300 leading-snug ${
               isCompleted
                 ? 'line-through text-slate-400 font-normal'
                 : 'text-white'
@@ -146,7 +146,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, isCompact = false, onO
           {/* Description */}
           {!isCompact && (
             <p
-              className={`text-xs md:text-sm leading-relaxed ${
+              className={`text-xs sm:text-sm leading-relaxed ${
                 isCompleted ? 'text-slate-500' : 'text-slate-300'
               }`}
             >
@@ -155,15 +155,15 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, isCompact = false, onO
           )}
 
           {/* Footer Metadata & Actions */}
-          <div className="flex flex-wrap items-center justify-between gap-3 pt-2 text-xs text-slate-400 border-t border-slate-800/40">
+          <div className="flex flex-wrap items-center justify-between gap-2.5 pt-2 text-xs text-slate-400 border-t border-slate-800/40">
             <div className="flex items-center gap-3">
-              <span className="flex items-center gap-1 font-mono">
+              <span className="flex items-center gap-1 font-mono text-[11px] sm:text-xs">
                 <Calendar className="w-3.5 h-3.5 text-slate-500" />
                 Day {task.scheduledDayIndex + 1}
               </span>
 
               {task.estimatedMinutes && (
-                <span className="flex items-center gap-1 font-mono">
+                <span className="flex items-center gap-1 font-mono text-[11px] sm:text-xs">
                   <Clock className="w-3.5 h-3.5 text-slate-500" />
                   {task.estimatedMinutes} mins
                 </span>
@@ -178,7 +178,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, isCompact = false, onO
                     e.stopPropagation();
                     onOpenDoc(task);
                   }}
-                  className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all border ${
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border active:scale-95 ${
                     hasDoc
                       ? 'bg-purple-950/80 border-purple-700/80 text-purple-300 hover:bg-purple-900'
                       : 'bg-slate-800/80 border-slate-700/80 text-slate-300 hover:text-white hover:bg-slate-700/80 hover:border-blue-500/50'
@@ -195,7 +195,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, isCompact = false, onO
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={(e) => e.stopPropagation()}
-                  className="inline-flex items-center gap-1 text-blue-400 hover:text-blue-300 hover:underline font-medium"
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-blue-950/40 border border-blue-800/40 text-blue-400 hover:text-blue-300 text-xs font-medium active:scale-95"
                 >
                   <span>Docs</span>
                   <ExternalLink className="w-3 h-3" />
