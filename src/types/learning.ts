@@ -72,4 +72,18 @@ export interface TrashWorkflowItem {
   deletedAt: string; // ISO yyyy-MM-ddTHH:mm:ss.sssZ
 }
 
+export interface SavedResource {
+  id: string;
+  title: string;
+  url: string;
+  type: 'video' | 'playlist';
+  whyWatch?: string;
+  tags: string[];
+  subjectId?: string;
+  topicId?: string;
+  isWatched: boolean;
+  createdAt: string;
+  updatedAt?: string;
+}
+
 

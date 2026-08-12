@@ -62,4 +62,18 @@ model WorkflowTrashItem {
   deletedAt DateTime @default(now())
 }
 
+model SavedResource {
+  id        String   @id @default(cuid())
+  title     String
+  url       String
+  type      String   @default("video")
+  whyWatch  String?  @db.Text
+  tags      String   @db.Text
+  subjectId String?
+  topicId   String?
+  isWatched Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 

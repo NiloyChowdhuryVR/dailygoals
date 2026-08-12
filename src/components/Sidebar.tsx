@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useProgress } from '@/context/ProgressContext';
-import { Cpu, Layers, Code2, Plus, Sparkles, Trash2, BookOpen, RotateCcw, CheckCircle2 } from 'lucide-react';
+import { Cpu, Layers, Code2, Plus, Sparkles, Trash2, BookOpen, RotateCcw, CheckCircle2, Video } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { parseISO, differenceInCalendarDays, startOfDay } from 'date-fns';
 import { getEffectiveDate, getEffectiveTodayIso } from '@/lib/dateUtils';
@@ -16,15 +16,17 @@ const iconMap: Record<string, React.ReactNode> = {
 interface SidebarProps {
   onOpenImportModal: () => void;
   onOpenTrashModal?: () => void;
+  onOpenVideoVault?: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ onOpenImportModal, onOpenTrashModal }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ onOpenImportModal, onOpenTrashModal, onOpenVideoVault }) => {
   const {
     subjects,
     activeSubjectId,
     selectSubject,
     userProgress,
     trashItems,
+    savedResources,
     deleteSubject,
     restoreDefaultSubjects,
   } = useProgress();
@@ -204,6 +206,23 @@ export const Sidebar: React.FC<SidebarProps> = ({ onOpenImportModal, onOpenTrash
 
         {/* Actions */}
         <div className="space-y-2">
+          {onOpenVideoVault && (
+            <button
+              onClick={onOpenVideoVault}
+              className="w-full flex items-center justify-between p-2.5 rounded-xl border border-purple-950/60 bg-gradient-to-r from-purple-950/40 to-blue-950/30 hover:bg-purple-900/40 hover:border-purple-500/50 text-purple-200 transition-all font-semibold text-xs group shadow-sm shadow-purple-500/10"
+            >
+              <div className="flex items-center gap-2">
+                <Video className="w-4 h-4 text-purple-400 group-hover:scale-110 transition-transform" />
+                <span>Video & Playlist Vault</span>
+              </div>
+              {savedResources.length > 0 && (
+                <span className="px-2 py-0.5 rounded-full bg-purple-900 text-purple-200 font-mono text-[10px] font-bold border border-purple-700/60">
+                  {savedResources.length}
+                </span>
+              )}
+            </button>
+          )}
+
           <button
             onClick={onOpenImportModal}
             className="w-full flex items-center justify-center gap-2 p-3 rounded-xl border border-dashed border-slate-700 bg-slate-900/40 hover:bg-slate-800/60 hover:border-blue-500/50 text-slate-300 hover:text-blue-400 transition-all font-medium text-sm group"

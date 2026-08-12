@@ -8,6 +8,7 @@ import {
   TopicDocument,
   AllTopicDocuments,
   TrashWorkflowItem,
+  SavedResource,
 } from '@/types/learning';
 import aiEngineerData from '@/data/aiEngineer.json';
 import oopsMasteryData from '@/data/oopsMastery.json';
@@ -27,6 +28,7 @@ const LOCAL_STORAGE_CUSTOM_KEY = 'daily_learning_goals_custom_subjects_v1';
 const LOCAL_STORAGE_DELETED_KEY = 'daily_learning_goals_deleted_subjects_v1';
 const LOCAL_STORAGE_DOCS_KEY = 'daily_learning_goals_topic_documents_v1';
 const LOCAL_STORAGE_TRASH_KEY = 'daily_learning_goals_trash_items_v1';
+const LOCAL_STORAGE_RESOURCES_KEY = 'daily_learning_goals_saved_resources_v1';
 
 interface ProgressContextType {
   subjects: SubjectData[];
@@ -36,6 +38,7 @@ interface ProgressContextType {
   activeProgress: SubjectProgress | null;
   topicDocuments: AllTopicDocuments;
   trashItems: TrashWorkflowItem[];
+  savedResources: SavedResource[];
   selectSubject: (id: string) => void;
   startSubjectTrack: (subjectId?: string) => void;
   toggleTopicCompletion: (topicId: number | string, overrideSubjectId?: string) => void;
@@ -54,6 +57,9 @@ interface ProgressContextType {
   deleteTopicDocument: (subjectId: string, topicId: number | string) => Promise<boolean>;
   restoreFromTrash: (subjectId: string) => Promise<boolean>;
   permanentlyDeleteFromTrash: (subjectId?: string) => Promise<boolean>;
+  addResource: (resource: Omit<SavedResource, 'id' | 'createdAt' | 'isWatched'>) => Promise<boolean>;
+  toggleResourceWatched: (id: string, isWatched?: boolean) => Promise<boolean>;
+  deleteResource: (id: string) => Promise<boolean>;
   isMounted: boolean;
   isSyncingDb: boolean;
 }
@@ -67,6 +73,7 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [userProgress, setUserProgress] = useState<AllUserProgress>({});
   const [topicDocuments, setTopicDocuments] = useState<AllTopicDocuments>({});
   const [trashItems, setTrashItems] = useState<TrashWorkflowItem[]>([]);
+  const [savedResources, setSavedResources] = useState<SavedResource[]>([]);
   const [isMounted, setIsMounted] = useState<boolean>(false);
   const [isSyncingDb, setIsSyncingDb] = useState<boolean>(false);
 
@@ -99,6 +106,7 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         const storedDeleted = localStorage.getItem(LOCAL_STORAGE_DELETED_KEY);
         const storedDocs = localStorage.getItem(LOCAL_STORAGE_DOCS_KEY);
         const storedTrash = localStorage.getItem(LOCAL_STORAGE_TRASH_KEY);
+        const storedResources = localStorage.getItem(LOCAL_STORAGE_RESOURCES_KEY);
 
         if (storedProgress) {
           const parsed = JSON.parse(storedProgress);
@@ -116,18 +124,20 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         if (storedActiveId) setActiveSubjectId(storedActiveId);
         if (storedDocs) setTopicDocuments(JSON.parse(storedDocs));
         if (storedTrash) setTrashItems(JSON.parse(storedTrash));
+        if (storedResources) setSavedResources(JSON.parse(storedResources));
       } catch (e) {
         console.error('LocalStorage load error:', e);
       }
 
-      // 2. Async database API load (Progress, Documents & Trash)
+      // 2. Async database API load (Progress, Documents, Trash & Resources)
       try {
         setIsSyncingDb(true);
 
-        const [progressRes, docsRes, trashRes] = await Promise.all([
+        const [progressRes, docsRes, trashRes, resourcesRes] = await Promise.all([
           fetch('/api/progress'),
           fetch('/api/documents'),
           fetch('/api/trash'),
+          fetch('/api/resources'),
         ]);
 
         const data = await progressRes.json();
@@ -171,6 +181,11 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         if (trashData.success && Array.isArray(trashData.trashItems)) {
           setTrashItems(trashData.trashItems);
         }
+
+        const resourcesData = await resourcesRes.json();
+        if (resourcesData.success && Array.isArray(resourcesData.resources)) {
+          setSavedResources(resourcesData.resources);
+        }
       } catch (e) {
         console.warn('Database fetch fallback to LocalStorage:', e);
       } finally {
@@ -196,10 +211,11 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       localStorage.setItem(LOCAL_STORAGE_DELETED_KEY, JSON.stringify(deletedSubjectIds));
       localStorage.setItem(LOCAL_STORAGE_DOCS_KEY, JSON.stringify(topicDocuments));
       localStorage.setItem(LOCAL_STORAGE_TRASH_KEY, JSON.stringify(trashItems));
+      localStorage.setItem(LOCAL_STORAGE_RESOURCES_KEY, JSON.stringify(savedResources));
     } catch (e) {
       console.error('LocalStorage save error:', e);
     }
-  }, [userProgress, activeSubjectId, customSubjects, deletedSubjectIds, topicDocuments, trashItems, isMounted]);
+  }, [userProgress, activeSubjectId, customSubjects, deletedSubjectIds, topicDocuments, trashItems, savedResources, isMounted]);
 
   const selectSubject = (id: string) => {
     setActiveSubjectId(id);
@@ -589,6 +605,90 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   };
 
+  // Helper: Add Saved Resource (Video / Playlist)
+  const addResource = async (
+    resourceData: Omit<SavedResource, 'id' | 'createdAt' | 'isWatched'>
+  ): Promise<boolean> => {
+    const tempId = `res-${Date.now()}`;
+    const newResource: SavedResource = {
+      ...resourceData,
+      id: tempId,
+      isWatched: false,
+      createdAt: new Date().toISOString(),
+    };
+
+    // Update local state immediately
+    setSavedResources((prev) => [newResource, ...prev]);
+
+    try {
+      const res = await fetch('/api/resources', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(resourceData),
+      });
+      const data = await res.json();
+
+      if (data.success && data.resource) {
+        // Replace tempId with DB id
+        setSavedResources((prev) =>
+          prev.map((item) => (item.id === tempId ? data.resource : item))
+        );
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error('Add resource DB error:', err);
+      return false;
+    }
+  };
+
+  // Helper: Toggle resource watched status
+  const toggleResourceWatched = async (id: string, isWatched?: boolean): Promise<boolean> => {
+    let nextWatched = false;
+    setSavedResources((prev) =>
+      prev.map((item) => {
+        if (item.id === id) {
+          nextWatched = isWatched !== undefined ? isWatched : !item.isWatched;
+          return { ...item, isWatched: nextWatched };
+        }
+        return item;
+      })
+    );
+
+    try {
+      const res = await fetch('/api/resources', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'TOGGLE_WATCHED',
+          id,
+          isWatched: nextWatched,
+        }),
+      });
+      const data = await res.json();
+      return !!data.success;
+    } catch (err) {
+      console.error('Toggle resource watched DB error:', err);
+      return false;
+    }
+  };
+
+  // Helper: Delete saved resource
+  const deleteResource = async (id: string): Promise<boolean> => {
+    setSavedResources((prev) => prev.filter((item) => item.id !== id));
+
+    try {
+      const res = await fetch(`/api/resources?id=${id}`, {
+        method: 'DELETE',
+      });
+      const data = await res.json();
+      return !!data.success;
+    } catch (err) {
+      console.error('Delete resource DB error:', err);
+      return false;
+    }
+  };
+
   return (
     <ProgressContext.Provider
       value={{
@@ -599,6 +699,7 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         activeProgress,
         topicDocuments,
         trashItems,
+        savedResources,
         selectSubject,
         startSubjectTrack,
         toggleTopicCompletion,
@@ -612,6 +713,9 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         deleteTopicDocument,
         restoreFromTrash,
         permanentlyDeleteFromTrash,
+        addResource,
+        toggleResourceWatched,
+        deleteResource,
         isMounted,
         isSyncingDb,
       }}

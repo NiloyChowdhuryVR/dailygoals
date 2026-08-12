@@ -9,10 +9,12 @@ import { Header } from '@/components/Header';
 import { StatsOverview } from '@/components/StatsOverview';
 import { TodayTasksList } from '@/components/TodayTasksList';
 import { PhaseTimeline } from '@/components/PhaseTimeline';
+import { VideoVaultView } from '@/components/VideoVaultView';
 import { ImportJsonModal } from '@/components/ImportJsonModal';
 import { TopicDocumentModal } from '@/components/TopicDocumentModal';
 import { TrashModal } from '@/components/TrashModal';
-import { Menu, X, CalendarCheck, Layers, Sparkles } from 'lucide-react';
+import { AddResourceModal } from '@/components/AddResourceModal';
+import { Menu, X, CalendarCheck, Layers, Sparkles, Video } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function DashboardPage() {
@@ -20,13 +22,15 @@ export default function DashboardPage() {
     activeSubject,
     activeProgress,
     isMounted,
+    savedResources,
   } = useProgress();
 
   const dailyTasksReturn = useDailyTasks(activeSubject, activeProgress);
 
-  const [activeTab, setActiveTab] = useState<'today' | 'timeline'>('today');
+  const [activeTab, setActiveTab] = useState<'today' | 'timeline' | 'vault'>('today');
   const [isImportModalOpen, setIsImportModalOpen] = useState<boolean>(false);
   const [isTrashModalOpen, setIsTrashModalOpen] = useState<boolean>(false);
+  const [isAddResourceModalOpen, setIsAddResourceModalOpen] = useState<boolean>(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState<boolean>(false);
 
   const [selectedTopicForDoc, setSelectedTopicForDoc] = useState<ProcessedTopic | null>(null);
@@ -39,55 +43,58 @@ export default function DashboardPage() {
 
   if (!isMounted) {
     return (
-      <div className="min-h-screen bg-dark-950 flex items-center justify-center text-slate-400">
-        <div className="flex items-center gap-3">
-          <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-          <span className="font-mono text-sm">Loading Learning Workspace...</span>
+      <div className="min-h-screen bg-dark-950 flex flex-col items-center justify-center space-y-4">
+        <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-600 to-purple-600 animate-spin flex items-center justify-center">
+          <Sparkles className="w-6 h-6 text-white" />
         </div>
+        <p className="text-sm font-mono text-slate-400 animate-pulse">Loading Roadmap Engine...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-dark-950 text-slate-100 flex flex-col lg:flex-row antialiased">
-      {/* Mobile Top Sticky Navbar */}
-      <div className="lg:hidden sticky top-0 z-40 flex items-center justify-between px-4 py-3 bg-dark-900/90 border-b border-slate-800/80 backdrop-blur-xl">
-        <div className="flex items-center gap-2.5 min-w-0">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-500 to-purple-500 flex items-center justify-center shadow-md shadow-blue-500/20 shrink-0">
-            <Sparkles className="w-4.5 h-4.5 text-white" />
-          </div>
-          <div className="flex flex-col min-w-0">
-            <span className="font-extrabold text-sm text-white tracking-wide">DailyGoals</span>
-            {activeSubject && (
-              <span className="text-[11px] text-slate-400 truncate max-w-[170px] sm:max-w-[260px]">
-                {activeSubject.title}
-              </span>
-            )}
+    <div className="min-h-screen bg-dark-950 text-slate-100 flex flex-col lg:flex-row font-sans selection:bg-blue-500 selection:text-white relative">
+      {/* Sticky Mobile Navigation Top Bar */}
+      <div className="lg:hidden sticky top-0 z-40 bg-dark-900/90 backdrop-blur-xl border-b border-slate-800/80 px-4 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setIsMobileSidebarOpen(true)}
+            className="p-2 rounded-xl bg-slate-800/80 border border-slate-700/60 text-slate-200 hover:text-white active:scale-95 transition-all"
+            aria-label="Open sidebar drawer"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-blue-600 to-purple-600 flex items-center justify-center shadow-md">
+              <Sparkles className="w-4 h-4 text-white" />
+            </div>
+            <span className="font-extrabold text-base text-white tracking-wide">
+              Daily<span className="text-blue-400">Goals</span>
+            </span>
           </div>
         </div>
 
-        <button
-          onClick={() => setIsMobileSidebarOpen(true)}
-          className="p-2.5 rounded-xl bg-slate-800/80 border border-slate-700/60 text-slate-200 hover:text-white shrink-0"
-          aria-label="Open Sidebar Menu"
-        >
-          <Menu className="w-5 h-5" />
-        </button>
+        {activeSubject && (
+          <span className="text-xs font-mono px-2.5 py-1 rounded-full bg-blue-950 text-blue-300 border border-blue-800/60 truncate max-w-[130px]">
+            {activeSubject.title}
+          </span>
+        )}
       </div>
 
-      {/* Desktop Sidebar (Permanent) */}
-      <div className="hidden lg:block">
+      {/* Desktop Persistent Sidebar */}
+      <div className="hidden lg:block shrink-0">
         <Sidebar
           onOpenImportModal={() => setIsImportModalOpen(true)}
           onOpenTrashModal={() => setIsTrashModalOpen(true)}
+          onOpenVideoVault={() => setActiveTab('vault')}
         />
       </div>
 
-      {/* Mobile Slide-over Drawer Sidebar */}
+      {/* Mobile Slide-Over Drawer Sidebar */}
       <AnimatePresence>
         {isMobileSidebarOpen && (
           <>
-            {/* Backdrop Overlay */}
+            {/* Drawer Backdrop Overlay */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -96,7 +103,7 @@ export default function DashboardPage() {
               className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm lg:hidden"
             />
 
-            {/* Slide-over Content Drawer */}
+            {/* Slide-over Container */}
             <motion.div
               initial={{ x: '-100%' }}
               animate={{ x: 0 }}
@@ -122,6 +129,10 @@ export default function DashboardPage() {
                   onOpenTrashModal={() => {
                     setIsMobileSidebarOpen(false);
                     setIsTrashModalOpen(true);
+                  }}
+                  onOpenVideoVault={() => {
+                    setIsMobileSidebarOpen(false);
+                    setActiveTab('vault');
                   }}
                 />
               </div>
@@ -174,6 +185,23 @@ export default function DashboardPage() {
                 <Layers className="w-4 h-4" />
                 <span>Full Roadmap ({activeSubject.phases.length} Phases)</span>
               </button>
+
+              <button
+                onClick={() => setActiveTab('vault')}
+                className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl font-semibold text-xs sm:text-sm transition-all shrink-0 ${
+                  activeTab === 'vault'
+                    ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/20'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                }`}
+              >
+                <Video className="w-4 h-4 text-purple-300" />
+                <span>Video Vault</span>
+                {savedResources.length > 0 && (
+                  <span className="px-2 py-0.5 rounded-full bg-purple-950 text-purple-200 font-mono text-[11px] border border-purple-700/60">
+                    {savedResources.length}
+                  </span>
+                )}
+              </button>
             </div>
 
             {/* View Content */}
@@ -188,7 +216,7 @@ export default function DashboardPage() {
                 >
                   <TodayTasksList dailyTasksReturn={dailyTasksReturn} onOpenDoc={handleOpenDocModal} />
                 </motion.div>
-              ) : (
+              ) : activeTab === 'timeline' ? (
                 <motion.div
                   key="timeline-view"
                   initial={{ opacity: 0, y: 10 }}
@@ -201,6 +229,16 @@ export default function DashboardPage() {
                     dailyTasksReturn={dailyTasksReturn}
                     onOpenDoc={handleOpenDocModal}
                   />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="vault-view"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <VideoVaultView onOpenAddModal={() => setIsAddResourceModalOpen(true)} />
                 </motion.div>
               )}
             </AnimatePresence>
@@ -226,6 +264,12 @@ export default function DashboardPage() {
       <ImportJsonModal
         isOpen={isImportModalOpen}
         onClose={() => setIsImportModalOpen(false)}
+      />
+
+      {/* Add Video/Playlist Resource Modal */}
+      <AddResourceModal
+        isOpen={isAddResourceModalOpen}
+        onClose={() => setIsAddResourceModalOpen(false)}
       />
     </div>
   );
