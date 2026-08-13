@@ -16,8 +16,11 @@ interface PhaseTimelineProps {
 export const PhaseTimeline: React.FC<PhaseTimelineProps> = ({ subject, dailyTasksReturn, onOpenDoc }) => {
   const { allProcessedTopics } = dailyTasksReturn;
 
-  const [expandedPhases, setExpandedPhases] = useState<Record<number, boolean>>({
-    1: true,
+  const todayPhaseNumber = dailyTasksReturn.stats.todayPhaseNumber;
+  const [expandedPhases, setExpandedPhases] = useState<Record<number, boolean>>(() => {
+    return todayPhaseNumber !== null && todayPhaseNumber !== undefined
+      ? { [todayPhaseNumber]: true }
+      : { 1: true };
   });
 
   if (!subject) {
@@ -75,7 +78,7 @@ export const PhaseTimeline: React.FC<PhaseTimelineProps> = ({ subject, dailyTask
 
       {/* Phase Cards List */}
       <div className="space-y-4">
-        {subject.phases.map((phase) => {
+        {subject.phases.map((phase, phaseIdx) => {
           const isExpanded = !!expandedPhases[phase.phase_number];
 
           const phaseTopics = allProcessedTopics.filter(
@@ -84,7 +87,7 @@ export const PhaseTimeline: React.FC<PhaseTimelineProps> = ({ subject, dailyTask
           const completedInPhase = phaseTopics.filter((t) => t.status === 'completed').length;
           const totalInPhase = phaseTopics.length;
           const isPhaseCompleted = totalInPhase > 0 && completedInPhase === totalInPhase;
-          const isTodayPhase = phase.phase_number === dailyTasksReturn.stats.currentDayNumber;
+          const isTodayPhase = phaseIdx === dailyTasksReturn.stats.currentDayIndex;
 
           return (
             <div

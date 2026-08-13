@@ -30,7 +30,9 @@ export const StatsOverview: React.FC<StatsOverviewProps> = ({ dailyTasksReturn }
       label: stats.isTodayGoalCompleted ? "Today's Goal" : 'Current Schedule',
       value: stats.isTodayGoalCompleted ? 'Done! 🎉' : `Day ${stats.currentDayNumber}`,
       subtext: stats.isTodayGoalCompleted
-        ? `Phase ${stats.currentDayNumber} All Done!`
+        ? (stats.todayPhaseNumber !== null && stats.todayPhaseNumber !== undefined
+            ? `Phase ${stats.todayPhaseNumber} All Done!`
+            : "Today's Phase All Done!")
         : `${stats.todayPhaseCompletedCount}/${stats.todayPhaseTotalCount} topics done`,
       icon: stats.isTodayGoalCompleted ? (
         <Trophy className="w-5 h-5 text-amber-400 animate-bounce" />

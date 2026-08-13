@@ -17,8 +17,11 @@ export interface UseDailyTasksReturn {
     todayCount: number;
     upcomingCount: number;
     completionPercentage: number;
+    currentDayIndex: number;
     currentDayNumber: number;
     totalDaysNeeded: number;
+    todayPhaseNumber: number | null;
+    todayPhaseTitle: string | null;
     startDateFormatted: string;
     effectiveDateFormatted: string;
     isStarted: boolean;
@@ -52,8 +55,11 @@ export function useDailyTasks(
           todayCount: 0,
           upcomingCount: 0,
           completionPercentage: 0,
+          currentDayIndex: 0,
           currentDayNumber: 0,
           totalDaysNeeded: 0,
+          todayPhaseNumber: null,
+          todayPhaseTitle: null,
           startDateFormatted: '-',
           effectiveDateFormatted: format(baseToday, 'EEE, MMM d, yyyy'),
           isStarted: true,
@@ -143,6 +149,7 @@ export function useDailyTasks(
       ...todayNativeTasks,
     ];
 
+    const todayPhaseObj = subjectData.phases[currentDayIndex];
     const todayPhaseTopics = allTopics.filter((t) => t.scheduledDayIndex === currentDayIndex);
     const todayPhaseCompletedCount = todayPhaseTopics.filter((t) => t.status === 'completed').length;
     const todayPhaseTotalCount = todayPhaseTopics.length;
@@ -171,8 +178,11 @@ export function useDailyTasks(
         todayCount,
         upcomingCount,
         completionPercentage,
+        currentDayIndex,
         currentDayNumber: currentDayIndex + 1,
         totalDaysNeeded,
+        todayPhaseNumber: todayPhaseObj ? todayPhaseObj.phase_number : null,
+        todayPhaseTitle: todayPhaseObj ? todayPhaseObj.title : null,
         startDateFormatted: format(startDate, 'MMM d, yyyy'),
         effectiveDateFormatted: format(baseToday, 'EEE, MMM d, yyyy'),
         isStarted,
