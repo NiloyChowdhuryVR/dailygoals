@@ -12,9 +12,11 @@ import { PhaseTimeline } from '@/components/PhaseTimeline';
 import { VideoVaultView } from '@/components/VideoVaultView';
 import { ImportJsonModal } from '@/components/ImportJsonModal';
 import { TopicDocumentModal } from '@/components/TopicDocumentModal';
+import { TopicQnaModal } from '@/components/TopicQnaModal';
+import { GlobalQnaView } from '@/components/GlobalQnaView';
 import { TrashModal } from '@/components/TrashModal';
 import { AddResourceModal } from '@/components/AddResourceModal';
-import { Menu, X, CalendarCheck, Layers, Sparkles, Video } from 'lucide-react';
+import { Menu, X, CalendarCheck, Layers, Sparkles, Video, HelpCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import { doesResourceMatchSubject } from '@/lib/resourceUtils';
@@ -25,11 +27,12 @@ export default function DashboardPage() {
     activeProgress,
     isMounted,
     savedResources,
+    getAllSubjectQnas,
   } = useProgress();
 
   const dailyTasksReturn = useDailyTasks(activeSubject, activeProgress);
 
-  const [activeTab, setActiveTab] = useState<'today' | 'timeline' | 'track-vault' | 'global-vault'>('today');
+  const [activeTab, setActiveTab] = useState<'today' | 'timeline' | 'track-vault' | 'global-vault' | 'qna-vault'>('today');
   const [isImportModalOpen, setIsImportModalOpen] = useState<boolean>(false);
   const [isTrashModalOpen, setIsTrashModalOpen] = useState<boolean>(false);
   const [isAddResourceModalOpen, setIsAddResourceModalOpen] = useState<boolean>(false);
@@ -38,11 +41,20 @@ export default function DashboardPage() {
   const [selectedTopicForDoc, setSelectedTopicForDoc] = useState<ProcessedTopic | null>(null);
   const [isDocModalOpen, setIsDocModalOpen] = useState<boolean>(false);
 
+  const [selectedTopicForQna, setSelectedTopicForQna] = useState<ProcessedTopic | null>(null);
+  const [isQnaModalOpen, setIsQnaModalOpen] = useState<boolean>(false);
+
   // Compute resource count specific to the active track
   const activeTrackResourcesCount = React.useMemo(() => {
     if (!activeSubject) return 0;
     return savedResources.filter((res) => doesResourceMatchSubject(res, activeSubject)).length;
   }, [savedResources, activeSubject]);
+
+  // Compute Q&A count specific to the active track
+  const activeTrackQnaCount = React.useMemo(() => {
+    if (!activeSubject) return 0;
+    return getAllSubjectQnas(activeSubject.id).length;
+  }, [activeSubject, getAllSubjectQnas]);
 
   // Lock background body scrolling when mobile sidebar drawer is open
   useEffect(() => {
@@ -62,6 +74,11 @@ export default function DashboardPage() {
   const handleOpenDocModal = (topic: ProcessedTopic) => {
     setSelectedTopicForDoc(topic);
     setIsDocModalOpen(true);
+  };
+
+  const handleOpenQnaModal = (topic: ProcessedTopic) => {
+    setSelectedTopicForQna(topic);
+    setIsQnaModalOpen(true);
   };
 
   if (!isMounted) {
@@ -148,16 +165,15 @@ export default function DashboardPage() {
                 <button
                   onClick={() => setIsMobileSidebarOpen(false)}
                   className="p-2 rounded-xl bg-slate-800/80 border border-slate-700/60 text-slate-300 hover:text-white active:scale-95 transition-all"
-                  aria-label="Close menu"
+                  aria-label="Close sidebar drawer"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="w-5 h-5" />
                 </button>
               </div>
 
-              {/* Scrollable Content Container */}
-              <div className="flex-1 overflow-y-auto overscroll-contain p-4 pb-20 space-y-6 no-scrollbar">
+              {/* Scrollable Sidebar Content inside Drawer */}
+              <div className="flex-1 overflow-y-auto overscroll-contain">
                 <Sidebar
-                  isMobileDrawer={true}
                   onOpenImportModal={() => {
                     setIsMobileSidebarOpen(false);
                     setIsImportModalOpen(true);
@@ -170,6 +186,7 @@ export default function DashboardPage() {
                     setIsMobileSidebarOpen(false);
                     setActiveTab('global-vault');
                   }}
+                  isMobileDrawer={true}
                 />
               </div>
             </motion.div>
@@ -177,9 +194,9 @@ export default function DashboardPage() {
         )}
       </AnimatePresence>
 
-      {/* Main Content Area */}
-      <main className="flex-1 p-3.5 sm:p-6 md:p-8 space-y-5 md:space-y-8 max-w-6xl mx-auto w-full">
-        {/* Header Hero */}
+      {/* Main App Content Area */}
+      <main className="flex-1 p-4 sm:p-6 md:p-8 max-w-7xl mx-auto space-y-6 w-full">
+        {/* Main Subject Tracker Header */}
         <Header
           subject={activeSubject}
           dailyTasksReturn={dailyTasksReturn}
@@ -188,11 +205,11 @@ export default function DashboardPage() {
 
         {activeSubject ? (
           <>
-            {/* Quick KPI Stats Overview */}
+            {/* Quick Stats Overview Grid */}
             <StatsOverview dailyTasksReturn={dailyTasksReturn} />
 
-            {/* Primary View Switcher Tabs */}
-            <div className="flex items-center gap-2 border-b border-slate-800/80 pb-2 overflow-x-auto no-scrollbar">
+            {/* Navigation Tabs Bar */}
+            <div className="flex items-center gap-2 bg-dark-950 p-1.5 rounded-2xl border border-slate-800/80 overflow-x-auto no-scrollbar">
               <button
                 onClick={() => setActiveTab('today')}
                 className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl font-semibold text-xs sm:text-sm transition-all shrink-0 ${
@@ -223,6 +240,23 @@ export default function DashboardPage() {
               </button>
 
               <button
+                onClick={() => setActiveTab('qna-vault')}
+                className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl font-semibold text-xs sm:text-sm transition-all shrink-0 ${
+                  activeTab === 'qna-vault'
+                    ? 'bg-amber-600 text-slate-950 shadow-lg shadow-amber-500/20 font-bold'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                }`}
+              >
+                <HelpCircle className="w-4 h-4 text-amber-400" />
+                <span>Q&A Vault</span>
+                {activeTrackQnaCount > 0 && (
+                  <span className="px-2 py-0.5 rounded-full bg-amber-950 text-amber-200 font-mono text-[11px] border border-amber-700/60 font-bold">
+                    {activeTrackQnaCount}
+                  </span>
+                )}
+              </button>
+
+              <button
                 onClick={() => setActiveTab('track-vault')}
                 className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl font-semibold text-xs sm:text-sm transition-all shrink-0 ${
                   activeTab === 'track-vault' || activeTab === 'global-vault'
@@ -250,7 +284,11 @@ export default function DashboardPage() {
                   exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <TodayTasksList dailyTasksReturn={dailyTasksReturn} onOpenDoc={handleOpenDocModal} />
+                  <TodayTasksList
+                    dailyTasksReturn={dailyTasksReturn}
+                    onOpenDoc={handleOpenDocModal}
+                    onOpenQna={handleOpenQnaModal}
+                  />
                 </motion.div>
               ) : activeTab === 'timeline' ? (
                 <motion.div
@@ -264,6 +302,20 @@ export default function DashboardPage() {
                     subject={activeSubject}
                     dailyTasksReturn={dailyTasksReturn}
                     onOpenDoc={handleOpenDocModal}
+                    onOpenQna={handleOpenQnaModal}
+                  />
+                </motion.div>
+              ) : activeTab === 'qna-vault' ? (
+                <motion.div
+                  key="qna-view"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <GlobalQnaView
+                    subject={activeSubject}
+                    onOpenTopicQna={handleOpenQnaModal}
                   />
                 </motion.div>
               ) : (
@@ -293,6 +345,14 @@ export default function DashboardPage() {
         isOpen={isDocModalOpen}
         onClose={() => setIsDocModalOpen(false)}
         topic={selectedTopicForDoc}
+        subject={activeSubject}
+      />
+
+      {/* Topic Q&A Modal */}
+      <TopicQnaModal
+        isOpen={isQnaModalOpen}
+        onClose={() => setIsQnaModalOpen(false)}
+        topic={selectedTopicForQna}
         subject={activeSubject}
       />
 

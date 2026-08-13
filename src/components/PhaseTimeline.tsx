@@ -11,9 +11,10 @@ interface PhaseTimelineProps {
   subject: SubjectData | null;
   dailyTasksReturn: UseDailyTasksReturn;
   onOpenDoc?: (task: ProcessedTopic) => void;
+  onOpenQna?: (task: ProcessedTopic) => void;
 }
 
-export const PhaseTimeline: React.FC<PhaseTimelineProps> = ({ subject, dailyTasksReturn, onOpenDoc }) => {
+export const PhaseTimeline: React.FC<PhaseTimelineProps> = ({ subject, dailyTasksReturn, onOpenDoc, onOpenQna }) => {
   const { allProcessedTopics } = dailyTasksReturn;
 
   const todayPhaseNumber = dailyTasksReturn.stats.todayPhaseNumber;
@@ -173,7 +174,7 @@ export const PhaseTimeline: React.FC<PhaseTimelineProps> = ({ subject, dailyTask
                     className="border-t border-slate-800/60 p-4 md:p-5 space-y-3 bg-dark-950/40"
                   >
                     {phaseTopics.map((topic) => (
-                      <TaskCard key={topic.id} task={topic} onOpenDoc={onOpenDoc} />
+                      <TaskCard key={topic.id} task={topic} onOpenDoc={onOpenDoc} onOpenQna={onOpenQna} />
                     ))}
                   </motion.div>
                 )}

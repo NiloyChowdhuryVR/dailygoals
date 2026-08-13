@@ -9,6 +9,8 @@ import {
   AllTopicDocuments,
   TrashWorkflowItem,
   SavedResource,
+  TopicQna,
+  AllTopicQnas,
 } from '@/types/learning';
 import aiEngineerData from '@/data/aiEngineer.json';
 import oopsMasteryData from '@/data/oopsMastery.json';
@@ -29,6 +31,7 @@ const LOCAL_STORAGE_DELETED_KEY = 'daily_learning_goals_deleted_subjects_v1';
 const LOCAL_STORAGE_DOCS_KEY = 'daily_learning_goals_topic_documents_v1';
 const LOCAL_STORAGE_TRASH_KEY = 'daily_learning_goals_trash_items_v1';
 const LOCAL_STORAGE_RESOURCES_KEY = 'daily_learning_goals_saved_resources_v1';
+const LOCAL_STORAGE_QNA_KEY = 'daily_learning_goals_topic_qnas_v1';
 
 interface ProgressContextType {
   subjects: SubjectData[];
@@ -37,6 +40,7 @@ interface ProgressContextType {
   userProgress: AllUserProgress;
   activeProgress: SubjectProgress | null;
   topicDocuments: AllTopicDocuments;
+  topicQnas: AllTopicQnas;
   trashItems: TrashWorkflowItem[];
   savedResources: SavedResource[];
   selectSubject: (id: string) => void;
@@ -55,6 +59,16 @@ interface ProgressContextType {
     title?: string
   ) => Promise<boolean>;
   deleteTopicDocument: (subjectId: string, topicId: number | string) => Promise<boolean>;
+  getTopicQnas: (subjectId: string, topicId: number | string) => TopicQna[];
+  getAllSubjectQnas: (subjectId: string) => TopicQna[];
+  saveQna: (
+    subjectId: string,
+    topicId: number | string,
+    question: string,
+    answer: string,
+    qnaId?: string
+  ) => Promise<TopicQna | null>;
+  deleteQna: (id: string, subjectId: string, topicId: number | string) => Promise<boolean>;
   restoreFromTrash: (subjectId: string) => Promise<boolean>;
   permanentlyDeleteFromTrash: (subjectId?: string) => Promise<boolean>;
   addResource: (resource: Omit<SavedResource, 'id' | 'createdAt' | 'isWatched'>) => Promise<boolean>;
@@ -72,6 +86,7 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [activeSubjectId, setActiveSubjectId] = useState<string | null>('ai-engineer');
   const [userProgress, setUserProgress] = useState<AllUserProgress>({});
   const [topicDocuments, setTopicDocuments] = useState<AllTopicDocuments>({});
+  const [topicQnas, setTopicQnas] = useState<AllTopicQnas>({});
   const [trashItems, setTrashItems] = useState<TrashWorkflowItem[]>([]);
   const [savedResources, setSavedResources] = useState<SavedResource[]>([]);
   const [isMounted, setIsMounted] = useState<boolean>(false);
@@ -105,6 +120,7 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         const storedCustom = localStorage.getItem(LOCAL_STORAGE_CUSTOM_KEY);
         const storedDeleted = localStorage.getItem(LOCAL_STORAGE_DELETED_KEY);
         const storedDocs = localStorage.getItem(LOCAL_STORAGE_DOCS_KEY);
+        const storedQnas = localStorage.getItem(LOCAL_STORAGE_QNA_KEY);
         const storedTrash = localStorage.getItem(LOCAL_STORAGE_TRASH_KEY);
         const storedResources = localStorage.getItem(LOCAL_STORAGE_RESOURCES_KEY);
 
@@ -123,19 +139,21 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         if (storedDeleted) setDeletedSubjectIds(JSON.parse(storedDeleted));
         if (storedActiveId) setActiveSubjectId(storedActiveId);
         if (storedDocs) setTopicDocuments(JSON.parse(storedDocs));
+        if (storedQnas) setTopicQnas(JSON.parse(storedQnas));
         if (storedTrash) setTrashItems(JSON.parse(storedTrash));
         if (storedResources) setSavedResources(JSON.parse(storedResources));
       } catch (e) {
         console.error('LocalStorage load error:', e);
       }
 
-      // 2. Async database API load (Progress, Documents, Trash & Resources)
+      // 2. Async database API load (Progress, Documents, Qnas, Trash & Resources)
       try {
         setIsSyncingDb(true);
 
-        const [progressRes, docsRes, trashRes, resourcesRes] = await Promise.all([
+        const [progressRes, docsRes, qnaRes, trashRes, resourcesRes] = await Promise.all([
           fetch('/api/progress'),
           fetch('/api/documents'),
+          fetch('/api/qna'),
           fetch('/api/trash'),
           fetch('/api/resources'),
         ]);
@@ -177,6 +195,11 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           setTopicDocuments((prev) => ({ ...prev, ...docsData.documents }));
         }
 
+        const qnaData = await qnaRes.json();
+        if (qnaData.success && qnaData.qnas) {
+          setTopicQnas((prev) => ({ ...prev, ...qnaData.qnas }));
+        }
+
         const trashData = await trashRes.json();
         if (trashData.success && Array.isArray(trashData.trashItems)) {
           setTrashItems(trashData.trashItems);
@@ -210,12 +233,13 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       localStorage.setItem(LOCAL_STORAGE_CUSTOM_KEY, JSON.stringify(customSubjects));
       localStorage.setItem(LOCAL_STORAGE_DELETED_KEY, JSON.stringify(deletedSubjectIds));
       localStorage.setItem(LOCAL_STORAGE_DOCS_KEY, JSON.stringify(topicDocuments));
+      localStorage.setItem(LOCAL_STORAGE_QNA_KEY, JSON.stringify(topicQnas));
       localStorage.setItem(LOCAL_STORAGE_TRASH_KEY, JSON.stringify(trashItems));
       localStorage.setItem(LOCAL_STORAGE_RESOURCES_KEY, JSON.stringify(savedResources));
     } catch (e) {
       console.error('LocalStorage save error:', e);
     }
-  }, [userProgress, activeSubjectId, customSubjects, deletedSubjectIds, topicDocuments, trashItems, savedResources, isMounted]);
+  }, [userProgress, activeSubjectId, customSubjects, deletedSubjectIds, topicDocuments, topicQnas, trashItems, savedResources, isMounted]);
 
   const selectSubject = (id: string) => {
     setActiveSubjectId(id);
@@ -689,6 +713,123 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   };
 
+  // Helper: Get Q&As for a specific topic
+  const getTopicQnas = (subjectId: string, topicId: number | string): TopicQna[] => {
+    const topicIdStr = String(topicId);
+    return topicQnas[subjectId]?.[topicIdStr] || [];
+  };
+
+  // Helper: Get all Q&As for an entire subject/track
+  const getAllSubjectQnas = (subjectId: string): TopicQna[] => {
+    const targetSubjectQnas = topicQnas[subjectId] || {};
+    const allList: TopicQna[] = [];
+    Object.values(targetSubjectQnas).forEach((qnaArray) => {
+      allList.push(...qnaArray);
+    });
+    return allList.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  };
+
+  // Helper: Save or update a Q&A
+  const saveQna = async (
+    subjectId: string,
+    topicId: number | string,
+    question: string,
+    answer: string,
+    qnaId?: string
+  ): Promise<TopicQna | null> => {
+    const topicIdStr = String(topicId);
+
+    try {
+      const res = await fetch('/api/qna', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: qnaId,
+          subjectId,
+          topicId: topicIdStr,
+          question,
+          answer,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success && data.qna) {
+        const saved: TopicQna = data.qna;
+        setTopicQnas((prev) => {
+          const subjectMap = { ...(prev[subjectId] || {}) };
+          const topicList = [...(subjectMap[topicIdStr] || [])];
+
+          if (qnaId) {
+            const idx = topicList.findIndex((q) => q.id === qnaId);
+            if (idx >= 0) topicList[idx] = saved;
+            else topicList.unshift(saved);
+          } else {
+            topicList.unshift(saved);
+          }
+
+          subjectMap[topicIdStr] = topicList;
+          return { ...prev, [subjectId]: subjectMap };
+        });
+
+        return saved;
+      }
+      return null;
+    } catch (err) {
+      console.error('Save Q&A DB error:', err);
+      // Fallback local update
+      const fallbackQna: TopicQna = {
+        id: qnaId || `local_${Date.now()}`,
+        subjectId,
+        topicId: topicIdStr,
+        question,
+        answer,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      setTopicQnas((prev) => {
+        const subjectMap = { ...(prev[subjectId] || {}) };
+        const topicList = [...(subjectMap[topicIdStr] || [])];
+
+        if (qnaId) {
+          const idx = topicList.findIndex((q) => q.id === qnaId);
+          if (idx >= 0) topicList[idx] = fallbackQna;
+          else topicList.unshift(fallbackQna);
+        } else {
+          topicList.unshift(fallbackQna);
+        }
+
+        subjectMap[topicIdStr] = topicList;
+        return { ...prev, [subjectId]: subjectMap };
+      });
+
+      return fallbackQna;
+    }
+  };
+
+  // Helper: Delete a Q&A
+  const deleteQna = async (id: string, subjectId: string, topicId: number | string): Promise<boolean> => {
+    const topicIdStr = String(topicId);
+
+    setTopicQnas((prev) => {
+      const subjectMap = { ...(prev[subjectId] || {}) };
+      const topicList = (subjectMap[topicIdStr] || []).filter((q) => q.id !== id);
+      subjectMap[topicIdStr] = topicList;
+      return { ...prev, [subjectId]: subjectMap };
+    });
+
+    try {
+      const res = await fetch(`/api/qna?id=${id}`, {
+        method: 'DELETE',
+      });
+      const data = await res.json();
+      return !!data.success;
+    } catch (err) {
+      console.error('Delete Q&A DB error:', err);
+      return false;
+    }
+  };
+
   return (
     <ProgressContext.Provider
       value={{
@@ -698,6 +839,7 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         userProgress,
         activeProgress,
         topicDocuments,
+        topicQnas,
         trashItems,
         savedResources,
         selectSubject,
@@ -711,6 +853,10 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         getTopicDocument,
         saveTopicDocument,
         deleteTopicDocument,
+        getTopicQnas,
+        getAllSubjectQnas,
+        saveQna,
+        deleteQna,
         restoreFromTrash,
         permanentlyDeleteFromTrash,
         addResource,

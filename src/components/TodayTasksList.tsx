@@ -10,9 +10,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 interface TodayTasksListProps {
   dailyTasksReturn: UseDailyTasksReturn;
   onOpenDoc?: (task: ProcessedTopic) => void;
+  onOpenQna?: (task: ProcessedTopic) => void;
 }
 
-export const TodayTasksList: React.FC<TodayTasksListProps> = ({ dailyTasksReturn, onOpenDoc }) => {
+export const TodayTasksList: React.FC<TodayTasksListProps> = ({ dailyTasksReturn, onOpenDoc, onOpenQna }) => {
   const { todayTasks, shiftedMissedTasks, stats } = dailyTasksReturn;
   const [activeFilter, setActiveFilter] = useState<'all' | 'missed' | 'today'>('all');
 
@@ -122,7 +123,7 @@ export const TodayTasksList: React.FC<TodayTasksListProps> = ({ dailyTasksReturn
         <div className="space-y-4">
           <AnimatePresence mode="popLayout">
             {displayedTasks.map((task) => (
-              <TaskCard key={task.id} task={task} onOpenDoc={onOpenDoc} />
+              <TaskCard key={task.id} task={task} onOpenDoc={onOpenDoc} onOpenQna={onOpenQna} />
             ))}
           </AnimatePresence>
         </div>

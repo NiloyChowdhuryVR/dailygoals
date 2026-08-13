@@ -3,7 +3,7 @@
 import React from 'react';
 import { ProcessedTopic } from '@/types/learning';
 import { useProgress } from '@/context/ProgressContext';
-import { Check, AlertTriangle, Calendar, Clock, ExternalLink, Sparkles, AlertCircle, FileText, BookOpen } from 'lucide-react';
+import { Check, AlertTriangle, Calendar, Clock, ExternalLink, Sparkles, AlertCircle, FileText, BookOpen, HelpCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import confetti from 'canvas-confetti';
 
@@ -11,10 +11,11 @@ interface TaskCardProps {
   task: ProcessedTopic;
   isCompact?: boolean;
   onOpenDoc?: (task: ProcessedTopic) => void;
+  onOpenQna?: (task: ProcessedTopic) => void;
 }
 
-export const TaskCard: React.FC<TaskCardProps> = ({ task, isCompact = false, onOpenDoc }) => {
-  const { toggleTopicCompletion, activeSubject, getTopicDocument } = useProgress();
+export const TaskCard: React.FC<TaskCardProps> = ({ task, isCompact = false, onOpenDoc, onOpenQna }) => {
+  const { toggleTopicCompletion, activeSubject, getTopicDocument, getTopicQnas } = useProgress();
 
   const isCompleted = task.status === 'completed';
   const isMissedShifted = task.status === 'missed-shifted' || task.isMissedShifted;
@@ -22,6 +23,10 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, isCompact = false, onO
 
   const doc = activeSubject ? getTopicDocument(activeSubject.id, task.id) : null;
   const hasDoc = !!(doc && doc.content && doc.content.trim().length > 0);
+
+  const qnas = activeSubject ? getTopicQnas(activeSubject.id, task.id) : [];
+  const qnaCount = qnas.length;
+  const hasQna = qnaCount > 0;
 
   const handleCheckboxClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -126,6 +131,14 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, isCompact = false, onO
               </span>
             )}
 
+            {/* Q&As Badge */}
+            {hasQna && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-950/80 border border-amber-500/50 text-amber-300 text-[10px] sm:text-[11px] font-semibold font-mono shadow-sm shadow-amber-500/20">
+                <HelpCircle className="w-3 h-3 text-amber-400" />
+                {qnaCount} Q&A{qnaCount !== 1 ? 's' : ''}
+              </span>
+            )}
+
             {/* Phase Identifier */}
             <span className="text-[10px] sm:text-[11px] font-medium text-slate-400 font-mono truncate">
               Phase {task.phaseNumber}: {task.phaseTitle}
@@ -186,6 +199,24 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, isCompact = false, onO
                 >
                   <FileText className="w-3.5 h-3.5 text-purple-400" />
                   <span>{hasDoc ? 'View Notes' : 'Add Notes'}</span>
+                </button>
+              )}
+
+              {/* Topic Q&A Button */}
+              {onOpenQna && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onOpenQna(task);
+                  }}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border active:scale-95 ${
+                    hasQna
+                      ? 'bg-amber-950/80 border-amber-700/80 text-amber-300 hover:bg-amber-900'
+                      : 'bg-slate-800/80 border-slate-700/80 text-slate-300 hover:text-white hover:bg-slate-700/80 hover:border-amber-500/50'
+                  }`}
+                >
+                  <HelpCircle className="w-3.5 h-3.5 text-amber-400" />
+                  <span>{hasQna ? `Q&A (${qnaCount})` : 'Q&A'}</span>
                 </button>
               )}
 

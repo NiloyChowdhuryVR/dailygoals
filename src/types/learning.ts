@@ -86,4 +86,17 @@ export interface SavedResource {
   updatedAt?: string;
 }
 
+export interface TopicQna {
+  id: string;
+  subjectId: string;
+  topicId: string;
+  question: string;
+  answer: string;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export type AllTopicQnas = Record<string, Record<string, TopicQna[]>>; // subjectId -> topicId -> TopicQna[]
+
+
 

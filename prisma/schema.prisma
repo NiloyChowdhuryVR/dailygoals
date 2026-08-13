@@ -76,4 +76,17 @@ model SavedResource {
   updatedAt DateTime @updatedAt
 }
 
+model TopicQna {
+  id        String   @id @default(cuid())
+  subjectId String
+  topicId   String
+  question  String   @db.Text
+  answer    String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([subjectId, topicId])
+}
+
+
 
