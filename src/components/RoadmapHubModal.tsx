@@ -36,6 +36,7 @@ interface RoadmapHubModalProps {
   isOpen: boolean;
   onClose: () => void;
   onOpenImportModal: () => void;
+  onSelectTrack?: (subjectId: string) => void;
   initialTab?: 'all' | 'ongoing' | 'queue' | 'completed' | 'trash';
 }
 
@@ -43,6 +44,7 @@ export const RoadmapHubModal: React.FC<RoadmapHubModalProps> = ({
   isOpen,
   onClose,
   onOpenImportModal,
+  onSelectTrack,
   initialTab = 'all',
 }) => {
   const {
@@ -154,12 +156,18 @@ export const RoadmapHubModal: React.FC<RoadmapHubModalProps> = ({
 
   const handleSelectAndClose = (subjectId: string) => {
     selectSubject(subjectId);
+    if (onSelectTrack) {
+      onSelectTrack(subjectId);
+    }
     onClose();
   };
 
   const handleStartTrackAndSelect = (subjectId: string) => {
     startSubjectTrack(subjectId);
     selectSubject(subjectId);
+    if (onSelectTrack) {
+      onSelectTrack(subjectId);
+    }
     onClose();
   };
 
@@ -553,26 +561,30 @@ export const RoadmapHubModal: React.FC<RoadmapHubModalProps> = ({
 
                         {/* Bottom Actions Row */}
                         <div className="flex items-center justify-between gap-2 pt-3 border-t border-white/[0.06] shrink-0">
-                          <div className="flex items-center gap-2">
-                            {!isTrackStarted ? (
+                          <div className="flex flex-wrap items-center gap-2">
+                            {/* Watch / Preview Roadmap Button */}
+                            <button
+                              onClick={() => handleSelectAndClose(subject.id)}
+                              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 active:scale-95 ${
+                                isSelected
+                                  ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20'
+                                  : 'bg-white/[0.08] hover:bg-white/[0.14] text-white border border-white/[0.08]'
+                              }`}
+                            >
+                              <BookOpen className="w-3.5 h-3.5 text-indigo-400" />
+                              <span>{isSelected ? 'Currently Viewing' : !isTrackStarted ? 'Watch Roadmap' : 'Open Roadmap'}</span>
+                              <ChevronRight className="w-3.5 h-3.5" />
+                            </button>
+
+                            {/* Start Tracking Button for unstarted tracks */}
+                            {!isTrackStarted && (
                               <button
                                 onClick={() => handleStartTrackAndSelect(subject.id)}
-                                className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-indigo-600 hover:from-emerald-400 hover:to-indigo-500 text-white font-bold text-xs shadow-lg shadow-emerald-500/20 transition-all flex items-center gap-1.5 active:scale-95"
+                                className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-indigo-600 hover:from-emerald-400 hover:to-indigo-500 text-white font-bold text-xs shadow-md shadow-emerald-500/20 transition-all flex items-center gap-1.5 active:scale-95"
+                                title="Start daily tracking and put this in your ongoing sidebar"
                               >
-                                <PlayCircle className="w-4 h-4" />
-                                <span>Start Tracking Today</span>
-                              </button>
-                            ) : (
-                              <button
-                                onClick={() => handleSelectAndClose(subject.id)}
-                                className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 active:scale-95 ${
-                                  isSelected
-                                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20'
-                                    : 'bg-white/[0.08] hover:bg-white/[0.14] text-white'
-                                }`}
-                              >
-                                <span>{isSelected ? 'Currently Viewing' : 'Switch to Track'}</span>
-                                <ChevronRight className="w-3.5 h-3.5" />
+                                <PlayCircle className="w-3.5 h-3.5" />
+                                <span>Start Tracker</span>
                               </button>
                             )}
 

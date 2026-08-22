@@ -108,9 +108,9 @@ export const Header: React.FC<HeaderProps> = ({
               ) : null}
 
               {!stats.isStarted ? (
-                <span className="inline-flex items-center gap-1 text-[11px] sm:text-xs font-semibold px-3 py-1 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30 animate-pulse font-mono">
-                  <Clock className="w-3.5 h-3.5 text-amber-400" />
-                  In Queue (Click Start Today)
+                <span className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-semibold px-3 py-1 rounded-full bg-indigo-500/15 text-indigo-300 border border-indigo-500/30 font-mono">
+                  <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse" />
+                  Preview / Watch Mode
                 </span>
               ) : (
                 <span
@@ -176,7 +176,7 @@ export const Header: React.FC<HeaderProps> = ({
                 className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-indigo-600 hover:from-emerald-400 hover:to-indigo-500 text-white font-bold text-xs shadow-lg shadow-emerald-500/20 transition-all transform active:scale-95"
               >
                 <PlayCircle className="w-4 h-4" />
-                <span>Start Track Today</span>
+                <span>Start Daily Tracker</span>
               </button>
             ) : (
               <button
@@ -195,17 +195,18 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         </div>
 
-        {/* Unstarted Banner */}
+        {/* Unstarted / Preview Banner */}
         {!stats.isStarted && (
-          <div className="p-3.5 rounded-2xl bg-gradient-to-r from-amber-950/40 via-obsidian-900 to-indigo-950/30 border border-amber-500/30 text-xs text-amber-200/90 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-lg">
+          <div className="p-3.5 rounded-2xl bg-gradient-to-r from-indigo-950/40 via-obsidian-900 to-purple-950/30 border border-indigo-500/30 text-xs text-indigo-200/90 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-lg">
             <span>
-              💡 <strong>Ready to start?</strong> Missed days won't start calculating until you click <strong>"Start Track Today"</strong>!
+              👁️ <strong>Preview / Watch Mode:</strong> You are freely watching & exploring this roadmap. Browse phases, topic notes, and videos anytime. Click <strong>"Start Daily Tracker"</strong> when you want daily 1-phase goal tracking!
             </span>
             <button
               onClick={() => startSubjectTrack(subject.id)}
-              className="px-3.5 py-1.5 rounded-xl bg-amber-500 text-slate-950 font-extrabold hover:bg-amber-400 transition-colors shrink-0 shadow-md"
+              className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-indigo-600 text-white font-extrabold hover:from-emerald-400 hover:to-indigo-500 transition-all shrink-0 shadow-md flex items-center gap-1.5 active:scale-95"
             >
-              Start Now
+              <PlayCircle className="w-3.5 h-3.5" />
+              <span>Start Daily Tracker</span>
             </button>
           </div>
         )}

@@ -105,52 +105,77 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     ? userProgress[activeSubject.id] || {
         subjectId: activeSubject.id,
         startDate: getEffectiveTodayIso(),
-        isStarted: true,
+        isStarted: false,
         completedTopicIds: [],
       }
     : null;
 
+  // Safe LocalStorage setItem helper that handles quota issues gracefully
+  const safeSetLocalStorage = (key: string, value: string) => {
+    try {
+      localStorage.setItem(key, value);
+    } catch (e: any) {
+      if (e?.name === 'QuotaExceededError' || e?.code === 22) {
+        // Quota exceeded: clear heavy keys that are safely stored in DB
+        try {
+          localStorage.removeItem(LOCAL_STORAGE_DOCS_KEY);
+          localStorage.removeItem(LOCAL_STORAGE_QNA_KEY);
+          localStorage.setItem(key, value);
+        } catch {
+          // Ignore if still too large
+        }
+      }
+    }
+  };
+
   // Load initial state on mount
   useEffect(() => {
-    async function loadData() {
-      // 1. Instant LocalStorage load
+    // 1. Instant LocalStorage load
+    try {
+      const storedProgress = localStorage.getItem(LOCAL_STORAGE_KEY);
+      const storedActiveId = localStorage.getItem(LOCAL_STORAGE_ACTIVE_KEY);
+      const storedCustom = localStorage.getItem(LOCAL_STORAGE_CUSTOM_KEY);
+      const storedDeleted = localStorage.getItem(LOCAL_STORAGE_DELETED_KEY);
+      const storedDocs = localStorage.getItem(LOCAL_STORAGE_DOCS_KEY);
+      const storedQnas = localStorage.getItem(LOCAL_STORAGE_QNA_KEY);
+      const storedTrash = localStorage.getItem(LOCAL_STORAGE_TRASH_KEY);
+      const storedResources = localStorage.getItem(LOCAL_STORAGE_RESOURCES_KEY);
+
+      // Clean up legacy heavy keys from localStorage to prevent QuotaExceededError
       try {
-        const storedProgress = localStorage.getItem(LOCAL_STORAGE_KEY);
-        const storedActiveId = localStorage.getItem(LOCAL_STORAGE_ACTIVE_KEY);
-        const storedCustom = localStorage.getItem(LOCAL_STORAGE_CUSTOM_KEY);
-        const storedDeleted = localStorage.getItem(LOCAL_STORAGE_DELETED_KEY);
-        const storedDocs = localStorage.getItem(LOCAL_STORAGE_DOCS_KEY);
-        const storedQnas = localStorage.getItem(LOCAL_STORAGE_QNA_KEY);
-        const storedTrash = localStorage.getItem(LOCAL_STORAGE_TRASH_KEY);
-        const storedResources = localStorage.getItem(LOCAL_STORAGE_RESOURCES_KEY);
+        localStorage.removeItem(LOCAL_STORAGE_DOCS_KEY);
+        localStorage.removeItem(LOCAL_STORAGE_QNA_KEY);
+      } catch {}
 
-        if (storedProgress) {
-          const parsed = JSON.parse(storedProgress);
-          const normalized: AllUserProgress = {};
-          Object.keys(parsed).forEach((key) => {
-            normalized[key] = {
-              ...parsed[key],
-              completedTopicIds: (parsed[key].completedTopicIds || []).map((id: any) => String(id)),
-            };
-          });
-          setUserProgress(normalized);
-        }
-        if (storedCustom) setCustomSubjects(JSON.parse(storedCustom));
-        if (storedDeleted) setDeletedSubjectIds(JSON.parse(storedDeleted));
-        if (storedActiveId) setActiveSubjectId(storedActiveId);
-        if (storedDocs) setTopicDocuments(JSON.parse(storedDocs));
-        if (storedQnas) setTopicQnas(JSON.parse(storedQnas));
-        if (storedTrash) setTrashItems(JSON.parse(storedTrash));
-        if (storedResources) setSavedResources(JSON.parse(storedResources));
-      } catch (e) {
-        console.error('LocalStorage load error:', e);
+      if (storedProgress) {
+        const parsed = JSON.parse(storedProgress);
+        const normalized: AllUserProgress = {};
+        Object.keys(parsed).forEach((key) => {
+          normalized[key] = {
+            ...parsed[key],
+            completedTopicIds: (parsed[key].completedTopicIds || []).map((id: any) => String(id)),
+          };
+        });
+        setUserProgress(normalized);
       }
+      if (storedCustom) setCustomSubjects(JSON.parse(storedCustom));
+      if (storedDeleted) setDeletedSubjectIds(JSON.parse(storedDeleted));
+      if (storedActiveId) setActiveSubjectId(storedActiveId);
+      if (storedTrash) setTrashItems(JSON.parse(storedTrash));
+      if (storedResources) setSavedResources(JSON.parse(storedResources));
+    } catch (e) {
+      console.warn('LocalStorage load warning:', e);
+    }
 
-      // 2. Async database API load (Progress, Documents, Qnas, Trash & Resources)
+    // Set mounted immediately so UI renders without delay
+    setIsMounted(true);
+
+    // 2. Async database API load (Progress, Documents, Qnas, Trash & Resources) in background
+    async function syncDatabase() {
       try {
         setIsSyncingDb(true);
 
-        const [progressRes, docsRes, qnaRes, trashRes, resourcesRes] = await Promise.all([
+        const [progressRes, docsRes, qnaRes, trashRes, resourcesRes] = await Promise.allSettled([
           fetch('/api/progress'),
           fetch('/api/documents'),
           fetch('/api/qna'),
@@ -158,88 +183,90 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           fetch('/api/resources'),
         ]);
 
-        const data = await progressRes.json();
-        if (data.success) {
-          if (data.progress && Object.keys(data.progress).length > 0) {
-            setUserProgress((prev) => {
-              const updated: AllUserProgress = { ...prev };
-              Object.keys(data.progress).forEach((sId) => {
-                const dbItem = data.progress[sId];
-                const prevItem = updated[sId];
+        if (progressRes.status === 'fulfilled') {
+          const data = await progressRes.value.json();
+          if (data.success) {
+            if (data.progress && Object.keys(data.progress).length > 0) {
+              setUserProgress((prev) => {
+                const updated: AllUserProgress = { ...prev };
+                Object.keys(data.progress).forEach((sId) => {
+                  const dbItem = data.progress[sId];
+                  const prevItem = updated[sId];
 
-                const dbTopicIds = (dbItem.completedTopicIds || []).map((id: any) => String(id));
-                const prevTopicIds = (prevItem?.completedTopicIds || []).map((id: any) => String(id));
+                  const dbTopicIds = (dbItem.completedTopicIds || []).map((id: any) => String(id));
+                  const prevTopicIds = (prevItem?.completedTopicIds || []).map((id: any) => String(id));
 
-                // Union of DB and LocalStorage completed IDs so no progress is ever lost
-                const mergedCompletedIds = Array.from(new Set([...dbTopicIds, ...prevTopicIds]));
+                  const mergedCompletedIds = Array.from(new Set([...dbTopicIds, ...prevTopicIds]));
 
-                updated[sId] = {
-                  ...(prevItem || {}),
-                  ...dbItem,
-                  completedTopicIds: mergedCompletedIds,
-                };
+                  updated[sId] = {
+                    ...(prevItem || {}),
+                    ...dbItem,
+                    completedTopicIds: mergedCompletedIds,
+                  };
+                });
+                return updated;
               });
-              return updated;
-            });
+            }
+            if (data.customSubjects && data.customSubjects.length > 0) {
+              setCustomSubjects(data.customSubjects);
+            }
+            if (data.deletedSubjectIds && Array.isArray(data.deletedSubjectIds)) {
+              setDeletedSubjectIds(data.deletedSubjectIds);
+            }
           }
-          if (data.customSubjects && data.customSubjects.length > 0) {
-            setCustomSubjects(data.customSubjects);
+        }
+
+        if (docsRes.status === 'fulfilled') {
+          const docsData = await docsRes.value.json();
+          if (docsData.success && docsData.documents) {
+            setTopicDocuments((prev) => ({ ...prev, ...docsData.documents }));
           }
-          if (data.deletedSubjectIds && Array.isArray(data.deletedSubjectIds)) {
-            setDeletedSubjectIds(data.deletedSubjectIds);
+        }
+
+        if (qnaRes.status === 'fulfilled') {
+          const qnaData = await qnaRes.value.json();
+          if (qnaData.success && qnaData.qnas) {
+            setTopicQnas((prev) => ({ ...prev, ...qnaData.qnas }));
           }
         }
 
-        const docsData = await docsRes.json();
-        if (docsData.success && docsData.documents) {
-          setTopicDocuments((prev) => ({ ...prev, ...docsData.documents }));
+        if (trashRes.status === 'fulfilled') {
+          const trashData = await trashRes.value.json();
+          if (trashData.success && Array.isArray(trashData.trashItems)) {
+            setTrashItems(trashData.trashItems);
+          }
         }
 
-        const qnaData = await qnaRes.json();
-        if (qnaData.success && qnaData.qnas) {
-          setTopicQnas((prev) => ({ ...prev, ...qnaData.qnas }));
-        }
-
-        const trashData = await trashRes.json();
-        if (trashData.success && Array.isArray(trashData.trashItems)) {
-          setTrashItems(trashData.trashItems);
-        }
-
-        const resourcesData = await resourcesRes.json();
-        if (resourcesData.success && Array.isArray(resourcesData.resources)) {
-          setSavedResources(resourcesData.resources);
+        if (resourcesRes.status === 'fulfilled') {
+          const resourcesData = await resourcesRes.value.json();
+          if (resourcesData.success && Array.isArray(resourcesData.resources)) {
+            setSavedResources(resourcesData.resources);
+          }
         }
       } catch (e) {
-        console.warn('Database fetch fallback to LocalStorage:', e);
+        console.warn('Database fetch sync completed with warning:', e);
       } finally {
         setIsSyncingDb(false);
-        setIsMounted(true);
       }
     }
 
-    loadData();
+    syncDatabase();
   }, []);
 
-  // Save state to LocalStorage
+  // Save state to LocalStorage safely
   useEffect(() => {
     if (!isMounted) return;
-    try {
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(userProgress));
-      if (activeSubjectId) {
-        localStorage.setItem(LOCAL_STORAGE_ACTIVE_KEY, activeSubjectId);
-      } else {
-        localStorage.removeItem(LOCAL_STORAGE_ACTIVE_KEY);
-      }
-      localStorage.setItem(LOCAL_STORAGE_CUSTOM_KEY, JSON.stringify(customSubjects));
-      localStorage.setItem(LOCAL_STORAGE_DELETED_KEY, JSON.stringify(deletedSubjectIds));
-      localStorage.setItem(LOCAL_STORAGE_DOCS_KEY, JSON.stringify(topicDocuments));
-      localStorage.setItem(LOCAL_STORAGE_QNA_KEY, JSON.stringify(topicQnas));
-      localStorage.setItem(LOCAL_STORAGE_TRASH_KEY, JSON.stringify(trashItems));
-      localStorage.setItem(LOCAL_STORAGE_RESOURCES_KEY, JSON.stringify(savedResources));
-    } catch (e) {
-      console.error('LocalStorage save error:', e);
+    safeSetLocalStorage(LOCAL_STORAGE_KEY, JSON.stringify(userProgress));
+    if (activeSubjectId) {
+      safeSetLocalStorage(LOCAL_STORAGE_ACTIVE_KEY, activeSubjectId);
+    } else {
+      try { localStorage.removeItem(LOCAL_STORAGE_ACTIVE_KEY); } catch {}
     }
-  }, [userProgress, activeSubjectId, customSubjects, deletedSubjectIds, topicDocuments, topicQnas, trashItems, savedResources, isMounted]);
+    safeSetLocalStorage(LOCAL_STORAGE_CUSTOM_KEY, JSON.stringify(customSubjects));
+    safeSetLocalStorage(LOCAL_STORAGE_DELETED_KEY, JSON.stringify(deletedSubjectIds));
+    safeSetLocalStorage(LOCAL_STORAGE_TRASH_KEY, JSON.stringify(trashItems));
+    safeSetLocalStorage(LOCAL_STORAGE_RESOURCES_KEY, JSON.stringify(savedResources));
+  }, [userProgress, activeSubjectId, customSubjects, deletedSubjectIds, trashItems, savedResources, isMounted]);
 
   const selectSubject = (id: string) => {
     setActiveSubjectId(id);
@@ -247,7 +274,7 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       const newProgress: SubjectProgress = {
         subjectId: id,
         startDate: getEffectiveTodayIso(),
-        isStarted: true,
+        isStarted: false,
         completedTopicIds: [],
       };
       setUserProgress((prev) => ({ ...prev, [id]: newProgress }));

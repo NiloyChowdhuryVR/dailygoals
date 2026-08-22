@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const allProgress = await prisma.subjectProgress.findMany({
@@ -17,7 +19,7 @@ export async function GET() {
       formattedProgress[p.subjectId] = {
         subjectId: p.subjectId,
         startDate: p.startDate,
-        isStarted: p.isStarted ?? true,
+        isStarted: p.isStarted ?? false,
         completedTopicIds: p.completedTasks.map((t) => String(t.topicId)),
       };
     });

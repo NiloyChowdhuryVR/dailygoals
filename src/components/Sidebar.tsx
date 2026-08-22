@@ -62,7 +62,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
     subjects.forEach((subject) => {
       const progress = userProgress[subject.id];
-      const isTrackStarted = progress ? progress.isStarted !== false : true;
+      const isTrackStarted = Boolean(progress?.isStarted);
       const totalTopics = subject.phases.reduce((acc, p) => acc + p.topics.length, 0);
       const completedIds = Array.from(new Set((progress?.completedTopicIds || []).map(String)));
       const count = completedIds.length;
@@ -164,6 +164,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               {ongoingSubjects.map((subject) => {
                 const isSelected = subject.id === activeSubjectId;
                 const progress = userProgress[subject.id];
+                const isTrackStarted = Boolean(progress?.isStarted);
                 const totalTopics = subject.phases.reduce((acc, p) => acc + p.topics.length, 0);
                 const completedIds = Array.from(new Set((progress?.completedTopicIds || []).map(String)));
                 const completedSet = new Set(completedIds);
@@ -224,9 +225,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
                           <span className="font-bold text-xs sm:text-sm truncate">{subject.title}</span>
                         </div>
 
-                        {/* Active / Goal Met Status Badges */}
+                        {/* Active / Goal Met / Preview Status Badges */}
                         <div className="flex flex-wrap items-center gap-1.5 mb-2">
-                          {isTodayGoalCompleted ? (
+                          {!isTrackStarted ? (
+                            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-indigo-950/70 border border-indigo-800/50 text-indigo-300 text-[10px] font-semibold font-mono">
+                              <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse" />
+                              Preview
+                            </span>
+                          ) : isTodayGoalCompleted ? (
                             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-[10px] font-bold font-mono">
                               <CheckCircle2 className="w-3 h-3 text-emerald-400" />
                               Goal Met ✓

@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+export const dynamic = 'force-dynamic';
+
 // 3 days in milliseconds
 const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000;
 

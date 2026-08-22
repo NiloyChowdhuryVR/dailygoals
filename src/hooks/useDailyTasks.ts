@@ -71,7 +71,7 @@ export function useDailyTasks(
       };
     }
 
-    const isStarted = subjectProgress?.isStarted !== false; // defaults to true unless explicitly false
+    const isStarted = Boolean(subjectProgress?.isStarted);
 
     // Start date calculation
     const startDateIso = subjectProgress?.startDate || getEffectiveTodayIso(new Date());
