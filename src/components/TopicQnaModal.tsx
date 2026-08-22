@@ -133,7 +133,7 @@ export const TopicQnaModal: React.FC<TopicQnaModalProps> = ({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          className="fixed inset-0 bg-black/80 backdrop-blur-md"
+          className="fixed inset-0 bg-black/85 backdrop-blur-xl"
         />
 
         {/* Modal Container */}
@@ -142,24 +142,24 @@ export const TopicQnaModal: React.FC<TopicQnaModalProps> = ({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-          className="relative w-full max-w-2xl bg-dark-900 border border-slate-800 rounded-3xl shadow-2xl overflow-hidden z-10 flex flex-col max-h-[85vh]"
+          className="relative w-full max-w-2xl bg-obsidian-900 border border-white/[0.08] rounded-3xl shadow-2xl overflow-hidden z-10 flex flex-col max-h-[85vh]"
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-5 md:p-6 bg-dark-850 border-b border-slate-800/80 shrink-0">
+          <div className="flex items-center justify-between p-5 md:p-6 bg-obsidian-950/70 border-b border-white/[0.08] shrink-0">
             <div className="flex items-center gap-3 min-w-0">
-              <div className="p-2.5 rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/30 shrink-0">
+              <div className="p-2.5 rounded-2xl bg-amber-500/20 text-amber-300 border border-amber-500/30 shrink-0">
                 <HelpCircle className="w-6 h-6" />
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <h2 className="text-lg md:text-xl font-bold text-white tracking-tight truncate">
-                    Topic Q&A
+                  <h2 className="text-lg md:text-xl font-extrabold text-white tracking-tight truncate">
+                    Topic Q&A Vault
                   </h2>
-                  <span className="px-2.5 py-0.5 rounded-full bg-amber-950 text-amber-300 text-xs font-mono font-bold border border-amber-800/60 shrink-0">
+                  <span className="px-2.5 py-0.5 rounded-full bg-amber-950/80 text-amber-300 text-xs font-mono font-bold border border-amber-800/60 shrink-0">
                     {topicQnas.length} Item{topicQnas.length !== 1 ? 's' : ''}
                   </span>
                 </div>
-                <p className="text-xs text-slate-400 truncate mt-0.5">
+                <p className="text-xs text-slate-400 truncate mt-0.5 font-mono">
                   Phase {topic.phaseNumber}: {topic.phaseTitle} • <strong className="text-slate-200">{topic.name}</strong>
                 </p>
               </div>
@@ -167,7 +167,7 @@ export const TopicQnaModal: React.FC<TopicQnaModalProps> = ({
 
             <button
               onClick={onClose}
-              className="p-2 rounded-xl bg-slate-800/80 border border-slate-700/60 text-slate-400 hover:text-white transition-all shrink-0 ml-2"
+              className="p-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-slate-400 hover:text-white transition-all shrink-0 ml-2"
             >
               <X className="w-5 h-5" />
             </button>
@@ -176,16 +176,16 @@ export const TopicQnaModal: React.FC<TopicQnaModalProps> = ({
           {/* Modal Body */}
           <div className="p-5 md:p-6 overflow-y-auto space-y-6 flex-1 custom-scrollbar">
             {/* Top Action Bar */}
-            <div className="flex items-center justify-between gap-3 border-b border-slate-800/60 pb-4">
-              <div className="text-xs font-medium text-slate-400 flex items-center gap-1.5">
+            <div className="flex items-center justify-between gap-3 border-b border-white/[0.06] pb-4">
+              <div className="text-xs font-medium text-slate-400 flex items-center gap-1.5 font-mono">
                 <Sparkles className="w-4 h-4 text-amber-400" />
-                <span>Questions & sliding answers stored for this topic</span>
+                <span>Concept questions & sliding answers</span>
               </div>
 
               {!isFormOpen && (
                 <button
                   onClick={handleStartAdd}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-xs shadow-lg shadow-amber-500/20 transition-all active:scale-95 shrink-0"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs shadow-lg shadow-amber-500/20 transition-all active:scale-95 shrink-0"
                 >
                   <Plus className="w-4 h-4" />
                   <span>Add Question</span>
@@ -201,10 +201,10 @@ export const TopicQnaModal: React.FC<TopicQnaModalProps> = ({
                   animate={{ height: 'auto', opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
                   onSubmit={handleSaveForm}
-                  className="rounded-2xl border border-amber-500/40 bg-amber-950/20 p-4 md:p-5 space-y-4 shadow-xl"
+                  className="rounded-3xl border border-amber-500/40 bg-gradient-to-br from-amber-950/30 via-obsidian-900 to-obsidian-950 p-4 sm:p-5 space-y-4 shadow-xl"
                 >
                   <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-bold text-amber-300 flex items-center gap-2">
+                    <h3 className="text-sm font-bold text-amber-300 flex items-center gap-2 font-mono">
                       <MessageSquare className="w-4 h-4" />
                       <span>{editingQnaId ? 'Edit Q&A Pair' : 'Create New Q&A Pair'}</span>
                     </h3>
@@ -219,7 +219,7 @@ export const TopicQnaModal: React.FC<TopicQnaModalProps> = ({
 
                   <div className="space-y-3">
                     <div>
-                      <label className="block text-xs font-semibold text-slate-300 mb-1">
+                      <label className="block text-xs font-semibold text-slate-300 mb-1 font-mono">
                         Question / Topic Query *
                       </label>
                       <input
@@ -228,12 +228,12 @@ export const TopicQnaModal: React.FC<TopicQnaModalProps> = ({
                         onChange={(e) => setQuestionText(e.target.value)}
                         placeholder="e.g. What is the intuitive difference between left-hand and right-hand limits?"
                         required
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-dark-950 border border-slate-700/80 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 transition-colors"
+                        className="w-full px-3.5 py-2.5 rounded-2xl bg-obsidian-950 border border-white/[0.08] text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 transition-colors"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-semibold text-slate-300 mb-1">
+                      <label className="block text-xs font-semibold text-slate-300 mb-1 font-mono">
                         Detailed Answer * (Sliding accordion content)
                       </label>
                       <textarea
@@ -242,7 +242,7 @@ export const TopicQnaModal: React.FC<TopicQnaModalProps> = ({
                         placeholder="e.g. The left-hand limit approaches x from values smaller than c, while right-hand approaches from values greater than c..."
                         required
                         rows={4}
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-dark-950 border border-slate-700/80 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 transition-colors custom-scrollbar resize-y"
+                        className="w-full px-3.5 py-2.5 rounded-2xl bg-obsidian-950 border border-white/[0.08] text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 transition-colors custom-scrollbar resize-y"
                       />
                     </div>
                   </div>
@@ -251,14 +251,14 @@ export const TopicQnaModal: React.FC<TopicQnaModalProps> = ({
                     <button
                       type="button"
                       onClick={handleCancelForm}
-                      className="px-3.5 py-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white text-xs font-medium transition-all"
+                      className="px-3.5 py-2 rounded-xl bg-white/[0.04] text-slate-300 hover:text-white text-xs font-medium transition-all"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs shadow-md transition-all active:scale-95 disabled:opacity-50"
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs shadow-md transition-all active:scale-95 disabled:opacity-50"
                     >
                       <Save className="w-4 h-4" />
                       <span>{isSubmitting ? 'Saving...' : editingQnaId ? 'Update Q&A' : 'Save Q&A'}</span>
@@ -276,28 +276,28 @@ export const TopicQnaModal: React.FC<TopicQnaModalProps> = ({
                   return (
                     <div
                       key={qna.id}
-                      className={`rounded-2xl border transition-all overflow-hidden ${
+                      className={`rounded-3xl border transition-all overflow-hidden backdrop-blur-xl ${
                         isExpanded
-                          ? 'border-amber-500/50 bg-amber-950/10 shadow-lg shadow-amber-500/5'
-                          : 'border-slate-800 bg-dark-850/60 hover:border-slate-700'
+                          ? 'border-amber-500/50 bg-amber-950/15 shadow-lg shadow-amber-500/5'
+                          : 'border-white/[0.07] bg-obsidian-900/60 hover:border-white/[0.14]'
                       }`}
                     >
                       {/* Question Header Button */}
                       <button
                         onClick={() => toggleAccordion(qna.id)}
-                        className="w-full p-4 text-left flex items-start justify-between gap-3 hover:bg-slate-800/30 transition-colors"
+                        className="w-full p-4 text-left flex items-start justify-between gap-3 hover:bg-white/[0.02] transition-colors"
                       >
                         <div className="flex items-start gap-3 min-w-0">
-                          <span className="w-6 h-6 rounded-lg bg-amber-500/20 text-amber-300 font-mono text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
+                          <span className="w-7 h-7 rounded-xl bg-amber-500/20 text-amber-300 font-mono text-xs font-bold flex items-center justify-center shrink-0 mt-0.5 border border-amber-500/30">
                             Q{idx + 1}
                           </span>
-                          <h4 className="text-sm font-semibold text-white leading-snug">
+                          <h4 className="text-sm font-bold text-white leading-snug tracking-tight">
                             {qna.question}
                           </h4>
                         </div>
 
                         <div className="flex items-center gap-2 shrink-0">
-                          <span className="text-[10px] font-mono text-slate-400 bg-slate-800/60 px-2 py-0.5 rounded-full border border-slate-700/50">
+                          <span className="text-[10px] font-mono text-slate-300 bg-white/[0.04] px-2.5 py-0.5 rounded-full border border-white/[0.08]">
                             {isExpanded ? 'Hide Answer' : 'Show Answer'}
                           </span>
                           {isExpanded ? (
@@ -316,19 +316,19 @@ export const TopicQnaModal: React.FC<TopicQnaModalProps> = ({
                             animate={{ height: 'auto', opacity: 1 }}
                             exit={{ height: 0, opacity: 0 }}
                             transition={{ duration: 0.25, ease: 'easeInOut' }}
-                            className="border-t border-slate-800/80 bg-dark-950/60 p-4 space-y-3"
+                            className="border-t border-white/[0.06] bg-obsidian-950/80 p-4 sm:p-5 space-y-3"
                           >
                             <div className="space-y-1">
                               <span className="text-[11px] font-bold font-mono text-amber-400 uppercase tracking-wider">
                                 Answer:
                               </span>
-                              <p className="text-xs md:text-sm text-slate-200 leading-relaxed whitespace-pre-wrap font-sans">
+                              <p className="text-xs sm:text-sm text-slate-200 leading-relaxed whitespace-pre-wrap font-sans">
                                 {qna.answer}
                               </p>
                             </div>
 
                             {/* Q&A Item Actions */}
-                            <div className="flex items-center justify-between pt-2 border-t border-slate-800/40 text-xs">
+                            <div className="flex items-center justify-between pt-2 border-t border-white/[0.06] text-xs">
                               <span className="text-[10px] font-mono text-slate-500">
                                 Added {new Date(qna.createdAt).toLocaleDateString()}
                               </span>
@@ -337,13 +337,13 @@ export const TopicQnaModal: React.FC<TopicQnaModalProps> = ({
                                 <button
                                   type="button"
                                   onClick={() => handleCopy(qna)}
-                                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800/60 border border-slate-700/60 hover:bg-slate-700 text-slate-300 text-[11px] transition-colors"
+                                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.08] text-slate-300 text-[11px] transition-colors"
                                   title="Copy Q&A text"
                                 >
                                   {copiedId === qna.id ? (
                                     <>
                                       <Check className="w-3 h-3 text-emerald-400" />
-                                      <span className="text-emerald-400">Copied!</span>
+                                      <span className="text-emerald-400 font-bold">Copied!</span>
                                     </>
                                   ) : (
                                     <>
@@ -356,7 +356,7 @@ export const TopicQnaModal: React.FC<TopicQnaModalProps> = ({
                                 <button
                                   type="button"
                                   onClick={() => handleStartEdit(qna)}
-                                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800/60 border border-slate-700/60 hover:bg-slate-700 hover:text-amber-300 text-slate-300 text-[11px] transition-colors"
+                                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.08] hover:text-amber-300 text-slate-300 text-[11px] transition-colors"
                                 >
                                   <Edit2 className="w-3 h-3" />
                                   <span>Edit</span>
@@ -365,7 +365,7 @@ export const TopicQnaModal: React.FC<TopicQnaModalProps> = ({
                                 <button
                                   type="button"
                                   onClick={() => handleDelete(qna.id)}
-                                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800/60 border border-slate-700/60 hover:bg-rose-950 hover:text-rose-400 text-slate-400 text-[11px] transition-colors"
+                                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-white/[0.04] border border-white/[0.08] hover:bg-rose-950/60 hover:text-rose-400 text-slate-400 text-[11px] transition-colors"
                                 >
                                   <Trash2 className="w-3 h-3" />
                                   <span>Delete</span>
@@ -380,13 +380,13 @@ export const TopicQnaModal: React.FC<TopicQnaModalProps> = ({
                 })}
               </div>
             ) : (
-              <div className="rounded-2xl border border-dashed border-slate-800 bg-dark-850/40 p-8 text-center space-y-3">
-                <div className="w-12 h-12 mx-auto rounded-full bg-slate-800/60 text-slate-500 border border-slate-700/60 flex items-center justify-center">
+              <div className="rounded-3xl border border-dashed border-white/[0.1] bg-obsidian-900/40 p-8 text-center space-y-3">
+                <div className="w-12 h-12 mx-auto rounded-2xl bg-white/[0.04] text-slate-400 border border-white/[0.08] flex items-center justify-center">
                   <HelpCircle className="w-6 h-6" />
                 </div>
                 <div className="space-y-1">
-                  <h3 className="text-base font-bold text-slate-300">No Questions Added Yet</h3>
-                  <p className="text-xs text-slate-400 max-w-sm mx-auto">
+                  <h3 className="text-base font-bold text-slate-200">No Questions Added Yet</h3>
+                  <p className="text-xs text-slate-400 max-w-sm mx-auto leading-relaxed">
                     Add Q&A pairs for this topic so you can test your knowledge or store tricky concept solutions.
                   </p>
                 </div>
@@ -405,3 +405,4 @@ export const TopicQnaModal: React.FC<TopicQnaModalProps> = ({
     </AnimatePresence>
   );
 };
+

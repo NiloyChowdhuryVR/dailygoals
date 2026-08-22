@@ -3,7 +3,16 @@
 import React from 'react';
 import { ProcessedTopic } from '@/types/learning';
 import { useProgress } from '@/context/ProgressContext';
-import { Check, AlertTriangle, Calendar, Clock, ExternalLink, Sparkles, AlertCircle, FileText, BookOpen, HelpCircle } from 'lucide-react';
+import {
+  Check,
+  Calendar,
+  Clock,
+  ExternalLink,
+  Sparkles,
+  AlertCircle,
+  FileText,
+  HelpCircle,
+} from 'lucide-react';
 import { motion } from 'framer-motion';
 import confetti from 'canvas-confetti';
 
@@ -14,7 +23,12 @@ interface TaskCardProps {
   onOpenQna?: (task: ProcessedTopic) => void;
 }
 
-export const TaskCard: React.FC<TaskCardProps> = ({ task, isCompact = false, onOpenDoc, onOpenQna }) => {
+export const TaskCard: React.FC<TaskCardProps> = ({
+  task,
+  isCompact = false,
+  onOpenDoc,
+  onOpenQna,
+}) => {
   const { toggleTopicCompletion, activeSubject, getTopicDocument, getTopicQnas } = useProgress();
 
   const isCompleted = task.status === 'completed';
@@ -41,7 +55,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, isCompact = false, onO
         particleCount: 35,
         spread: 60,
         origin: { x, y },
-        colors: ['#10b981', '#3b82f6', '#8b5cf6', '#38bdf8'],
+        colors: ['#10b981', '#6366f1', '#a855f7', '#06b6d4'],
         disableForReducedMotion: true,
       });
     }
@@ -52,15 +66,15 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, isCompact = false, onO
   // Card Border & Background styling variants
   const getCardStyles = () => {
     if (isCompleted) {
-      return 'bg-emerald-950/10 border-emerald-500/20 text-slate-300 hover:border-emerald-500/40';
+      return 'bg-emerald-950/15 border-emerald-500/25 text-slate-300 hover:border-emerald-500/40 shadow-sm';
     }
     if (isMissedShifted) {
-      return 'bg-rose-950/20 border-rose-500/60 shadow-lg shadow-rose-500/10 text-white hover:border-rose-500 animate-pulse-subtle';
+      return 'bg-gradient-to-br from-rose-950/25 via-obsidian-900/80 to-obsidian-900 border-rose-500/50 shadow-xl shadow-rose-500/10 text-white hover:border-rose-400 animate-pulse-subtle';
     }
     if (isToday) {
-      return 'bg-gradient-to-br from-blue-950/40 via-indigo-950/30 to-purple-950/30 border-blue-500/60 shadow-xl shadow-blue-500/10 text-white hover:border-blue-400';
+      return 'bg-gradient-to-br from-indigo-950/35 via-obsidian-900/80 to-purple-950/25 border-indigo-500/50 shadow-xl shadow-indigo-500/15 text-white hover:border-indigo-400';
     }
-    return 'bg-dark-850/60 border-slate-800/80 text-slate-300 hover:border-slate-700 hover:bg-dark-800/60';
+    return 'bg-obsidian-900/60 border-white/[0.07] text-slate-300 hover:border-white/[0.15] hover:bg-obsidian-850/80';
   };
 
   return (
@@ -70,25 +84,25 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, isCompact = false, onO
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.95 }}
       transition={{ duration: 0.2 }}
-      className={`relative group rounded-2xl border p-3.5 sm:p-4 md:p-5 transition-all duration-300 backdrop-blur-md ${getCardStyles()}`}
+      className={`relative group rounded-3xl border p-4 sm:p-5 transition-all duration-300 backdrop-blur-xl ${getCardStyles()}`}
     >
-      <div className="flex items-start gap-3 sm:gap-4">
+      <div className="flex items-start gap-3.5 sm:gap-4">
         {/* Animated Custom Checkbox */}
         <button
           onClick={handleCheckboxClick}
-          className="relative shrink-0 mt-0.5 p-1 -m-1 group/check focus:outline-none focus:ring-2 focus:ring-blue-500/50 rounded-xl"
+          className="relative shrink-0 mt-0.5 p-1 -m-1 group/check focus:outline-none focus:ring-2 focus:ring-indigo-500/50 rounded-2xl"
           aria-label={isCompleted ? 'Mark as incomplete' : 'Mark as completed'}
         >
           <motion.div
             whileTap={{ scale: 0.85 }}
-            className={`w-7 h-7 sm:w-7 sm:h-7 rounded-xl flex items-center justify-center border transition-all duration-300 ${
+            className={`w-7 h-7 sm:w-8 sm:h-8 rounded-2xl flex items-center justify-center border transition-all duration-300 ${
               isCompleted
-                ? 'bg-emerald-500 border-emerald-400 text-slate-950 shadow-md shadow-emerald-500/30'
+                ? 'bg-gradient-to-tr from-emerald-500 to-teal-400 border-emerald-400 text-slate-950 shadow-lg shadow-emerald-500/30'
                 : isMissedShifted
                 ? 'border-rose-500/80 bg-rose-950/40 group-hover/check:border-rose-400'
                 : isToday
-                ? 'border-blue-500/80 bg-blue-950/40 group-hover/check:border-blue-400'
-                : 'border-slate-700 bg-slate-900/60 group-hover/check:border-slate-500'
+                ? 'border-indigo-500/80 bg-indigo-950/40 group-hover/check:border-indigo-400'
+                : 'border-white/20 bg-obsidian-950/80 group-hover/check:border-white/40'
             }`}
           >
             {isCompleted && (
@@ -109,7 +123,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, isCompact = false, onO
           <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
             {/* Shifted Missed Task Badge */}
             {isMissedShifted && !isCompleted && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-rose-500/20 border border-rose-500/40 text-rose-300 text-[10px] sm:text-[11px] font-semibold tracking-wide uppercase font-mono">
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-rose-500/20 border border-rose-500/40 text-rose-300 text-[10px] sm:text-[11px] font-bold tracking-wide uppercase font-mono">
                 <AlertCircle className="w-3 h-3 text-rose-400" />
                 Shifted from Day {task.shiftedFromDayIndex || task.scheduledDayIndex + 1}
               </span>
@@ -117,23 +131,23 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, isCompact = false, onO
 
             {/* Today Native Task Badge */}
             {isToday && !isCompleted && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-blue-500/20 border border-blue-500/40 text-blue-300 text-[10px] sm:text-[11px] font-semibold tracking-wide uppercase font-mono">
-                <Sparkles className="w-3 h-3 text-blue-400" />
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-indigo-500/20 border border-indigo-500/40 text-indigo-300 text-[10px] sm:text-[11px] font-bold tracking-wide uppercase font-mono">
+                <Sparkles className="w-3 h-3 text-indigo-400" />
                 Today's Goal
               </span>
             )}
 
             {/* Document Saved Badge */}
             {hasDoc && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-purple-950/80 border border-purple-500/50 text-purple-300 text-[10px] sm:text-[11px] font-semibold font-mono shadow-sm shadow-purple-500/20">
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-purple-950/80 border border-purple-500/40 text-purple-300 text-[10px] sm:text-[11px] font-semibold font-mono shadow-sm shadow-purple-500/20">
                 <FileText className="w-3 h-3 text-purple-400" />
-                Doc Saved
+                Notes Saved
               </span>
             )}
 
             {/* Q&As Badge */}
             {hasQna && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-950/80 border border-amber-500/50 text-amber-300 text-[10px] sm:text-[11px] font-semibold font-mono shadow-sm shadow-amber-500/20">
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-950/80 border border-amber-500/40 text-amber-300 text-[10px] sm:text-[11px] font-semibold font-mono shadow-sm shadow-amber-500/20">
                 <HelpCircle className="w-3 h-3 text-amber-400" />
                 {qnaCount} Q&A{qnaCount !== 1 ? 's' : ''}
               </span>
@@ -147,9 +161,9 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, isCompact = false, onO
 
           {/* Title & Strikethrough Animation */}
           <h3
-            className={`font-semibold text-sm sm:text-base md:text-lg transition-all duration-300 leading-snug ${
+            className={`font-bold text-sm sm:text-base md:text-lg transition-all duration-300 leading-snug tracking-tight ${
               isCompleted
-                ? 'line-through text-slate-400 font-normal'
+                ? 'line-through text-slate-500 font-normal'
                 : 'text-white'
             }`}
           >
@@ -168,15 +182,15 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, isCompact = false, onO
           )}
 
           {/* Footer Metadata & Actions */}
-          <div className="flex flex-wrap items-center justify-between gap-2.5 pt-2 text-xs text-slate-400 border-t border-slate-800/40">
+          <div className="flex flex-wrap items-center justify-between gap-2.5 pt-2.5 text-xs text-slate-400 border-t border-white/[0.06]">
             <div className="flex items-center gap-3">
-              <span className="flex items-center gap-1 font-mono text-[11px] sm:text-xs">
+              <span className="flex items-center gap-1 font-mono text-[11px] sm:text-xs text-slate-400">
                 <Calendar className="w-3.5 h-3.5 text-slate-500" />
                 Day {task.scheduledDayIndex + 1}
               </span>
 
               {task.estimatedMinutes && (
-                <span className="flex items-center gap-1 font-mono text-[11px] sm:text-xs">
+                <span className="flex items-center gap-1 font-mono text-[11px] sm:text-xs text-slate-400">
                   <Clock className="w-3.5 h-3.5 text-slate-500" />
                   {task.estimatedMinutes} mins
                 </span>
@@ -193,8 +207,8 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, isCompact = false, onO
                   }}
                   className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border active:scale-95 ${
                     hasDoc
-                      ? 'bg-purple-950/80 border-purple-700/80 text-purple-300 hover:bg-purple-900'
-                      : 'bg-slate-800/80 border-slate-700/80 text-slate-300 hover:text-white hover:bg-slate-700/80 hover:border-blue-500/50'
+                      ? 'bg-purple-950/80 border-purple-600/60 text-purple-300 hover:bg-purple-900'
+                      : 'bg-white/[0.05] border-white/[0.08] text-slate-300 hover:text-white hover:bg-white/[0.1] hover:border-purple-500/40'
                   }`}
                 >
                   <FileText className="w-3.5 h-3.5 text-purple-400" />
@@ -211,8 +225,8 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, isCompact = false, onO
                   }}
                   className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border active:scale-95 ${
                     hasQna
-                      ? 'bg-amber-950/80 border-amber-700/80 text-amber-300 hover:bg-amber-900'
-                      : 'bg-slate-800/80 border-slate-700/80 text-slate-300 hover:text-white hover:bg-slate-700/80 hover:border-amber-500/50'
+                      ? 'bg-amber-950/80 border-amber-600/60 text-amber-300 hover:bg-amber-900'
+                      : 'bg-white/[0.05] border-white/[0.08] text-slate-300 hover:text-white hover:bg-white/[0.1] hover:border-amber-500/40'
                   }`}
                 >
                   <HelpCircle className="w-3.5 h-3.5 text-amber-400" />
@@ -226,7 +240,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, isCompact = false, onO
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={(e) => e.stopPropagation()}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-blue-950/40 border border-blue-800/40 text-blue-400 hover:text-blue-300 text-xs font-medium active:scale-95"
+                  className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-indigo-950/40 border border-indigo-800/40 text-indigo-400 hover:text-indigo-300 text-xs font-medium active:scale-95"
                 >
                   <span>Docs</span>
                   <ExternalLink className="w-3 h-3" />
@@ -239,4 +253,5 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, isCompact = false, onO
     </motion.div>
   );
 };
+
 

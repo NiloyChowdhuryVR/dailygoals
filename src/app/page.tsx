@@ -16,7 +16,8 @@ import { TopicQnaModal } from '@/components/TopicQnaModal';
 import { GlobalQnaView } from '@/components/GlobalQnaView';
 import { TrashModal } from '@/components/TrashModal';
 import { AddResourceModal } from '@/components/AddResourceModal';
-import { Menu, X, CalendarCheck, Layers, Sparkles, Video, HelpCircle } from 'lucide-react';
+import { RoadmapHubModal } from '@/components/RoadmapHubModal';
+import { Menu, X, CalendarCheck, Layers, Sparkles, Video, HelpCircle, Compass } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import { doesResourceMatchSubject } from '@/lib/resourceUtils';
@@ -36,6 +37,8 @@ export default function DashboardPage() {
   const [isImportModalOpen, setIsImportModalOpen] = useState<boolean>(false);
   const [isTrashModalOpen, setIsTrashModalOpen] = useState<boolean>(false);
   const [isAddResourceModalOpen, setIsAddResourceModalOpen] = useState<boolean>(false);
+  const [isRoadmapHubOpen, setIsRoadmapHubOpen] = useState<boolean>(false);
+  const [roadmapHubTab, setRoadmapHubTab] = useState<'all' | 'ongoing' | 'queue' | 'completed' | 'trash'>('all');
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState<boolean>(false);
 
   const [selectedTopicForDoc, setSelectedTopicForDoc] = useState<ProcessedTopic | null>(null);
@@ -81,50 +84,69 @@ export default function DashboardPage() {
     setIsQnaModalOpen(true);
   };
 
+  const handleOpenHub = (tab: 'all' | 'ongoing' | 'queue' | 'completed' | 'trash' = 'all') => {
+    setRoadmapHubTab(tab);
+    setIsRoadmapHubOpen(true);
+  };
+
   if (!isMounted) {
     return (
-      <div className="min-h-screen bg-dark-950 flex flex-col items-center justify-center space-y-4">
-        <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-600 to-purple-600 animate-spin flex items-center justify-center">
-          <Sparkles className="w-6 h-6 text-white" />
+      <div className="min-h-screen bg-obsidian-950 flex flex-col items-center justify-center space-y-4">
+        <div className="relative w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-cyan-400 p-0.5 animate-spin">
+          <div className="w-full h-full bg-obsidian-950 rounded-[14px] flex items-center justify-center">
+            <Sparkles className="w-6 h-6 text-indigo-400" />
+          </div>
         </div>
-        <p className="text-sm font-mono text-slate-400 animate-pulse">Loading Roadmap Engine...</p>
+        <p className="text-xs font-mono text-slate-400 tracking-wider animate-pulse">Initializing Focus Engine...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-dark-950 text-slate-100 flex flex-col lg:flex-row font-sans selection:bg-blue-500 selection:text-white relative">
+    <div className="min-h-screen bg-obsidian-950 text-slate-100 flex flex-col lg:flex-row font-sans selection:bg-indigo-500 selection:text-white relative">
       {/* Sticky Mobile Navigation Top Bar */}
-      <div className="lg:hidden sticky top-0 z-40 bg-dark-900/90 backdrop-blur-xl border-b border-slate-800/80 px-4 py-3 flex items-center justify-between">
+      <div className="lg:hidden sticky top-0 z-40 bg-obsidian-900/90 backdrop-blur-xl border-b border-white/[0.08] px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <button
             onClick={() => setIsMobileSidebarOpen(true)}
-            className="p-2 rounded-xl bg-slate-800/80 border border-slate-700/60 text-slate-200 hover:text-white active:scale-95 transition-all"
+            className="p-2 rounded-xl bg-white/[0.05] border border-white/[0.08] text-slate-200 hover:text-white active:scale-95 transition-all"
             aria-label="Open sidebar drawer"
           >
             <Menu className="w-5 h-5" />
           </button>
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-blue-600 to-purple-600 flex items-center justify-center shadow-md">
+            <div className="w-7 h-7 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center shadow-md">
               <Sparkles className="w-4 h-4 text-white" />
             </div>
             <span className="font-extrabold text-base text-white tracking-wide">
-              Daily<span className="text-blue-400">Goals</span>
+              Daily<span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">Goals</span>
             </span>
           </div>
         </div>
 
-        {activeSubject && (
-          <span className="text-xs font-mono px-2.5 py-1 rounded-full bg-blue-950 text-blue-300 border border-blue-800/60 truncate max-w-[130px]">
-            {activeSubject.title}
-          </span>
-        )}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => handleOpenHub('all')}
+            className="p-2 rounded-xl bg-indigo-600/20 border border-indigo-500/30 text-indigo-300 text-xs font-semibold flex items-center gap-1 active:scale-95"
+            title="Open Roadmap Hub"
+          >
+            <Compass className="w-4 h-4" />
+            <span className="hidden sm:inline">Hub</span>
+          </button>
+
+          {activeSubject && (
+            <span className="text-xs font-mono px-2.5 py-1 rounded-full bg-indigo-950/80 text-indigo-300 border border-indigo-800/60 truncate max-w-[130px]">
+              {activeSubject.title}
+            </span>
+          )}
+        </div>
       </div>
 
-      {/* Desktop Persistent Fixed Sidebar */}
-      <div className="hidden lg:block shrink-0 sticky top-0 h-screen overflow-y-auto overscroll-contain border-r border-slate-800/80 no-scrollbar z-30">
+      {/* Desktop Persistent Fixed Sidebar (Distraction Free Ongoing Roadmaps) */}
+      <div className="hidden lg:block shrink-0 sticky top-0 h-screen overflow-y-auto overscroll-contain no-scrollbar z-30">
         <Sidebar
           onOpenImportModal={() => setIsImportModalOpen(true)}
+          onOpenRoadmapHub={handleOpenHub}
           onOpenTrashModal={() => setIsTrashModalOpen(true)}
           onOpenVideoVault={() => setActiveTab('global-vault')}
         />
@@ -149,22 +171,24 @@ export default function DashboardPage() {
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              className="fixed inset-y-0 left-0 z-50 w-[85vw] max-w-xs bg-dark-900 border-r border-slate-800 shadow-2xl lg:hidden flex flex-col h-full overscroll-contain"
+              className="fixed inset-y-0 left-0 z-50 w-[85vw] max-w-xs bg-obsidian-950 border-r border-white/[0.08] shadow-2xl lg:hidden flex flex-col h-full overscroll-contain"
             >
               {/* Sticky Top Header inside Drawer */}
-              <div className="sticky top-0 z-20 flex items-center justify-between px-4 py-3 bg-dark-950/95 backdrop-blur-md border-b border-slate-800/80 shrink-0">
+              <div className="sticky top-0 z-20 flex items-center justify-between px-4 py-3.5 bg-obsidian-950/95 backdrop-blur-md border-b border-white/[0.08] shrink-0">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-500 to-purple-500 flex items-center justify-center shadow-md">
-                    <Sparkles className="w-4 h-4 text-white" />
+                  <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-cyan-400 p-0.5 shadow-md">
+                    <div className="w-full h-full bg-obsidian-950 rounded-[10px] flex items-center justify-center">
+                      <Sparkles className="w-4 h-4 text-indigo-400" />
+                    </div>
                   </div>
                   <span className="font-extrabold text-base text-white tracking-wide">
-                    Daily<span className="text-blue-400">Goals</span>
+                    Daily<span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">Goals</span>
                   </span>
                 </div>
 
                 <button
                   onClick={() => setIsMobileSidebarOpen(false)}
-                  className="p-2 rounded-xl bg-slate-800/80 border border-slate-700/60 text-slate-300 hover:text-white active:scale-95 transition-all"
+                  className="p-2 rounded-xl bg-white/[0.05] border border-white/[0.08] text-slate-300 hover:text-white active:scale-95 transition-all"
                   aria-label="Close sidebar drawer"
                 >
                   <X className="w-5 h-5" />
@@ -177,6 +201,10 @@ export default function DashboardPage() {
                   onOpenImportModal={() => {
                     setIsMobileSidebarOpen(false);
                     setIsImportModalOpen(true);
+                  }}
+                  onOpenRoadmapHub={(tab) => {
+                    setIsMobileSidebarOpen(false);
+                    handleOpenHub(tab);
                   }}
                   onOpenTrashModal={() => {
                     setIsMobileSidebarOpen(false);
@@ -195,79 +223,128 @@ export default function DashboardPage() {
       </AnimatePresence>
 
       {/* Main App Content Area */}
-      <main className="flex-1 p-4 sm:p-6 md:p-8 max-w-7xl mx-auto space-y-6 w-full">
+      <main className="flex-1 p-4 sm:p-6 md:p-8 max-w-7xl mx-auto space-y-6 w-full relative">
+        {/* Ambient Top Glow */}
+        <div className="absolute top-0 left-1/3 w-96 h-48 bg-indigo-600/10 blur-[100px] pointer-events-none rounded-full" />
+        <div className="absolute top-32 right-10 w-80 h-48 bg-purple-600/10 blur-[100px] pointer-events-none rounded-full" />
+
         {/* Main Subject Tracker Header */}
         <Header
           subject={activeSubject}
           dailyTasksReturn={dailyTasksReturn}
           onOpenImportModal={() => setIsImportModalOpen(true)}
+          onOpenRoadmapHub={() => handleOpenHub('all')}
         />
 
         {activeSubject ? (
           <>
-            {/* Quick Stats Overview Grid */}
+            {/* Quick Stats Overview Bento Grid */}
             <StatsOverview dailyTasksReturn={dailyTasksReturn} />
 
-            {/* Navigation Tabs Bar */}
-            <div className="flex items-center gap-2 bg-dark-950 p-1.5 rounded-2xl border border-slate-800/80 overflow-x-auto no-scrollbar">
+            {/* Navigation Tabs Bar with Smooth Sliding Highlight */}
+            <div className="flex items-center gap-1.5 bg-obsidian-900/90 p-1.5 rounded-2xl border border-white/[0.08] backdrop-blur-xl overflow-x-auto no-scrollbar relative shadow-lg">
+              {/* Tab: Today's Goals */}
               <button
                 onClick={() => setActiveTab('today')}
-                className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl font-semibold text-xs sm:text-sm transition-all shrink-0 ${
+                className={`relative flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all shrink-0 z-10 ${
                   activeTab === 'today'
-                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                    ? 'text-white'
+                    : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
+                {activeTab === 'today' && (
+                  <motion.div
+                    layoutId="activeTabPill"
+                    className="absolute inset-0 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 shadow-lg shadow-indigo-500/25 z-[-1]"
+                    transition={{ type: 'spring', damping: 26, stiffness: 350 }}
+                  />
+                )}
                 <CalendarCheck className="w-4 h-4" />
                 <span>Today's Goals</span>
                 {dailyTasksReturn.todayTasks.length > 0 && (
-                  <span className="px-2 py-0.5 rounded-full bg-blue-950 text-blue-200 font-mono text-[11px] border border-blue-800/60">
+                  <span className={`px-2 py-0.5 rounded-full font-mono text-[11px] ${
+                    activeTab === 'today'
+                      ? 'bg-black/30 text-white'
+                      : 'bg-indigo-950 text-indigo-300 border border-indigo-800/60'
+                  }`}>
                     {dailyTasksReturn.todayTasks.length}
                   </span>
                 )}
               </button>
 
+              {/* Tab: Full Roadmap Timeline */}
               <button
                 onClick={() => setActiveTab('timeline')}
-                className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl font-semibold text-xs sm:text-sm transition-all shrink-0 ${
+                className={`relative flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all shrink-0 z-10 ${
                   activeTab === 'timeline'
-                    ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/20'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                    ? 'text-white'
+                    : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
+                {activeTab === 'timeline' && (
+                  <motion.div
+                    layoutId="activeTabPill"
+                    className="absolute inset-0 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 shadow-lg shadow-purple-500/25 z-[-1]"
+                    transition={{ type: 'spring', damping: 26, stiffness: 350 }}
+                  />
+                )}
                 <Layers className="w-4 h-4" />
                 <span>Full Roadmap ({activeSubject.phases.length} Phases)</span>
               </button>
 
+              {/* Tab: Q&A Vault */}
               <button
                 onClick={() => setActiveTab('qna-vault')}
-                className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl font-semibold text-xs sm:text-sm transition-all shrink-0 ${
+                className={`relative flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all shrink-0 z-10 ${
                   activeTab === 'qna-vault'
-                    ? 'bg-amber-600 text-slate-950 shadow-lg shadow-amber-500/20 font-bold'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                    ? 'text-slate-950 font-extrabold'
+                    : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
-                <HelpCircle className="w-4 h-4 text-amber-400" />
+                {activeTab === 'qna-vault' && (
+                  <motion.div
+                    layoutId="activeTabPill"
+                    className="absolute inset-0 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 shadow-lg shadow-amber-500/25 z-[-1]"
+                    transition={{ type: 'spring', damping: 26, stiffness: 350 }}
+                  />
+                )}
+                <HelpCircle className={`w-4 h-4 ${activeTab === 'qna-vault' ? 'text-slate-950' : 'text-amber-400'}`} />
                 <span>Q&A Vault</span>
                 {activeTrackQnaCount > 0 && (
-                  <span className="px-2 py-0.5 rounded-full bg-amber-950 text-amber-200 font-mono text-[11px] border border-amber-700/60 font-bold">
+                  <span className={`px-2 py-0.5 rounded-full font-mono text-[11px] ${
+                    activeTab === 'qna-vault'
+                      ? 'bg-black/20 text-slate-950 font-black'
+                      : 'bg-amber-950 text-amber-200 border border-amber-700/60'
+                  }`}>
                     {activeTrackQnaCount}
                   </span>
                 )}
               </button>
 
+              {/* Tab: Video Vault */}
               <button
                 onClick={() => setActiveTab('track-vault')}
-                className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl font-semibold text-xs sm:text-sm transition-all shrink-0 ${
+                className={`relative flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all shrink-0 z-10 ${
                   activeTab === 'track-vault' || activeTab === 'global-vault'
-                    ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/20'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                    ? 'text-white'
+                    : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
-                <Video className="w-4 h-4 text-purple-300" />
+                {(activeTab === 'track-vault' || activeTab === 'global-vault') && (
+                  <motion.div
+                    layoutId="activeTabPill"
+                    className="absolute inset-0 rounded-xl bg-gradient-to-r from-cyan-600 via-indigo-600 to-purple-600 shadow-lg shadow-cyan-500/20 z-[-1]"
+                    transition={{ type: 'spring', damping: 26, stiffness: 350 }}
+                  />
+                )}
+                <Video className="w-4 h-4 text-cyan-300" />
                 <span>Video Vault</span>
                 {activeTrackResourcesCount > 0 && (
-                  <span className="px-2 py-0.5 rounded-full bg-purple-950 text-purple-200 font-mono text-[11px] border border-purple-700/60">
+                  <span className={`px-2 py-0.5 rounded-full font-mono text-[11px] ${
+                    activeTab === 'track-vault' || activeTab === 'global-vault'
+                      ? 'bg-black/30 text-white'
+                      : 'bg-purple-950 text-purple-200 border border-purple-700/60'
+                  }`}>
                     {activeTrackResourcesCount}
                   </span>
                 )}
@@ -337,8 +414,35 @@ export default function DashboardPage() {
               )}
             </AnimatePresence>
           </>
-        ) : null}
+        ) : (
+          <div className="rounded-3xl border border-white/[0.08] bg-obsidian-900/60 p-12 text-center space-y-4 max-w-lg mx-auto">
+            <div className="w-16 h-16 rounded-2xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 flex items-center justify-center mx-auto">
+              <Compass className="w-8 h-8" />
+            </div>
+            <div className="space-y-1">
+              <h2 className="text-xl font-bold text-white">No Active Roadmap Selected</h2>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                Open the Roadmap Hub to choose an ongoing curriculum or start a new topic.
+              </p>
+            </div>
+            <button
+              onClick={() => handleOpenHub('all')}
+              className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-lg shadow-indigo-600/25 transition-all inline-flex items-center gap-2"
+            >
+              <Compass className="w-4 h-4" />
+              <span>Open Roadmap Hub</span>
+            </button>
+          </div>
+        )}
       </main>
+
+      {/* Comprehensive Roadmap Hub & Catalog Modal */}
+      <RoadmapHubModal
+        isOpen={isRoadmapHubOpen}
+        onClose={() => setIsRoadmapHubOpen(false)}
+        onOpenImportModal={() => setIsImportModalOpen(true)}
+        initialTab={roadmapHubTab}
+      />
 
       {/* Topic Rich Text Document Modal */}
       <TopicDocumentModal
@@ -376,3 +480,4 @@ export default function DashboardPage() {
     </div>
   );
 }
+

@@ -94,7 +94,7 @@ export const GlobalQnaView: React.FC<GlobalQnaViewProps> = ({ subject, onOpenTop
 
   if (!subject) {
     return (
-      <div className="rounded-2xl border border-slate-800 bg-dark-850/40 p-8 text-center text-slate-400">
+      <div className="rounded-3xl border border-white/[0.08] bg-obsidian-900/40 p-8 text-center text-slate-400">
         No active roadmap selected.
       </div>
     );
@@ -178,32 +178,32 @@ export const GlobalQnaView: React.FC<GlobalQnaViewProps> = ({ subject, onOpenTop
   return (
     <div className="space-y-6">
       {/* Header Banner */}
-      <div className="rounded-2xl border border-amber-500/30 bg-gradient-to-r from-amber-950/40 via-dark-900 to-amber-950/20 p-5 md:p-6 shadow-xl relative overflow-hidden">
+      <div className="rounded-3xl border border-amber-500/30 bg-gradient-to-r from-amber-950/30 via-obsidian-900/80 to-amber-950/20 p-5 sm:p-7 shadow-xl relative overflow-hidden backdrop-blur-xl">
         <div className="absolute -top-12 -right-12 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="space-y-1">
+          <div className="space-y-1.5">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-xs font-mono font-bold border border-amber-500/40 flex items-center gap-1">
+              <span className="px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 text-xs font-mono font-bold border border-amber-500/40 flex items-center gap-1.5">
                 <Sparkles className="w-3.5 h-3.5" />
                 Global Question Bank
               </span>
-              <span className="px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300 text-xs font-mono border border-slate-700">
+              <span className="px-3 py-1 rounded-full bg-white/[0.04] text-slate-300 text-xs font-mono border border-white/[0.08]">
                 {subject.title}
               </span>
             </div>
 
-            <h1 className="text-xl md:text-2xl font-extrabold text-white tracking-tight">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-white tracking-tight">
               Roadmap Q&A Vault ({allTrackQnas.length} Total)
             </h1>
-            <p className="text-xs md:text-sm text-slate-300 max-w-2xl leading-relaxed">
-              Every question and sliding answer stored across all topics in this roadmap. Search, expand answers, and revise key concepts seamlessly.
+            <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
+              Every concept question and sliding answer stored across all phases. Search, expand answers, and revise key topics effortlessly.
             </p>
           </div>
 
           <button
             onClick={handleStartAddGlobal}
-            className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-xs shadow-lg shadow-amber-500/20 transition-all active:scale-95 flex items-center justify-center gap-2 shrink-0"
+            className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs sm:text-sm shadow-lg shadow-amber-500/20 transition-all active:scale-95 flex items-center justify-center gap-2 shrink-0"
           >
             <Plus className="w-4 h-4" />
             <span>Add New Q&A</span>
@@ -212,7 +212,7 @@ export const GlobalQnaView: React.FC<GlobalQnaViewProps> = ({ subject, onOpenTop
       </div>
 
       {/* Control Bar: Search & Filters */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-800/80 pb-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-white/[0.07] pb-4">
         {/* Search input */}
         <div className="relative flex-1 max-w-md">
           <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -221,7 +221,7 @@ export const GlobalQnaView: React.FC<GlobalQnaViewProps> = ({ subject, onOpenTop
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search questions, answers, or topic titles..."
-            className="w-full pl-10 pr-9 py-2 rounded-xl bg-dark-900 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 transition-colors"
+            className="w-full pl-10 pr-9 py-2.5 rounded-2xl bg-obsidian-900 border border-white/[0.08] text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500/80 transition-colors font-mono"
           />
           {searchQuery && (
             <button
@@ -235,8 +235,8 @@ export const GlobalQnaView: React.FC<GlobalQnaViewProps> = ({ subject, onOpenTop
 
         {/* Phase Filter & Accordion Buttons */}
         <div className="flex items-center gap-2 overflow-x-auto no-scrollbar shrink-0">
-          <div className="flex items-center gap-1.5 bg-dark-900 p-1 rounded-xl border border-slate-800">
-            <Filter className="w-3.5 h-3.5 text-amber-400 ml-2" />
+          <div className="flex items-center gap-1.5 bg-obsidian-900 px-2 py-1 rounded-xl border border-white/[0.08]">
+            <Filter className="w-3.5 h-3.5 text-amber-400 ml-1" />
             <select
               value={selectedPhaseFilter}
               onChange={(e) =>
@@ -246,9 +246,9 @@ export const GlobalQnaView: React.FC<GlobalQnaViewProps> = ({ subject, onOpenTop
               }
               className="bg-transparent text-xs text-slate-200 focus:outline-none pr-2 py-1 cursor-pointer"
             >
-              <option value="all" className="bg-dark-900 text-white">All Phases ({subject.phases.length})</option>
+              <option value="all" className="bg-obsidian-950 text-white">All Phases ({subject.phases.length})</option>
               {subject.phases.map((p) => (
-                <option key={p.phase_number} value={p.phase_number} className="bg-dark-900 text-white">
+                <option key={p.phase_number} value={p.phase_number} className="bg-obsidian-950 text-white">
                   Phase {p.phase_number}: {p.title}
                 </option>
               ))}
@@ -257,13 +257,13 @@ export const GlobalQnaView: React.FC<GlobalQnaViewProps> = ({ subject, onOpenTop
 
           <button
             onClick={expandAll}
-            className="px-3 py-1.5 rounded-xl bg-slate-800/60 border border-slate-700/60 hover:bg-slate-800 text-xs text-slate-300 transition-colors"
+            className="px-3.5 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.08] text-xs font-semibold text-slate-300 transition-colors"
           >
             Expand All Answers
           </button>
           <button
             onClick={collapseAll}
-            className="px-3 py-1.5 rounded-xl bg-slate-800/60 border border-slate-700/60 hover:bg-slate-800 text-xs text-slate-300 transition-colors"
+            className="px-3.5 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.08] text-xs font-semibold text-slate-300 transition-colors"
           >
             Collapse All
           </button>
@@ -280,16 +280,16 @@ export const GlobalQnaView: React.FC<GlobalQnaViewProps> = ({ subject, onOpenTop
             return (
               <div
                 key={qna.id}
-                className={`rounded-2xl border transition-all overflow-hidden ${
+                className={`rounded-3xl border transition-all overflow-hidden backdrop-blur-xl ${
                   isExpanded
-                    ? 'border-amber-500/50 bg-amber-950/10 shadow-lg shadow-amber-500/5'
-                    : 'border-slate-800/90 bg-dark-900/60 hover:border-slate-700'
+                    ? 'border-amber-500/50 bg-gradient-to-r from-amber-950/20 via-obsidian-900/90 to-obsidian-900 shadow-xl shadow-amber-500/5'
+                    : 'border-white/[0.07] bg-obsidian-900/60 hover:border-white/[0.14]'
                 }`}
               >
                 {/* Q&A Top Topic Ribbon */}
-                <div className="px-4 py-2 bg-dark-950/80 border-b border-slate-800/60 flex items-center justify-between gap-2 text-xs">
+                <div className="px-4 sm:px-5 py-2.5 bg-obsidian-950/80 border-b border-white/[0.06] flex items-center justify-between gap-2 text-xs">
                   <div className="flex items-center gap-2 min-w-0 font-mono text-[11px]">
-                    <span className="px-2 py-0.5 rounded bg-purple-950 text-purple-300 border border-purple-800/50 shrink-0 font-bold">
+                    <span className="px-2.5 py-0.5 rounded-full bg-purple-950/80 text-purple-300 border border-purple-800/50 shrink-0 font-bold">
                       Phase {meta?.phaseNumber ?? '?'}
                     </span>
                     <span className="text-slate-300 truncate font-semibold">
@@ -305,20 +305,20 @@ export const GlobalQnaView: React.FC<GlobalQnaViewProps> = ({ subject, onOpenTop
                 {/* Question Accordion Header */}
                 <button
                   onClick={() => toggleAccordion(qna.id)}
-                  className="w-full p-4 md:p-5 text-left flex items-start justify-between gap-4 hover:bg-slate-800/30 transition-colors"
+                  className="w-full p-4 sm:p-5 text-left flex items-start justify-between gap-4 hover:bg-white/[0.03] transition-colors"
                 >
-                  <div className="flex items-start gap-3 min-w-0">
-                    <div className="w-7 h-7 rounded-xl bg-amber-500/20 text-amber-300 font-mono text-xs font-bold flex items-center justify-center shrink-0 mt-0.5 border border-amber-500/40">
+                  <div className="flex items-start gap-3.5 min-w-0">
+                    <div className="w-8 h-8 rounded-2xl bg-amber-500/20 text-amber-300 font-mono text-xs font-bold flex items-center justify-center shrink-0 mt-0.5 border border-amber-500/40">
                       Q{idx + 1}
                     </div>
-                    <h3 className="text-sm md:text-base font-bold text-white leading-snug">
+                    <h3 className="text-sm sm:text-base font-bold text-white leading-snug tracking-tight">
                       {qna.question}
                     </h3>
                   </div>
 
                   <div className="flex items-center gap-2 shrink-0">
-                    <span className="hidden sm:inline-block text-[11px] font-mono text-amber-400 bg-amber-950/60 px-2.5 py-0.5 rounded-full border border-amber-800/50">
-                      {isExpanded ? 'Hide Answer' : 'Click for Answer'}
+                    <span className="hidden sm:inline-block text-[11px] font-mono text-amber-300 bg-amber-950/60 px-3 py-1 rounded-full border border-amber-800/50">
+                      {isExpanded ? 'Hide Answer' : 'View Answer'}
                     </span>
                     {isExpanded ? (
                       <ChevronUp className="w-5 h-5 text-amber-400" />
@@ -336,20 +336,20 @@ export const GlobalQnaView: React.FC<GlobalQnaViewProps> = ({ subject, onOpenTop
                       animate={{ height: 'auto', opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
                       transition={{ duration: 0.25, ease: 'easeInOut' }}
-                      className="border-t border-slate-800/80 bg-dark-950/80 p-4 md:p-5 space-y-4"
+                      className="border-t border-white/[0.06] bg-obsidian-950/90 p-4 sm:p-5 space-y-4"
                     >
                       <div className="space-y-1.5">
                         <span className="text-xs font-bold font-mono text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
                           <MessageSquare className="w-3.5 h-3.5" />
                           <span>Detailed Answer:</span>
                         </span>
-                        <p className="text-xs md:text-sm text-slate-200 leading-relaxed whitespace-pre-wrap font-sans">
+                        <p className="text-xs sm:text-sm text-slate-200 leading-relaxed whitespace-pre-wrap font-sans">
                           {qna.answer}
                         </p>
                       </div>
 
                       {/* Footer Actions */}
-                      <div className="flex items-center justify-between pt-3 border-t border-slate-800/50 text-xs">
+                      <div className="flex items-center justify-between pt-3 border-t border-white/[0.06] text-xs">
                         <div className="text-[11px] text-slate-400 font-mono">
                           Topic: <span className="text-slate-200">{meta?.topicName}</span>
                         </div>
@@ -358,7 +358,7 @@ export const GlobalQnaView: React.FC<GlobalQnaViewProps> = ({ subject, onOpenTop
                           <button
                             type="button"
                             onClick={() => handleCopy(qna)}
-                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700/80 hover:bg-slate-700 text-slate-300 text-xs transition-colors"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.08] text-slate-300 text-xs transition-colors"
                             title="Copy Q&A text"
                           >
                             {copiedId === qna.id ? (
@@ -377,7 +377,7 @@ export const GlobalQnaView: React.FC<GlobalQnaViewProps> = ({ subject, onOpenTop
                           <button
                             type="button"
                             onClick={() => handleStartEditGlobal(qna)}
-                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700/80 hover:bg-slate-700 hover:text-amber-300 text-slate-300 text-xs transition-colors"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.08] hover:text-amber-300 text-slate-300 text-xs transition-colors"
                           >
                             <Edit2 className="w-3.5 h-3.5" />
                             <span>Edit</span>
@@ -386,7 +386,7 @@ export const GlobalQnaView: React.FC<GlobalQnaViewProps> = ({ subject, onOpenTop
                           <button
                             type="button"
                             onClick={() => handleDelete(qna)}
-                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700/80 hover:bg-rose-950 hover:text-rose-400 text-slate-400 text-xs transition-colors"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.04] border border-white/[0.08] hover:bg-rose-950/50 hover:text-rose-400 text-slate-400 text-xs transition-colors"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                             <span>Delete</span>
@@ -401,7 +401,7 @@ export const GlobalQnaView: React.FC<GlobalQnaViewProps> = ({ subject, onOpenTop
           })}
         </div>
       ) : (
-        <div className="rounded-2xl border border-dashed border-slate-800 bg-dark-850/40 p-12 text-center space-y-4">
+        <div className="rounded-3xl border border-dashed border-white/[0.1] bg-obsidian-900/40 p-12 text-center space-y-4">
           <div className="w-14 h-14 mx-auto rounded-2xl bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center">
             <HelpCircle className="w-7 h-7" />
           </div>
@@ -409,7 +409,7 @@ export const GlobalQnaView: React.FC<GlobalQnaViewProps> = ({ subject, onOpenTop
             <h3 className="text-lg font-bold text-slate-200">
               {searchQuery ? 'No Matching Q&As Found' : 'No Q&As Created Yet'}
             </h3>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-400 leading-relaxed">
               {searchQuery
                 ? `No questions or answers matched "${searchQuery}". Try clearing filters.`
                 : 'Start adding questions & sliding answers on specific topic cards, or click the button below to add your first Q&A!'}
@@ -422,7 +422,7 @@ export const GlobalQnaView: React.FC<GlobalQnaViewProps> = ({ subject, onOpenTop
                 setSearchQuery('');
                 setSelectedPhaseFilter('all');
               }}
-              className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition-all"
+              className="px-4 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] border border-white/[0.08] text-slate-200 text-xs font-semibold transition-all"
             >
               Reset Filters
             </button>
@@ -454,11 +454,11 @@ export const GlobalQnaView: React.FC<GlobalQnaViewProps> = ({ subject, onOpenTop
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-xl bg-dark-900 border border-amber-500/40 rounded-3xl p-6 shadow-2xl z-10 space-y-5"
+              className="relative w-full max-w-xl bg-obsidian-900 border border-amber-500/40 rounded-3xl p-6 shadow-2xl z-10 space-y-5"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <div className="p-2 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                  <div className="p-2 rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/30">
                     <HelpCircle className="w-5 h-5" />
                   </div>
                   <h3 className="text-lg font-bold text-white">
@@ -467,7 +467,7 @@ export const GlobalQnaView: React.FC<GlobalQnaViewProps> = ({ subject, onOpenTop
                 </div>
                 <button
                   onClick={() => setIsAddModalOpen(false)}
-                  className="p-1.5 rounded-xl bg-slate-800 text-slate-400 hover:text-white"
+                  className="p-1.5 rounded-xl bg-white/[0.05] border border-white/[0.08] text-slate-400 hover:text-white"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -483,10 +483,10 @@ export const GlobalQnaView: React.FC<GlobalQnaViewProps> = ({ subject, onOpenTop
                     onChange={(e) => setTargetTopicId(e.target.value)}
                     required
                     disabled={!!editingQna}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-dark-950 border border-slate-700/80 text-sm text-white focus:outline-none focus:border-amber-500 cursor-pointer"
+                    className="w-full px-3.5 py-2.5 rounded-2xl bg-obsidian-950 border border-white/[0.08] text-sm text-white focus:outline-none focus:border-amber-500 cursor-pointer"
                   >
                     {allFlattenedTopics.map((item) => (
-                      <option key={item.topicId} value={item.topicId} className="bg-dark-900 text-white">
+                      <option key={item.topicId} value={item.topicId} className="bg-obsidian-950 text-white">
                         {item.label}
                       </option>
                     ))}
@@ -501,9 +501,9 @@ export const GlobalQnaView: React.FC<GlobalQnaViewProps> = ({ subject, onOpenTop
                     type="text"
                     value={newQuestion}
                     onChange={(e) => setNewQuestion(e.target.value)}
-                    placeholder="e.g. How does chain rule apply to partial derivatives?"
+                    placeholder="e.g. How does backpropagation update weights in a neural network?"
                     required
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-dark-950 border border-slate-700/80 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 transition-colors"
+                    className="w-full px-3.5 py-2.5 rounded-2xl bg-obsidian-950 border border-white/[0.08] text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 transition-colors"
                   />
                 </div>
 
@@ -514,25 +514,25 @@ export const GlobalQnaView: React.FC<GlobalQnaViewProps> = ({ subject, onOpenTop
                   <textarea
                     value={newAnswer}
                     onChange={(e) => setNewAnswer(e.target.value)}
-                    placeholder="Write the explanation or solution..."
+                    placeholder="Write the detailed explanation or code solution..."
                     required
                     rows={4}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-dark-950 border border-slate-700/80 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 transition-colors resize-y custom-scrollbar"
+                    className="w-full px-3.5 py-2.5 rounded-2xl bg-obsidian-950 border border-white/[0.08] text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 transition-colors resize-y custom-scrollbar"
                   />
                 </div>
 
-                <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
+                <div className="flex items-center justify-end gap-2 pt-2 border-t border-white/[0.08]">
                   <button
                     type="button"
                     onClick={() => setIsAddModalOpen(false)}
-                    className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white text-xs font-medium"
+                    className="px-4 py-2 rounded-xl bg-white/[0.05] border border-white/[0.08] text-slate-300 hover:text-white text-xs font-medium"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs shadow-md transition-all active:scale-95 disabled:opacity-50"
+                    className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs shadow-md transition-all active:scale-95 disabled:opacity-50"
                   >
                     {isSubmitting ? 'Saving...' : editingQna ? 'Update Q&A' : 'Save to Q&A Vault'}
                   </button>
@@ -545,3 +545,4 @@ export const GlobalQnaView: React.FC<GlobalQnaViewProps> = ({ subject, onOpenTop
     </div>
   );
 };
+

@@ -152,33 +152,33 @@ export const AddResourceModal: React.FC<AddResourceModalProps> = ({ isOpen, onCl
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-dark-950/80 backdrop-blur-md overflow-y-auto">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-xl overflow-y-auto">
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 15 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 15 }}
           transition={{ duration: 0.2 }}
-          className="w-full max-w-2xl bg-dark-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden max-h-[92vh] flex flex-col"
+          className="w-full max-w-2xl bg-obsidian-900 border border-white/[0.08] rounded-3xl shadow-2xl overflow-hidden max-h-[92vh] flex flex-col"
         >
           {/* Header */}
-          <div className="p-4 sm:p-5 border-b border-slate-800 flex items-center justify-between gap-4 bg-dark-950/60 shrink-0">
+          <div className="p-4 sm:p-5 border-b border-white/[0.08] flex items-center justify-between gap-4 bg-obsidian-950/70 shrink-0">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 via-blue-600 to-teal-500 flex items-center justify-center text-white shrink-0 shadow-lg shadow-purple-500/20">
+              <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-cyan-500 flex items-center justify-center text-white shrink-0 shadow-lg shadow-purple-500/20">
                 <Video className="w-5 h-5" />
               </div>
               <div>
                 <h2 className="font-extrabold text-white text-lg sm:text-xl tracking-tight">
                   Save Video or Playlist
                 </h2>
-                <p className="text-xs text-slate-400">
-                  Store concept tutorials, lectures, and playlists to watch later.
+                <p className="text-xs text-slate-400 font-mono">
+                  Store concept tutorials, lectures, and playlists in your vault.
                 </p>
               </div>
             </div>
 
             <button
               onClick={onClose}
-              className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+              className="p-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-slate-400 hover:text-white transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
@@ -187,7 +187,7 @@ export const AddResourceModal: React.FC<AddResourceModalProps> = ({ isOpen, onCl
           {/* Form Content */}
           <form onSubmit={handleSubmit} className="p-4 sm:p-6 overflow-y-auto space-y-4 sm:space-y-5">
             {errorMsg && (
-              <div className="p-3 rounded-xl bg-rose-950/60 border border-rose-800/80 text-rose-300 text-xs">
+              <div className="p-3 rounded-xl bg-rose-950/60 border border-rose-800/80 text-rose-300 text-xs font-mono">
                 {errorMsg}
               </div>
             )}
@@ -201,10 +201,10 @@ export const AddResourceModal: React.FC<AddResourceModalProps> = ({ isOpen, onCl
                 <button
                   type="button"
                   onClick={() => setType('video')}
-                  className={`p-3 rounded-xl border flex items-center justify-center gap-2 font-semibold text-xs transition-all ${
+                  className={`p-3 rounded-2xl border flex items-center justify-center gap-2 font-bold text-xs transition-all ${
                     type === 'video'
                       ? 'bg-purple-950/80 border-purple-500 text-purple-200 shadow-md shadow-purple-500/10'
-                      : 'bg-dark-850/60 border-slate-800 text-slate-400 hover:border-slate-700'
+                      : 'bg-obsidian-950 border-white/[0.08] text-slate-400 hover:border-white/[0.15]'
                   }`}
                 >
                   <Video className="w-4 h-4 text-purple-400" />
@@ -214,13 +214,13 @@ export const AddResourceModal: React.FC<AddResourceModalProps> = ({ isOpen, onCl
                 <button
                   type="button"
                   onClick={() => setType('playlist')}
-                  className={`p-3 rounded-xl border flex items-center justify-center gap-2 font-semibold text-xs transition-all ${
+                  className={`p-3 rounded-2xl border flex items-center justify-center gap-2 font-bold text-xs transition-all ${
                     type === 'playlist'
-                      ? 'bg-blue-950/80 border-blue-500 text-blue-200 shadow-md shadow-blue-500/10'
-                      : 'bg-dark-850/60 border-slate-800 text-slate-400 hover:border-slate-700'
+                      ? 'bg-indigo-950/80 border-indigo-500 text-indigo-200 shadow-md shadow-indigo-500/10'
+                      : 'bg-obsidian-950 border-white/[0.08] text-slate-400 hover:border-white/[0.15]'
                   }`}
                 >
-                  <ListVideo className="w-4 h-4 text-blue-400" />
+                  <ListVideo className="w-4 h-4 text-cyan-400" />
                   <span>Playlist 📚</span>
                 </button>
               </div>
@@ -229,7 +229,7 @@ export const AddResourceModal: React.FC<AddResourceModalProps> = ({ isOpen, onCl
             {/* Video / Playlist URL */}
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-slate-300 uppercase tracking-wider font-mono flex items-center gap-1.5">
-                <Link2 className="w-3.5 h-3.5 text-blue-400" />
+                <Link2 className="w-3.5 h-3.5 text-indigo-400" />
                 <span>Video or Playlist Link *</span>
               </label>
               <input
@@ -238,18 +238,18 @@ export const AddResourceModal: React.FC<AddResourceModalProps> = ({ isOpen, onCl
                 onChange={handleUrlChange}
                 placeholder="Paste YouTube video or playlist URL (e.g. https://www.youtube.com/watch?v=...)"
                 required
-                className="w-full px-3.5 py-2.5 rounded-xl bg-dark-850 border border-slate-800 text-white text-xs sm:text-sm placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-all font-mono"
+                className="w-full px-3.5 py-2.5 rounded-2xl bg-obsidian-950 border border-white/[0.08] text-white text-xs sm:text-sm placeholder-slate-500 focus:outline-none focus:border-indigo-500/80 transition-all font-mono"
               />
 
               {/* YouTube Thumbnail Preview */}
               {thumbnailPreview && (
-                <div className="relative mt-2 rounded-xl overflow-hidden border border-slate-800 max-h-36 bg-black">
+                <div className="relative mt-2 rounded-2xl overflow-hidden border border-white/[0.08] max-h-36 bg-black shadow-inner">
                   <img
                     src={thumbnailPreview}
                     alt="Video thumbnail"
                     className="w-full h-36 object-cover opacity-80"
                   />
-                  <div className="absolute bottom-2 left-2 px-2 py-1 rounded bg-black/80 text-[10px] font-mono text-emerald-400 border border-emerald-500/40">
+                  <div className="absolute bottom-2 left-2 px-2.5 py-1 rounded-full bg-black/80 text-[10px] font-mono text-emerald-400 border border-emerald-500/40">
                     Thumbnail Detected ✓
                   </div>
                 </div>
@@ -267,7 +267,7 @@ export const AddResourceModal: React.FC<AddResourceModalProps> = ({ isOpen, onCl
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="e.g. Complete Transformer & Attention Mechanism Deep Dive"
                 required
-                className="w-full px-3.5 py-2.5 rounded-xl bg-dark-850 border border-slate-800 text-white text-xs sm:text-sm placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-all"
+                className="w-full px-3.5 py-2.5 rounded-2xl bg-obsidian-950 border border-white/[0.08] text-white text-xs sm:text-sm placeholder-slate-500 focus:outline-none focus:border-indigo-500/80 transition-all"
               />
             </div>
 
@@ -282,7 +282,7 @@ export const AddResourceModal: React.FC<AddResourceModalProps> = ({ isOpen, onCl
                 onChange={(e) => setWhyWatch(e.target.value)}
                 rows={3}
                 placeholder="e.g. Explains self-attention math intuitively before Phase 4 LLM fine-tuning."
-                className="w-full px-3.5 py-2.5 rounded-xl bg-dark-850 border border-slate-800 text-white text-xs sm:text-sm placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-all resize-none"
+                className="w-full px-3.5 py-2.5 rounded-2xl bg-obsidian-950 border border-white/[0.08] text-white text-xs sm:text-sm placeholder-slate-500 focus:outline-none focus:border-indigo-500/80 transition-all resize-none custom-scrollbar"
               />
             </div>
 
@@ -307,10 +307,10 @@ export const AddResourceModal: React.FC<AddResourceModalProps> = ({ isOpen, onCl
                       key={tag as string}
                       type="button"
                       onClick={() => toggleTag(tag as string)}
-                      className={`px-3 py-1 rounded-full text-xs font-medium transition-all flex items-center gap-1 border ${
+                      className={`px-3 py-1 rounded-full text-xs font-semibold transition-all flex items-center gap-1 border ${
                         isSelected
                           ? 'bg-purple-600 text-white border-purple-500 shadow-sm font-bold'
-                          : 'bg-dark-850/80 border-slate-800 text-slate-400 hover:text-slate-200'
+                          : 'bg-white/[0.04] border-white/[0.08] text-slate-400 hover:text-slate-200'
                       }`}
                     >
                       {isSelected && <Check className="w-3 h-3 text-white" />}
@@ -328,7 +328,7 @@ export const AddResourceModal: React.FC<AddResourceModalProps> = ({ isOpen, onCl
                   onChange={(e) => setCustomTag(e.target.value)}
                   onKeyDown={handleAddCustomTag}
                   placeholder="Type a custom tag and press Enter..."
-                  className="w-full px-3 py-2 rounded-xl bg-dark-850 border border-slate-800 text-slate-300 text-xs placeholder-slate-500 focus:outline-none focus:border-purple-500 transition-all font-mono"
+                  className="w-full px-3.5 py-2 rounded-2xl bg-obsidian-950 border border-white/[0.08] text-slate-300 text-xs placeholder-slate-500 focus:outline-none focus:border-purple-500 transition-all font-mono"
                 />
               </div>
             </div>
@@ -342,7 +342,7 @@ export const AddResourceModal: React.FC<AddResourceModalProps> = ({ isOpen, onCl
                 <select
                   value={selectedTopicId}
                   onChange={(e) => setSelectedTopicId(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-dark-850 border border-slate-800 text-slate-200 text-xs focus:outline-none focus:border-blue-500 font-mono"
+                  className="w-full px-3.5 py-2.5 rounded-2xl bg-obsidian-950 border border-white/[0.08] text-slate-200 text-xs focus:outline-none focus:border-indigo-500 font-mono cursor-pointer"
                 >
                   <option value="">-- None (General Learning Resource) --</option>
                   {activeSubject.phases.map((phase) => (
@@ -359,18 +359,18 @@ export const AddResourceModal: React.FC<AddResourceModalProps> = ({ isOpen, onCl
             )}
 
             {/* Submit Buttons */}
-            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-800/80">
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-white/[0.08]">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition-all"
+                className="px-4 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.08] text-slate-300 text-xs font-semibold transition-all"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="px-5 py-2 rounded-xl bg-gradient-to-r from-purple-600 via-blue-600 to-teal-500 hover:from-purple-500 hover:to-teal-400 text-white text-xs font-extrabold shadow-lg shadow-purple-600/20 transition-all active:scale-95 flex items-center gap-1.5"
+                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 via-indigo-600 to-cyan-500 hover:from-purple-500 hover:to-cyan-400 text-white text-xs font-extrabold shadow-lg shadow-purple-600/25 transition-all active:scale-95 flex items-center gap-1.5"
               >
                 <Plus className="w-4 h-4" />
                 <span>{isSubmitting ? 'Saving...' : 'Save to Vault'}</span>
@@ -382,3 +382,4 @@ export const AddResourceModal: React.FC<AddResourceModalProps> = ({ isOpen, onCl
     </AnimatePresence>
   );
 };
+

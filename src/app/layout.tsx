@@ -17,7 +17,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <body className={`${inter.className} bg-[#070a11] text-slate-100 min-h-screen selection:bg-blue-500 selection:text-white`}>
+      <body className={`${inter.className} awwwards-bg bg-obsidian-950 text-slate-100 min-h-screen relative antialiased selection:bg-indigo-500 selection:text-white`}>
         <ProgressProvider>
           {children}
         </ProgressProvider>

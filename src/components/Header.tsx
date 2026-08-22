@@ -4,43 +4,72 @@ import React from 'react';
 import { SubjectData } from '@/types/learning';
 import { UseDailyTasksReturn } from '@/hooks/useDailyTasks';
 import { useProgress } from '@/context/ProgressContext';
-import { Calendar, RotateCcw, Sparkles, AlertCircle, CheckCircle2, Database, Layers, PlayCircle, Clock, Moon } from 'lucide-react';
+import {
+  Calendar,
+  RotateCcw,
+  Sparkles,
+  AlertCircle,
+  CheckCircle2,
+  Database,
+  Layers,
+  PlayCircle,
+  Clock,
+  Moon,
+  Compass,
+} from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface HeaderProps {
   subject: SubjectData | null;
   dailyTasksReturn: UseDailyTasksReturn;
   onOpenImportModal: () => void;
+  onOpenRoadmapHub?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ subject, dailyTasksReturn, onOpenImportModal }) => {
+export const Header: React.FC<HeaderProps> = ({
+  subject,
+  dailyTasksReturn,
+  onOpenImportModal,
+  onOpenRoadmapHub,
+}) => {
   const { startSubjectTrack, resetSubjectProgress, restoreDefaultSubjects, isSyncingDb } = useProgress();
   const { stats } = dailyTasksReturn;
 
   if (!subject) {
     return (
-      <header className="relative overflow-hidden rounded-2xl bg-gradient-to-b from-dark-850/90 via-dark-900/90 to-dark-950/90 border border-slate-800/80 p-8 shadow-2xl backdrop-blur-xl text-center space-y-4">
-        <div className="w-14 h-14 mx-auto rounded-2xl bg-purple-500/20 text-purple-400 border border-purple-500/30 flex items-center justify-center">
-          <Layers className="w-7 h-7" />
+      <header className="relative overflow-hidden rounded-3xl bg-gradient-to-b from-white/[0.05] via-obsidian-900/90 to-obsidian-950/90 border border-white/[0.08] p-8 sm:p-10 shadow-2xl backdrop-blur-2xl text-center space-y-4 glass-panel">
+        <div className="w-16 h-16 mx-auto rounded-2xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 flex items-center justify-center shadow-lg shadow-indigo-500/10">
+          <Compass className="w-8 h-8" />
         </div>
         <div className="space-y-1">
-          <h1 className="text-2xl font-bold text-white">No Active Learning Track</h1>
-          <p className="text-sm text-slate-400 max-w-md mx-auto">
-            You have cleared all learning tracks. Import your custom JSON roadmap or restore preloaded tracks to continue tracking.
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+            No Active Learning Track
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-400 max-w-md mx-auto leading-relaxed">
+            Choose an ongoing curriculum from your Roadmap Hub, import custom JSON, or restore preloaded tracks.
           </p>
         </div>
-        <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+        <div className="flex flex-wrap items-center justify-center gap-3 pt-3">
+          {onOpenRoadmapHub && (
+            <button
+              onClick={onOpenRoadmapHub}
+              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-bold shadow-lg shadow-indigo-600/25 transition-all flex items-center gap-2 active:scale-95"
+            >
+              <Compass className="w-4 h-4" />
+              <span>Open Roadmap Hub</span>
+            </button>
+          )}
           <button
             onClick={onOpenImportModal}
-            className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-lg shadow-blue-500/20 transition-all"
+            className="px-4 py-2.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] border border-white/[0.08] text-white text-xs font-semibold transition-all"
           >
-            Import Roadmap JSON
+            Import JSON
           </button>
           <button
             onClick={restoreDefaultSubjects}
-            className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-semibold transition-all"
+            className="px-4 py-2.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.06] text-slate-300 text-xs font-semibold transition-all"
           >
-            Restore Preloaded Tracks
+            Restore Default Curriculums
           </button>
         </div>
       </header>
@@ -48,75 +77,78 @@ export const Header: React.FC<HeaderProps> = ({ subject, dailyTasksReturn, onOpe
   }
 
   return (
-    <header className="relative overflow-hidden rounded-2xl bg-gradient-to-b from-dark-850/90 via-dark-900/90 to-dark-950/90 border border-slate-800/80 p-4 sm:p-6 shadow-2xl backdrop-blur-xl">
-      {/* Subtle Background Radial Glow */}
-      <div className="absolute -top-24 -right-24 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl pointer-events-none" />
+    <header className="relative overflow-hidden rounded-3xl bg-gradient-to-b from-white/[0.04] via-obsidian-900/85 to-obsidian-950/90 border border-white/[0.08] p-5 sm:p-7 shadow-2xl backdrop-blur-2xl glass-panel">
+      {/* Background Radial Atmosphere Mesh */}
+      <div className="absolute -top-28 -right-28 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-28 -left-28 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
 
-      <div className="relative z-10 space-y-4 sm:space-y-6">
+      <div className="relative z-10 space-y-5">
         {/* Top Info Row */}
-        <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
-          <div className="space-y-2 max-w-3xl">
+        <div className="flex flex-col md:flex-row md:items-start justify-between gap-5">
+          <div className="space-y-2.5 max-w-3xl">
+            {/* Status Pills Row */}
             <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
               {subject.category && (
-                <span className="inline-flex items-center gap-1 text-[11px] sm:text-xs font-semibold px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-blue-950/80 text-blue-400 border border-blue-800/50">
-                  <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                <span className="inline-flex items-center gap-1 text-[11px] sm:text-xs font-bold px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-300 border border-indigo-500/30 font-mono">
+                  <Sparkles className="w-3.5 h-3.5" />
                   {subject.category}
                 </span>
               )}
 
               {stats.isTodayGoalCompleted ? (
-                <span className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-extrabold px-3 py-0.5 sm:py-1 rounded-full bg-gradient-to-r from-emerald-500/20 to-teal-500/20 text-emerald-300 border border-emerald-500/60 shadow-lg shadow-emerald-500/20 animate-pulse">
+                <span className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-extrabold px-3 py-1 rounded-full bg-gradient-to-r from-emerald-500/20 to-teal-500/20 text-emerald-300 border border-emerald-500/50 shadow-lg shadow-emerald-500/20 animate-pulse font-mono">
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
                   Today's Goal Completed! 🎉
                 </span>
               ) : stats.isTodayPhaseCompleted ? (
-                <span className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-bold px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-emerald-950/80 text-emerald-300 border border-emerald-800/60">
+                <span className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-bold px-3 py-1 rounded-full bg-emerald-950/80 text-emerald-300 border border-emerald-800/60 font-mono">
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                  Today's Phase Finished ({stats.todayPhaseCompletedCount}/{stats.todayPhaseTotalCount})
+                  Today's Phase Done ({stats.todayPhaseCompletedCount}/{stats.todayPhaseTotalCount})
                 </span>
               ) : null}
 
               {!stats.isStarted ? (
-                <span className="inline-flex items-center gap-1 text-[11px] sm:text-xs font-semibold px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-amber-950/80 text-amber-300 border border-amber-800/60 animate-pulse">
-                  <Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-                  Not Started Yet (Day 1 Ready)
+                <span className="inline-flex items-center gap-1 text-[11px] sm:text-xs font-semibold px-3 py-1 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30 animate-pulse font-mono">
+                  <Clock className="w-3.5 h-3.5 text-amber-400" />
+                  In Queue (Click Start Today)
                 </span>
               ) : (
-                <span className={`inline-flex items-center gap-1 text-[11px] sm:text-xs font-mono px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full border ${
-                  stats.isTodayGoalCompleted
-                    ? 'bg-emerald-950/40 text-emerald-300 border-emerald-500/40'
-                    : 'bg-slate-800/80 text-slate-300 border-slate-700/60'
-                }`}>
-                  <Calendar className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-slate-400" />
+                <span
+                  className={`inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-mono px-3 py-1 rounded-full border ${
+                    stats.isTodayGoalCompleted
+                      ? 'bg-emerald-950/50 text-emerald-300 border-emerald-500/40'
+                      : 'bg-white/[0.04] text-slate-300 border-white/[0.08]'
+                  }`}
+                >
+                  <Calendar className="w-3.5 h-3.5 text-slate-400" />
                   Day {stats.currentDayNumber} of {stats.totalDaysNeeded} (1 Phase/Day)
                 </span>
               )}
 
               {stats.missedCount > 0 && (
-                <span className="inline-flex items-center gap-1 text-[11px] sm:text-xs font-semibold px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-rose-950/80 text-rose-400 border border-rose-800/60 animate-pulse">
-                  <AlertCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                <span className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-bold px-3 py-1 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40 animate-pulse font-mono">
+                  <AlertCircle className="w-3.5 h-3.5 text-rose-400" />
                   {stats.missedCount} Shifted Topic{stats.missedCount > 1 ? 's' : ''}
                 </span>
               )}
 
               {/* 4:00 AM Daily Reset Badge */}
               <span
-                className="inline-flex items-center gap-1 text-[11px] sm:text-xs font-mono px-2.5 py-0.5 sm:py-1 rounded-full bg-purple-950/80 text-purple-300 border border-purple-800/60"
-                title="Daily reset happens at 4:00 AM so your late night work counts toward the current day!"
+                className="inline-flex items-center gap-1 text-[11px] sm:text-xs font-mono px-2.5 py-1 rounded-full bg-purple-950/60 text-purple-300 border border-purple-800/50"
+                title="Daily reset happens at 4:00 AM so late night focus sessions count toward the current day!"
               >
-                <Moon className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-purple-400" />
+                <Moon className="w-3 h-3 text-purple-400" />
                 4 AM Reset
               </span>
 
               {/* Database Sync Badge */}
-              <span className="inline-flex items-center gap-1 text-[11px] sm:text-xs font-mono px-2.5 py-0.5 sm:py-1 rounded-full bg-emerald-950/60 text-emerald-400 border border-emerald-800/60">
-                <Database className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-400" />
+              <span className="inline-flex items-center gap-1 text-[11px] sm:text-xs font-mono px-2.5 py-1 rounded-full bg-emerald-950/50 text-emerald-400 border border-emerald-800/50">
+                <Database className="w-3 h-3 text-emerald-400" />
                 {isSyncingDb ? 'Syncing...' : 'DB Active'}
               </span>
             </div>
 
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-white tracking-tight leading-snug">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-tight">
               {subject.title}
             </h1>
 
@@ -125,12 +157,23 @@ export const Header: React.FC<HeaderProps> = ({ subject, dailyTasksReturn, onOpe
             </p>
           </div>
 
-          {/* Action buttons */}
+          {/* Action Buttons Right Row */}
           <div className="flex flex-wrap items-center gap-2 w-full md:w-auto pt-1 md:pt-0 shrink-0">
+            {onOpenRoadmapHub && (
+              <button
+                onClick={onOpenRoadmapHub}
+                className="px-3.5 py-2.5 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.08] text-slate-200 hover:text-white text-xs font-semibold transition-all flex items-center gap-1.5 active:scale-95"
+                title="Switch curriculum or browse library"
+              >
+                <Compass className="w-4 h-4 text-indigo-400" />
+                <span>Roadmap Hub</span>
+              </button>
+            )}
+
             {!stats.isStarted ? (
               <button
                 onClick={() => startSubjectTrack(subject.id)}
-                className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-blue-600 hover:from-emerald-400 hover:to-blue-500 text-white font-bold text-xs shadow-lg shadow-emerald-500/20 transition-all transform active:scale-95"
+                className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-indigo-600 hover:from-emerald-400 hover:to-indigo-500 text-white font-bold text-xs shadow-lg shadow-emerald-500/20 transition-all transform active:scale-95"
               >
                 <PlayCircle className="w-4 h-4" />
                 <span>Start Track Today</span>
@@ -142,7 +185,7 @@ export const Header: React.FC<HeaderProps> = ({ subject, dailyTasksReturn, onOpe
                     resetSubjectProgress();
                   }
                 }}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800/40 border border-slate-700/40 text-slate-400 hover:text-rose-400 hover:border-rose-900/60 text-xs transition-colors"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/[0.03] border border-white/[0.06] text-slate-400 hover:text-rose-400 hover:border-rose-900/60 text-xs transition-colors"
                 title="Reset start date to Today"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
@@ -154,43 +197,43 @@ export const Header: React.FC<HeaderProps> = ({ subject, dailyTasksReturn, onOpe
 
         {/* Unstarted Banner */}
         {!stats.isStarted && (
-          <div className="p-3.5 rounded-xl bg-gradient-to-r from-amber-950/40 via-dark-900 to-blue-950/30 border border-amber-800/40 text-xs text-amber-200/90 flex items-center justify-between gap-3">
+          <div className="p-3.5 rounded-2xl bg-gradient-to-r from-amber-950/40 via-obsidian-900 to-indigo-950/30 border border-amber-500/30 text-xs text-amber-200/90 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-lg">
             <span>
-              💡 <strong>Ready to start?</strong> Days won't count as missed until you click <strong>"Start Track Today"</strong>!
+              💡 <strong>Ready to start?</strong> Missed days won't start calculating until you click <strong>"Start Track Today"</strong>!
             </span>
             <button
               onClick={() => startSubjectTrack(subject.id)}
-              className="px-3 py-1 rounded-lg bg-amber-500 text-slate-950 font-bold hover:bg-amber-400 transition-colors shrink-0"
+              className="px-3.5 py-1.5 rounded-xl bg-amber-500 text-slate-950 font-extrabold hover:bg-amber-400 transition-colors shrink-0 shadow-md"
             >
               Start Now
             </button>
           </div>
         )}
 
-        {/* Progress Bar & Key Indicators */}
-        <div className="space-y-2 pt-2">
+        {/* Radiant Progress Bar & Key Indicators */}
+        <div className="space-y-2 pt-2 border-t border-white/[0.06]">
           <div className="flex items-center justify-between text-xs font-medium">
-            <span className="text-slate-300 flex items-center gap-2">
+            <span className="text-slate-300 flex items-center gap-2 font-mono">
               <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-              <span>Overall Subject Completion</span>
+              <span>Overall Track Progress</span>
             </span>
             <div className="flex items-center gap-2">
               <span className="text-slate-400 font-mono">
                 {stats.completedCount} of {stats.totalTopics} topics
               </span>
-              <span className="px-2 py-0.5 rounded-md bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold font-mono text-xs shadow-md">
+              <span className="px-2.5 py-0.5 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-bold font-mono text-xs shadow-md shadow-indigo-500/20">
                 {stats.completionPercentage}%
               </span>
             </div>
           </div>
 
           {/* Visual Track Bar */}
-          <div className="w-full h-3 rounded-full bg-slate-800/80 p-0.5 border border-slate-700/50 overflow-hidden relative">
+          <div className="w-full h-3 rounded-full bg-obsidian-950 p-0.5 border border-white/[0.08] overflow-hidden relative">
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${stats.completionPercentage}%` }}
               transition={{ duration: 0.8, ease: 'easeOut' }}
-              className="h-full rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-emerald-400 shadow-lg shadow-purple-500/20 relative"
+              className="h-full rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-emerald-400 shadow-lg shadow-indigo-500/25 relative"
             >
               <div className="absolute inset-0 bg-white/20 rounded-full animate-pulse-subtle" />
             </motion.div>
@@ -200,3 +243,4 @@ export const Header: React.FC<HeaderProps> = ({ subject, dailyTasksReturn, onOpe
     </header>
   );
 };
+

@@ -2,7 +2,22 @@
 
 import React from 'react';
 import { useProgress } from '@/context/ProgressContext';
-import { Cpu, Layers, Code2, Plus, Sparkles, Trash2, BookOpen, RotateCcw, CheckCircle2, Video } from 'lucide-react';
+import {
+  Cpu,
+  Layers,
+  Code2,
+  Plus,
+  Sparkles,
+  Trash2,
+  BookOpen,
+  RotateCcw,
+  CheckCircle2,
+  Video,
+  Clock,
+  Trophy,
+  ArrowRight,
+  Compass,
+} from 'lucide-react';
 import { motion } from 'framer-motion';
 import { parseISO, differenceInCalendarDays, startOfDay } from 'date-fns';
 import { getEffectiveDate, getEffectiveTodayIso } from '@/lib/dateUtils';
@@ -15,6 +30,7 @@ const iconMap: Record<string, React.ReactNode> = {
 
 interface SidebarProps {
   onOpenImportModal: () => void;
+  onOpenRoadmapHub?: (initialTab?: 'all' | 'ongoing' | 'queue' | 'completed' | 'trash') => void;
   onOpenTrashModal?: () => void;
   onOpenVideoVault?: () => void;
   isMobileDrawer?: boolean;
@@ -22,6 +38,7 @@ interface SidebarProps {
 
 export const Sidebar: React.FC<SidebarProps> = ({
   onOpenImportModal,
+  onOpenRoadmapHub,
   onOpenTrashModal,
   onOpenVideoVault,
   isMobileDrawer = false,
@@ -37,49 +54,116 @@ export const Sidebar: React.FC<SidebarProps> = ({
     restoreDefaultSubjects,
   } = useProgress();
 
+  // Categorize subjects into Ongoing vs Queue vs Completed
+  const { ongoingSubjects, queueCount, completedCount } = React.useMemo(() => {
+    let queue = 0;
+    let completed = 0;
+    const ongoing: typeof subjects = [];
+
+    subjects.forEach((subject) => {
+      const progress = userProgress[subject.id];
+      const isTrackStarted = progress ? progress.isStarted !== false : true;
+      const totalTopics = subject.phases.reduce((acc, p) => acc + p.topics.length, 0);
+      const completedIds = Array.from(new Set((progress?.completedTopicIds || []).map(String)));
+      const count = completedIds.length;
+      const percent = totalTopics > 0 ? Math.round((count / totalTopics) * 100) : 0;
+
+      if (percent === 100 && totalTopics > 0) {
+        completed++;
+      } else if (!isTrackStarted) {
+        queue++;
+      } else {
+        ongoing.push(subject);
+      }
+    });
+
+    return {
+      ongoingSubjects: ongoing,
+      queueCount: queue,
+      completedCount: completed,
+    };
+  }, [subjects, userProgress]);
+
   return (
     <aside
       className={
         isMobileDrawer
-          ? 'w-full flex flex-col justify-between space-y-6 pb-12'
-          : 'w-full lg:w-72 bg-dark-900/80 backdrop-blur-xl flex flex-col justify-between p-4 space-y-6 pb-12'
+          ? 'w-full flex flex-col justify-between space-y-6 p-4 pb-12'
+          : 'w-full lg:w-72 bg-obsidian-950/80 backdrop-blur-2xl border-r border-white/[0.07] flex flex-col justify-between p-4 space-y-6 pb-12 h-screen'
       }
     >
-      <div className="space-y-6">
+      <div className="space-y-5">
         {/* Brand Logo (Desktop only or non-drawer) */}
         {!isMobileDrawer && (
-          <div className="flex items-center gap-3 px-2 py-3 border-b border-slate-800/60">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-500 to-purple-500 flex items-center justify-center shadow-lg shadow-blue-500/20">
-              <Sparkles className="w-5 h-5 text-white animate-pulse" />
+          <div className="flex items-center gap-3 px-2 py-3 border-b border-white/[0.07]">
+            <div className="relative w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-cyan-400 p-0.5 shadow-lg shadow-indigo-500/25">
+              <div className="w-full h-full bg-obsidian-950 rounded-[14px] flex items-center justify-center">
+                <Sparkles className="w-5 h-5 text-indigo-400 animate-pulse" />
+              </div>
             </div>
             <div>
-              <h1 className="font-bold text-lg text-white tracking-wide flex items-center gap-1.5">
-                Daily<span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">Goals</span>
+              <h1 className="font-extrabold text-lg text-white tracking-wide flex items-center gap-1">
+                Daily<span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400">Goals</span>
               </h1>
-              <p className="text-xs text-slate-400">Roadmap & Task Shifting</p>
+              <p className="text-[11px] font-mono text-slate-400 tracking-wider">ROADMAP ENGINE</p>
             </div>
           </div>
         )}
 
-        {/* Subjects Navigation */}
-        <div>
-          <div className="flex items-center justify-between px-2 mb-3">
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-              Learning Tracks
-            </span>
-            <div className="flex items-center gap-1">
-              <span className="text-xs px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 font-mono">
-                {subjects.length}
-              </span>
+        {/* Roadmap Hub Launcher Banner (Opens full catalog without clutter) */}
+        {onOpenRoadmapHub && (
+          <button
+            onClick={() => onOpenRoadmapHub('all')}
+            className="w-full p-3 rounded-2xl bg-gradient-to-r from-indigo-950/60 via-purple-950/40 to-obsidian-900 border border-indigo-500/30 hover:border-indigo-500/60 transition-all text-left shadow-lg shadow-indigo-500/10 group active:scale-[0.98]"
+          >
+            <div className="flex items-center justify-between gap-2 mb-1.5">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 rounded-lg bg-indigo-500/20 text-indigo-300 border border-indigo-500/40">
+                  <Compass className="w-4 h-4 text-indigo-400 group-hover:rotate-45 transition-transform duration-300" />
+                </div>
+                <span className="font-bold text-xs text-white group-hover:text-indigo-300 transition-colors">
+                  Roadmap Hub
+                </span>
+              </div>
+              <ArrowRight className="w-3.5 h-3.5 text-indigo-400 group-hover:translate-x-0.5 transition-transform" />
             </div>
+
+            <div className="flex items-center gap-2 text-[10px] font-mono text-slate-400">
+              {queueCount > 0 && (
+                <span className="text-amber-400/90 font-medium">
+                  {queueCount} in Queue
+                </span>
+              )}
+              {queueCount > 0 && completedCount > 0 && <span>•</span>}
+              {completedCount > 0 && (
+                <span className="text-emerald-400/90 font-medium">
+                  {completedCount} Mastered
+                </span>
+              )}
+              {queueCount === 0 && completedCount === 0 && (
+                <span>Browse & Start Tracks</span>
+              )}
+            </div>
+          </button>
+        )}
+
+        {/* Active Ongoing Roadmaps Navigation */}
+        <div>
+          <div className="flex items-center justify-between px-2 mb-2.5">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 font-mono flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+              Ongoing Roadmaps
+            </span>
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/[0.06] text-slate-300 font-mono border border-white/[0.08]">
+              {ongoingSubjects.length}
+            </span>
           </div>
 
-          {subjects.length > 0 ? (
+          {ongoingSubjects.length > 0 ? (
             <div className="space-y-2">
-              {subjects.map((subject) => {
+              {ongoingSubjects.map((subject) => {
                 const isSelected = subject.id === activeSubjectId;
                 const progress = userProgress[subject.id];
-                const isTrackStarted = progress ? (progress.isStarted !== false) : true;
                 const totalTopics = subject.phases.reduce((acc, p) => acc + p.topics.length, 0);
                 const completedIds = Array.from(new Set((progress?.completedTopicIds || []).map(String)));
                 const completedSet = new Set(completedIds);
@@ -95,7 +179,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 } catch {
                   startDateObj = baseToday;
                 }
-                let dayIndex = isTrackStarted ? differenceInCalendarDays(baseToday, startDateObj) : 0;
+                let dayIndex = differenceInCalendarDays(baseToday, startDateObj);
                 if (dayIndex < 0) dayIndex = 0;
 
                 const currentPhase = subject.phases[dayIndex] || subject.phases[subject.phases.length - 1];
@@ -113,54 +197,49 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 return (
                   <motion.div
                     key={subject.id}
-                    whileHover={{ x: 3 }}
+                    whileHover={{ x: 2 }}
                     transition={{ duration: 0.15 }}
                     className="relative group"
                   >
                     <button
                       onClick={() => selectSubject(subject.id)}
-                      className={`w-full flex items-start gap-3 p-3 rounded-xl transition-all duration-200 text-left border ${
+                      className={`w-full flex items-start gap-3 p-3 rounded-2xl transition-all duration-200 text-left border ${
                         isSelected
-                          ? 'bg-gradient-to-r from-blue-950/60 to-purple-950/40 border-blue-500/50 text-white shadow-lg shadow-blue-500/10'
-                          : 'bg-dark-850/40 border-slate-800/60 text-slate-300 hover:bg-dark-800/60 hover:border-slate-700/80 hover:text-white'
+                          ? 'bg-gradient-to-r from-indigo-950/70 via-purple-950/40 to-obsidian-900 border-indigo-500/50 text-white shadow-lg shadow-indigo-500/15'
+                          : 'bg-obsidian-900/50 border-white/[0.06] text-slate-300 hover:bg-obsidian-850/80 hover:border-white/[0.12] hover:text-white'
                       }`}
                     >
                       <div
-                        className={`p-2 rounded-lg mt-0.5 shrink-0 ${
+                        className={`p-2 rounded-xl mt-0.5 shrink-0 border ${
                           isSelected
-                            ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                            : 'bg-slate-800/60 text-slate-400 group-hover:text-slate-200'
+                            ? 'bg-indigo-500/20 text-indigo-400 border-indigo-500/40'
+                            : 'bg-white/[0.04] text-slate-400 border-white/[0.06] group-hover:text-slate-200'
                         }`}
                       >
-                        {iconMap[subject.icon || 'BookOpen'] || <BookOpen className="w-5 h-5" />}
+                        {iconMap[subject.icon || 'BookOpen'] || <BookOpen className="w-4 h-4" />}
                       </div>
 
-                      <div className="flex-1 min-w-0 pr-6">
+                      <div className="flex-1 min-w-0 pr-5">
                         <div className="flex items-center justify-between gap-1.5 mb-1">
-                          <span className="font-semibold text-sm truncate">{subject.title}</span>
+                          <span className="font-bold text-xs sm:text-sm truncate">{subject.title}</span>
                         </div>
 
-                        {/* Active / Not Active / Goal Met Status Badges */}
+                        {/* Active / Goal Met Status Badges */}
                         <div className="flex flex-wrap items-center gap-1.5 mb-2">
                           {isTodayGoalCompleted ? (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/50 text-emerald-300 text-[10px] font-bold font-mono shadow-sm shadow-emerald-500/20 animate-pulse">
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-[10px] font-bold font-mono">
                               <CheckCircle2 className="w-3 h-3 text-emerald-400" />
-                              Goal Met Today ✓
-                            </span>
-                          ) : isTrackStarted ? (
-                            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-950/80 border border-emerald-800/60 text-emerald-300 text-[10px] font-semibold font-mono">
-                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                              Active
+                              Goal Met ✓
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-slate-800/80 border border-slate-700/60 text-slate-400 text-[10px] font-semibold font-mono">
-                              <span className="w-1.5 h-1.5 rounded-full bg-slate-500" />
-                              Not Active
+                            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-950/70 border border-emerald-800/50 text-emerald-300 text-[10px] font-semibold font-mono">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                              Active
                             </span>
                           )}
 
                           {subject.category && (
-                            <span className="text-[10px] text-slate-400 truncate">
+                            <span className="text-[10px] text-slate-400 truncate font-mono">
                               {subject.category}
                             </span>
                           )}
@@ -168,17 +247,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
                         {/* Mini progress bar */}
                         <div className="space-y-1">
-                          <div className="flex justify-between text-[10px] text-slate-400">
+                          <div className="flex justify-between text-[10px] text-slate-400 font-mono">
                             <span>{completedCount}/{totalTopics} done</span>
-                            <span className="font-medium text-slate-300">{percent}%</span>
+                            <span className="font-semibold text-slate-300">{percent}%</span>
                           </div>
-                          <div className="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden">
+                          <div className="w-full h-1.5 rounded-full bg-obsidian-950 border border-white/[0.06] overflow-hidden">
                             <div
                               className={`h-full transition-all duration-500 ${
-                                percent === 100
-                                  ? 'bg-emerald-400'
-                                  : isSelected
-                                  ? 'bg-gradient-to-r from-blue-500 to-purple-500'
+                                isSelected
+                                  ? 'bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-400'
                                   : 'bg-slate-600'
                               }`}
                               style={{ width: `${percent}%` }}
@@ -195,42 +272,53 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         e.preventDefault();
                         deleteSubject(subject.id);
                       }}
-                      className="absolute right-2.5 top-3.5 z-10 p-1.5 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-950/80 opacity-0 group-hover:opacity-100 transition-all duration-200"
-                      title="Delete roadmap"
+                      className="absolute right-2 top-3 z-10 p-1.5 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-950/80 opacity-0 group-hover:opacity-100 transition-all duration-200"
+                      title="Move to Trash"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </motion.div>
                 );
               })}
             </div>
           ) : (
-            <div className="p-4 rounded-xl bg-slate-900/40 border border-slate-800 text-center space-y-3">
-              <p className="text-xs text-slate-400">No tracks remaining.</p>
-              <button
-                onClick={restoreDefaultSubjects}
-                className="w-full px-3 py-1.5 rounded-lg bg-blue-950/80 border border-blue-800/60 text-blue-300 text-xs font-semibold hover:bg-blue-900/80 transition-colors flex items-center justify-center gap-1.5"
-              >
-                <RotateCcw className="w-3.5 h-3.5" />
-                <span>Restore Default Tracks</span>
-              </button>
+            /* Distraction-Free Empty Focus State */
+            <div className="p-4 rounded-2xl bg-obsidian-900/60 border border-dashed border-white/[0.08] text-center space-y-3">
+              <div className="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 flex items-center justify-center mx-auto">
+                <Sparkles className="w-5 h-5" />
+              </div>
+              <div className="space-y-0.5">
+                <p className="text-xs font-bold text-white">No Ongoing Tracks</p>
+                <p className="text-[11px] text-slate-400 leading-relaxed">
+                  Start a track from your Roadmap Hub whenever you are ready!
+                </p>
+              </div>
+              {onOpenRoadmapHub && (
+                <button
+                  onClick={() => onOpenRoadmapHub('queue')}
+                  className="w-full px-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition-all shadow-md shadow-indigo-600/20 flex items-center justify-center gap-1.5"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Choose from Queue</span>
+                </button>
+              )}
             </div>
           )}
         </div>
 
-        {/* Actions */}
-        <div className="space-y-2">
+        {/* Global Vaults & Action Tools */}
+        <div className="space-y-2 pt-1 border-t border-white/[0.06]">
           {onOpenVideoVault && (
             <button
               onClick={onOpenVideoVault}
-              className="w-full flex items-center justify-between p-2.5 rounded-xl border border-purple-950/60 bg-gradient-to-r from-purple-950/40 to-blue-950/30 hover:bg-purple-900/40 hover:border-purple-500/50 text-purple-200 transition-all font-semibold text-xs group shadow-sm shadow-purple-500/10"
+              className="w-full flex items-center justify-between p-2.5 rounded-xl border border-purple-500/20 bg-purple-950/20 hover:bg-purple-900/30 hover:border-purple-500/40 text-purple-200 transition-all font-semibold text-xs group shadow-sm"
             >
               <div className="flex items-center gap-2">
                 <Video className="w-4 h-4 text-purple-400 group-hover:scale-110 transition-transform" />
-                <span>Video & Playlist Vault</span>
+                <span>Video Vault</span>
               </div>
               {savedResources.length > 0 && (
-                <span className="px-2 py-0.5 rounded-full bg-purple-900 text-purple-200 font-mono text-[10px] font-bold border border-purple-700/60">
+                <span className="px-2 py-0.5 rounded-full bg-purple-900/80 text-purple-200 font-mono text-[10px] font-bold border border-purple-700/60">
                   {savedResources.length}
                 </span>
               )}
@@ -239,50 +327,42 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
           <button
             onClick={onOpenImportModal}
-            className="w-full flex items-center justify-center gap-2 p-3 rounded-xl border border-dashed border-slate-700 bg-slate-900/40 hover:bg-slate-800/60 hover:border-blue-500/50 text-slate-300 hover:text-blue-400 transition-all font-medium text-sm group"
+            className="w-full flex items-center justify-center gap-2 p-2.5 rounded-xl border border-dashed border-white/[0.1] bg-obsidian-900/40 hover:bg-white/[0.05] hover:border-indigo-500/40 text-slate-300 hover:text-indigo-300 transition-all font-medium text-xs group"
           >
-            <Plus className="w-4 h-4 text-blue-400 group-hover:scale-110 transition-transform" />
+            <Plus className="w-3.5 h-3.5 text-indigo-400 group-hover:scale-110 transition-transform" />
             <span>Import Roadmap JSON</span>
           </button>
 
-          {onOpenTrashModal && (
+          {onOpenTrashModal && trashItems.length > 0 && (
             <button
               onClick={onOpenTrashModal}
-              className="w-full flex items-center justify-between p-2.5 rounded-xl border border-slate-800/80 bg-dark-850/40 hover:bg-rose-950/20 hover:border-rose-800/50 text-slate-300 hover:text-rose-300 transition-all font-medium text-xs group"
+              className="w-full flex items-center justify-between p-2.5 rounded-xl border border-rose-500/20 bg-rose-950/20 hover:bg-rose-900/30 text-rose-300 transition-all font-medium text-xs group"
             >
               <div className="flex items-center gap-2">
-                <Trash2 className="w-4 h-4 text-slate-400 group-hover:text-rose-400 transition-colors" />
-                <span>Trash Bin (3 Days)</span>
+                <Trash2 className="w-3.5 h-3.5 text-rose-400" />
+                <span>Trash Bin</span>
               </div>
-              {trashItems.length > 0 && (
-                <span className="px-2 py-0.5 rounded-full bg-rose-900/80 text-rose-200 font-mono text-[10px] font-bold">
-                  {trashItems.length}
-                </span>
-              )}
+              <span className="px-2 py-0.5 rounded-full bg-rose-900/80 text-rose-200 font-mono text-[10px] font-bold">
+                {trashItems.length}
+              </span>
             </button>
           )}
-
-          <button
-            onClick={restoreDefaultSubjects}
-            className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-slate-500 hover:text-slate-300 hover:bg-slate-800/40 text-xs transition-colors"
-            title="Restore preloaded AI, OOPs & Next.js roadmaps"
-          >
-            <RotateCcw className="w-3 h-3" />
-            <span>Restore Preloaded Tracks</span>
-          </button>
         </div>
       </div>
 
       {/* Footer Info */}
-      <div className="mt-8 pt-4 border-t border-slate-800/80 px-2 text-xs text-slate-400 space-y-2">
+      <div className="pt-4 border-t border-white/[0.06] px-1 text-xs text-slate-400 space-y-2">
         <div className="flex items-center gap-2 text-slate-300">
           <div className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-          <span className="font-mono text-[11px]">Task Shifting Engine Active</span>
+          <span className="font-mono text-[11px] text-emerald-300 font-semibold">
+            Task Shifting Active (4 AM)
+          </span>
         </div>
         <p className="text-[11px] leading-relaxed text-slate-400">
-          Hover over any track in the sidebar to delete it. You can import new ones anytime.
+          Missed tasks automatically roll into your next day's goals without loss.
         </p>
       </div>
     </aside>
   );
 };
+
